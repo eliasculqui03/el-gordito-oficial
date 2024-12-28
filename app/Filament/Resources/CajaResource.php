@@ -27,7 +27,7 @@ class CajaResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Select::make('sucursal_id')
-                    ->relationship('sucursal', 'id')
+                    ->relationship('sucursal', 'nombre')
                     ->required(),
                 Forms\Components\Select::make('user_id')
                     ->relationship('user', 'name')
@@ -43,7 +43,7 @@ class CajaResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('sucursal.id')
+                Tables\Columns\TextColumn::make('sucursal.nombre')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.name')
@@ -64,6 +64,7 @@ class CajaResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

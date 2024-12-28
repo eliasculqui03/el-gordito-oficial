@@ -27,7 +27,9 @@ class ZonaResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Select::make('caja_id')
-                    ->relationship('caja', 'id')
+                    ->relationship('caja', 'nombre', function ($query) {
+                        $query->where('estado', true); // Filtra las cajas activas
+                    })
                     ->required(),
                 Forms\Components\Toggle::make('estado'),
             ]);
@@ -39,7 +41,7 @@ class ZonaResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('caja.id')
+                Tables\Columns\TextColumn::make('caja.nombre')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('estado')
@@ -57,6 +59,7 @@ class ZonaResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

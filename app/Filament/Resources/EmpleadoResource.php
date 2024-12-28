@@ -52,12 +52,10 @@ class EmpleadoResource extends Resource
                 Forms\Components\TextInput::make('sueldo')
                     ->numeric()
                     ->default(null),
-                Forms\Components\TextInput::make('hora_entrada')
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('hora_salida')
-                    ->maxLength(255)
-                    ->default(null),
+                Forms\Components\TimePicker::make('hora_entrada')
+                    ->required(),
+                Forms\Components\TimePicker::make('hora_salida')
+                    ->required(),
                 Forms\Components\Toggle::make('estado')
                     ->required(),
             ]);

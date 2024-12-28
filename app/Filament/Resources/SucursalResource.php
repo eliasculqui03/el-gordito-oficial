@@ -27,17 +27,15 @@ class SucursalResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Select::make('empresa_id')
-                    ->relationship('empresa', 'id')
+                    ->relationship('empresa', 'nombre')
                     ->required(),
                 Forms\Components\TextInput::make('tipo_establecimiento')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('fecha_inicio_operaciones')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('fecha_final_operaciones')
-                    ->maxLength(255)
-                    ->default(null),
+                Forms\Components\DatePicker::make('fecha_inicio_operaciones')
+                    ->required(),
+                Forms\Components\DatePicker::make('fecha_final_operaciones')
+                    ->required(),
                 Forms\Components\TextInput::make('direccion')
                     ->maxLength(255)
                     ->default(null),
@@ -46,6 +44,7 @@ class SucursalResource extends Resource
                     ->maxLength(255)
                     ->default(null),
                 Forms\Components\TextInput::make('correo')
+                    ->email()
                     ->maxLength(255)
                     ->default(null),
             ]);
@@ -57,7 +56,7 @@ class SucursalResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('empresa.id')
+                Tables\Columns\TextColumn::make('empresa.nombre')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tipo_establecimiento')
@@ -85,7 +84,9 @@ class SucursalResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
