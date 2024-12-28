@@ -17,7 +17,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
@@ -35,6 +35,14 @@ class UserResource extends Resource
                     ->password()
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Select::make('empleado_id')
+                    ->relationship('empleado', 'id')
+                    ->default(null),
+                Forms\Components\TextInput::make('foto')
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\Textarea::make('descripcion')
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -57,13 +65,17 @@ class UserResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('empleado.id')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('foto')
+                    ->searchable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
