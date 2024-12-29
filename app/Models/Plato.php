@@ -12,6 +12,7 @@ class Plato extends Model
     protected $fillable = [
         'nombre',
         'categoria',
+        'precio',
         'area_id',
         'descripcion',
         'estado',

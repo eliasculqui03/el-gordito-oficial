@@ -4,9 +4,9 @@ namespace App\Filament\Resources\ZonaResource\Pages;
 
 use App\Filament\Resources\ZonaResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 
-class ListZonas extends ListRecords
+class ManageZonas extends ManageRecords
 {
     protected static string $resource = ZonaResource::class;
 

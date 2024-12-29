@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\ZonaResource\Pages;
+namespace App\Filament\Resources\PlatoResource\Pages;
 
-use App\Filament\Resources\ZonaResource;
+use App\Filament\Resources\PlatoResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 
-class CreateZona extends CreateRecord
+class CreatePlato extends CreateRecord
 {
-    protected static string $resource = ZonaResource::class;
+    protected static string $resource = PlatoResource::class;
 
     protected function getRedirectUrl(): string
     {

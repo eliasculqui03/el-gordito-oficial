@@ -13,7 +13,7 @@ class Area extends Model
 
     protected $fillable = [
         'nombre',
-        'usuario_id',
+        'user_id',
         'descripcion',
         'estado',
     ];

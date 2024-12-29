@@ -6,9 +6,14 @@ use App\Filament\Resources\ZonaResource\Pages;
 use App\Filament\Resources\ZonaResource\RelationManagers;
 use App\Models\Zona;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -23,15 +28,16 @@ class ZonaResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nombre')
+                TextInput::make('nombre')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Select::make('caja_id')
+                Select::make('caja_id')
                     ->relationship('caja', 'nombre', function ($query) {
                         $query->where('estado', true); // Filtra las cajas activas
                     })
                     ->required(),
-                Forms\Components\Toggle::make('estado'),
+                Toggle::make('estado')
+                    ->default(true),
             ]);
     }
 
@@ -39,18 +45,18 @@ class ZonaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('nombre')
+                TextColumn::make('nombre')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('caja.nombre')
+                TextColumn::make('caja.nombre')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\IconColumn::make('estado')
+                IconColumn::make('estado')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -59,8 +65,8 @@ class ZonaResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -69,19 +75,10 @@ class ZonaResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListZonas::route('/'),
-            'create' => Pages\CreateZona::route('/create'),
-            'edit' => Pages\EditZona::route('/{record}/edit'),
+            'index' => Pages\ManageZonas::route('/'),
         ];
     }
 }

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\ZonaResource\Pages;
+namespace App\Filament\Resources\PlatoResource\Pages;
 
-use App\Filament\Resources\ZonaResource;
+use App\Filament\Resources\PlatoResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditZona extends EditRecord
+class EditPlato extends EditRecord
 {
-    protected static string $resource = ZonaResource::class;
+    protected static string $resource = PlatoResource::class;
 
     protected function getHeaderActions(): array
     {
