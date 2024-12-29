@@ -30,31 +30,31 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                
+
                 Section::make()
-                ->schema([
-                    Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
-                
-                Forms\Components\TextInput::make('password')
-                    ->password()
-                    ->required()
-                    ->maxLength(255),
-                 
-                ]),
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('email')
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
+
+                        Forms\Components\TextInput::make('password')
+                            ->password()
+                            ->required()
+                            ->maxLength(255),
+
+                    ]),
                 Select::make('empleado_id')
-                ->relationship('empleado', 'nombre'),
+                    ->relationship('empleado', 'nombre'),
                 FileUpload::make('foto')
-                ->image()
-                ->directory('usuarios'),
+                    ->image()
+                    ->directory('usuarios'),
                 RichEditor::make('descripcion')
-               
-                
+
+
             ]);
     }
 
@@ -77,7 +77,7 @@ class UserResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('empleado.id')
+                Tables\Columns\TextColumn::make('empleado.nombre')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('foto')

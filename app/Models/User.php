@@ -56,4 +56,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Caja::class);
     }
+
+    public function area(): HasMany
+    {
+        return $this->hasMany(Area::class);
+    }
 }
