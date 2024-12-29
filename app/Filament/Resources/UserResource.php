@@ -7,13 +7,19 @@ use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Group;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Pages\Page;
+use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -30,32 +36,62 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                
-                Section::make()
-                ->schema([
-                    Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
-                
-                Forms\Components\TextInput::make('password')
-                    ->password()
-                    ->required()
-                    ->maxLength(255),
-                 
-                ]),
-                Select::make('empleado_id')
-                ->relationship('empleado', 'nombre'),
-                FileUpload::make('foto')
-                ->image()
-                ->directory('usuarios'),
-                RichEditor::make('descripcion')
-               
-                
-            ]);
+
+                Group::make()->schema(
+                    [
+                        Section::make('Datos Personales')
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('email')
+                                    ->email()
+                                    ->required()
+                                    ->unique(ignoreRecord: true)
+                                    ->maxLength(255),
+
+                                Forms\Components\DateTimePicker::make('email_verified_at')
+                                    ->label('Email Verified At')
+                                    ->default(now()),
+
+                                // is componnet password the users 
+                                Forms\Components\TextInput::make('password')
+                                    ->label('Password')
+                                    ->password()
+                                    ->dehydrated(fn($state) => filled($state))
+
+                                    ->required(fn(Page $livewire): bool => $livewire instanceof CreateRecord),
+                                Select::make('empleado_id')
+                                    ->relationship('empleado', 'nombre'),
+                            ])->columns(2)
+                            ->extraAttributes([
+                                'class' => 'bg-blue-100 border border-blue-300 p-4 rounded-lg', // Clases Tailwind para color y estilo
+                            ]),
+                        RichEditor::make('descripcion')
+
+
+                    ]
+                )->columnSpan(3),
+                Group::make()->schema(
+                    [
+                        Section::make('Foto')
+                            ->schema([
+                                FileUpload::make('foto')
+                                    ->image()
+                                    ->directory('usuarios'),
+
+                            ])
+                            ->extraAttributes([
+                                'class' => 'bg-blue-100 border border-blue-300 p-4 rounded-lg', // Clases Tailwind para color y estilo
+                            ]),
+
+
+                    ]
+                )->columnSpan(2),
+
+
+
+            ])->columns(5);
     }
 
     public static function table(Table $table): Table
@@ -66,9 +102,7 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('email_verified_at')
-                    ->dateTime()
-                    ->sortable(),
+                TextColumn::make('email_verified_at'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -80,14 +114,30 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('empleado.id')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('foto')
-                    ->searchable(),
+                Tables\Columns\ImageColumn::make('foto')
+                    ->label('Imagen'), // Nombre de la columna en español
             ])
             ->filters([
-                //
+                //filtros para la tabla 
+                Filter::make('verified')
+                    ->query(fn(Builder $query): Builder => $query->whereNotNull('email_verified_at'))
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Action::make('Verify')
+                    ->icon('heroicon-o-check-badge')
+                    ->color('secondary')
+                    ->action(function (User $user) {
+                        $user->email_verified_at = Date('Y-m-d H:i:s');
+                        $user->save();
+                    }),
+                Action::make('Unverify')
+                ->color('danger')
+                    ->icon('heroicon-o-x-circle')
+                    ->action(function (User $user) {
+                        $user->email_verified_at = null;
+                        $user->save();
+                    })
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
