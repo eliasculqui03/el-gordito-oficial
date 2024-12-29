@@ -28,7 +28,14 @@ class AdminPanelProvider extends PanelProvider
             ->path('/')
             ->login()
             ->colors([
-                'primary' => '#dda73a',
+                'primary' => '#dda73a', // Ámbar (color principal)
+                'secondary' => '#3a79dd', // Azul complementario
+                'success' => '#56c596', // Verde para estados positivos
+                'danger' => '#e74c3c', // Rojo para errores
+                'warning' => '#f1c40f', // Amarillo para advertencias
+                'info' => '#3498db', // Azul claro para información
+                'light' => '#f5f5f5', // Fondo claro
+                'dark' => '#333333', // Texto o fondo oscuro
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
