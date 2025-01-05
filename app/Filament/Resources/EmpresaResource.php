@@ -172,4 +172,9 @@ class EmpresaResource extends Resource
             'edit' => Pages\EditEmpresa::route('/{record}/edit'),
         ];
     }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Empresa';
+    }
 }

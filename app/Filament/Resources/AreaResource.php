@@ -78,4 +78,9 @@ class AreaResource extends Resource
             'index' => Pages\ManageAreas::route('/'),
         ];
     }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Platos';
+    }
 }

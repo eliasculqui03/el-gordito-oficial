@@ -6,6 +6,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -49,8 +50,19 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
+
+
+            ->navigationGroups([
+                'Platos',
+                'Clientes',
+                'Ventas',
+                'Empleados',
+                'Empresa',
+                'Gestión de usuarios',
+                'Configuración'
+            ])
             ->sidebarCollapsibleOnDesktop()
-            
+
             ->sidebarWidth('15rem')
             ->middleware([
                 EncryptCookies::class,

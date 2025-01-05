@@ -99,4 +99,9 @@ class PlatoResource extends Resource
             'edit' => Pages\EditPlato::route('/{record}/edit'),
         ];
     }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Platos';
+    }
 }

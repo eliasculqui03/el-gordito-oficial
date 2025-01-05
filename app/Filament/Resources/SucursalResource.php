@@ -110,4 +110,9 @@ class SucursalResource extends Resource
             'edit' => Pages\EditSucursal::route('/{record}/edit'),
         ];
     }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Empresa';
+    }
 }

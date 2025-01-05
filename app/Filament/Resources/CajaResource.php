@@ -89,4 +89,9 @@ class CajaResource extends Resource
             'edit' => Pages\EditCaja::route('/{record}/edit'),
         ];
     }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Empresa';
+    }
 }

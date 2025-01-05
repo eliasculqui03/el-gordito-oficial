@@ -28,10 +28,10 @@ class TipoComprobanteResource extends Resource
             ->schema([
                 //
                 TextInput::make('codigo')
-                ->label('Código sunat')
-                ->required(),
+                    ->label('Código sunat')
+                    ->required(),
                 TextInput::make('descripcion')
-                ->required(),
+                    ->required(),
                 Toggle::make('estado')
                     ->label('Activo')
                     ->default(true),
@@ -44,17 +44,17 @@ class TipoComprobanteResource extends Resource
         return $table
             ->columns([
                 //
-                
-                TextColumn::make('codigo')
-                ->sortable()
-                ->searchable()
-                ->label('Codigo sunat'),
 
-            TextColumn::make('descripcion')
-                ->label('Descripción'),
-            Tables\Columns\IconColumn::make('estado')
-                ->label('Estado')
-                ->boolean(),
+                TextColumn::make('codigo')
+                    ->sortable()
+                    ->searchable()
+                    ->label('Codigo sunat'),
+
+                TextColumn::make('descripcion')
+                    ->label('Descripción'),
+                Tables\Columns\IconColumn::make('estado')
+                    ->label('Estado')
+                    ->boolean(),
             ])
             ->filters([
                 //
@@ -76,5 +76,12 @@ class TipoComprobanteResource extends Resource
         return [
             'index' => Pages\ManageTipoComprobantes::route('/'),
         ];
+    }
+
+
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Configuración';
     }
 }

@@ -81,4 +81,9 @@ class ZonaResource extends Resource
             'index' => Pages\ManageZonas::route('/'),
         ];
     }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Empresa';
+    }
 }
