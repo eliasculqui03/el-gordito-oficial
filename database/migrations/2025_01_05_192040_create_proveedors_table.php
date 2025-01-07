@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tipo_existencias', function (Blueprint $table) {
+        Schema::create('proveedors', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->text('descripcion')->nullable(); // Usamos text para descripciones más largas
+            $table->unsignedBigInteger('tipo_documento_id');
+            $table->foreign('tipo_documento_id')->references('id')->on('tipo_documentos');
+            $table->string('numero_documento');
+            $table->string('telefono')->nullable();
+            $table->string('email')->nullable();
             $table->boolean('estado')->default(true);
             $table->timestamps();
         });
@@ -25,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tipo_existencias');
+        Schema::dropIfExists('proveedors');
     }
 };

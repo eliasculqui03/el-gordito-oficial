@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Existencia extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'nombre',
+        'tipo_existencia_id',
+        'categoria_existencia_id',
+        'unidad_medida_id',
+        'costo_compra',
+        'precio_venta',
+        'descripcion',
+        'estado'
+    ];
+
+    public function tipoExistencia(): BelongsTo
+    {
+        return $this->belongsTo(TipoExistencia::class);
+    }
+
+    public function categoriaExistencia(): BelongsTo
+    {
+        return $this->belongsTo(CategoriaExistencia::class);
+    }
+
+    public function unidadMedida(): BelongsTo
+    {
+        return $this->belongsTo(UnidadMedida::class);
+    }
+}

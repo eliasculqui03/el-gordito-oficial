@@ -53,6 +53,9 @@ class AdminPanelProvider extends PanelProvider
 
 
             ->navigationGroups([
+                'Almacen',
+                'Existencias',
+                'Proveedores',
                 'Platos',
                 'Clientes',
                 'Ventas',
