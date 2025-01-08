@@ -17,6 +17,9 @@ class SucursalResource extends Resource
 {
     protected static ?string $model = Sucursal::class;
 
+    protected static ?string $navigationGroup = 'Empresa';
+    //protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -109,10 +112,5 @@ class SucursalResource extends Resource
             'create' => Pages\CreateSucursal::route('/create'),
             'edit' => Pages\EditSucursal::route('/{record}/edit'),
         ];
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Empresa';
     }
 }

@@ -17,6 +17,10 @@ class TipoExistenciaResource extends Resource
 {
     protected static ?string $model = TipoExistencia::class;
 
+
+    protected static ?string $navigationGroup = 'Existencias';
+    //protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -77,10 +81,5 @@ class TipoExistenciaResource extends Resource
             'create' => Pages\CreateTipoExistencia::route('/create'),
             'edit' => Pages\EditTipoExistencia::route('/{record}/edit'),
         ];
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Existencias';
     }
 }

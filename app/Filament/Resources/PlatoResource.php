@@ -17,6 +17,9 @@ class PlatoResource extends Resource
 {
     protected static ?string $model = Plato::class;
 
+    protected static ?string $navigationGroup = 'Platos';
+    //protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -98,10 +101,5 @@ class PlatoResource extends Resource
             'create' => Pages\CreatePlato::route('/create'),
             'edit' => Pages\EditPlato::route('/{record}/edit'),
         ];
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Platos';
     }
 }

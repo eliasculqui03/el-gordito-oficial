@@ -17,6 +17,9 @@ class UnidadMedidaResource extends Resource
 {
     protected static ?string $model = UnidadMedida::class;
 
+    protected static ?string $navigationGroup = 'Existencias';
+    //protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -80,10 +83,5 @@ class UnidadMedidaResource extends Resource
             'create' => Pages\CreateUnidadMedida::route('/create'),
             'edit' => Pages\EditUnidadMedida::route('/{record}/edit'),
         ];
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Existencias';
     }
 }

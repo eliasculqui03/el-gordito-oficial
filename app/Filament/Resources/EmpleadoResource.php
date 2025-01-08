@@ -128,9 +128,4 @@ class EmpleadoResource extends Resource
             'edit' => Pages\EditEmpleado::route('/{record}/edit'),
         ];
     }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Empleados';
-    }
 }

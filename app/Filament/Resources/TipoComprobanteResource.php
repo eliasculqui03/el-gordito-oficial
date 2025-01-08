@@ -20,6 +20,10 @@ class TipoComprobanteResource extends Resource
 {
     protected static ?string $model = TipoComprobante::class;
 
+
+    protected static ?string $navigationGroup = 'Configuración';
+    //protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
 
     public static function form(Form $form): Form
@@ -76,12 +80,5 @@ class TipoComprobanteResource extends Resource
         return [
             'index' => Pages\ManageTipoComprobantes::route('/'),
         ];
-    }
-
-
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Configuración';
     }
 }

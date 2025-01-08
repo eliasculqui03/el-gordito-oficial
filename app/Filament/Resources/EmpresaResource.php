@@ -17,6 +17,9 @@ class EmpresaResource extends Resource
 {
     protected static ?string $model = Empresa::class;
 
+    protected static ?string $navigationGroup = 'Empresa';
+    //protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -171,10 +174,5 @@ class EmpresaResource extends Resource
             'create' => Pages\CreateEmpresa::route('/create'),
             'edit' => Pages\EditEmpresa::route('/{record}/edit'),
         ];
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Empresa';
     }
 }

@@ -17,6 +17,10 @@ class CategoriaExistenciaResource extends Resource
 {
     protected static ?string $model = CategoriaExistencia::class;
 
+
+    protected static ?string $navigationGroup = 'Existencias';
+    //protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -77,10 +81,5 @@ class CategoriaExistenciaResource extends Resource
             'create' => Pages\CreateCategoriaExistencia::route('/create'),
             'edit' => Pages\EditCategoriaExistencia::route('/{record}/edit'),
         ];
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Existencias';
     }
 }

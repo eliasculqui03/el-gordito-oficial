@@ -51,19 +51,6 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\FilamentInfoWidget::class,
             ])
 
-
-            ->navigationGroups([
-                'Almacen',
-                'Existencias',
-                'Proveedores',
-                'Platos',
-                'Clientes',
-                'Ventas',
-                'Empleados',
-                'Empresa',
-                'Gestión de usuarios',
-                'Configuración'
-            ])
             ->sidebarCollapsibleOnDesktop()
 
             ->sidebarWidth('15rem')

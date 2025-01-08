@@ -17,6 +17,9 @@ class TipoDocumentoResource extends Resource
 {
     protected static ?string $model = TipoDocumento::class;
 
+    protected static ?string $navigationGroup = 'Configuración';
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -80,10 +83,5 @@ class TipoDocumentoResource extends Resource
             'create' => Pages\CreateTipoDocumento::route('/create'),
             'edit' => Pages\EditTipoDocumento::route('/{record}/edit'),
         ];
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Configuración';
     }
 }

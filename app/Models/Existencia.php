@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Existencia extends Model
 {
@@ -34,5 +35,10 @@ class Existencia extends Model
     public function unidadMedida(): BelongsTo
     {
         return $this->belongsTo(UnidadMedida::class);
+    }
+
+    public function detalleordencompra(): HasMany
+    {
+        return $this->hasMany(UnidadMedida::class);
     }
 }

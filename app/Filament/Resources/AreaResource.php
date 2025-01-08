@@ -21,6 +21,9 @@ class AreaResource extends Resource
 {
     protected static ?string $model = Area::class;
 
+    protected static ?string $navigationGroup = 'Platos';
+    //protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -77,10 +80,5 @@ class AreaResource extends Resource
         return [
             'index' => Pages\ManageAreas::route('/'),
         ];
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Platos';
     }
 }

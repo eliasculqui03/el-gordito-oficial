@@ -13,6 +13,27 @@ return new class extends Migration
     {
         Schema::create('solicitud_compras', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('proveedor_id');
+            $table->foreign('proveedor_id')
+                ->references('id')
+                ->on('proveedors')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+            $table->unsignedBigInteger('existencia_id');
+            $table->foreign('existencia_id')
+                ->references('id')->on('existencias')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+            $table->date('fecha_entrega');
+            $table->integer('cantidad');
+            $table->double('total', 10, 2);
+            $table->enum('estado', ['Pendiente', 'Aprobada', 'Rechazada'])->default('Pendiente');
             $table->timestamps();
         });
     }
