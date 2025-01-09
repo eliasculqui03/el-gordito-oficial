@@ -66,4 +66,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(OrdenCompra::class);
     }
+
+    public function solicitudCompra(): HasMany
+    {
+        return $this->hasMany(SolicitudCompra::class);
+    }
 }

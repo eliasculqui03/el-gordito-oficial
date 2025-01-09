@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\CategoriaExistenciaResource\Pages;
+namespace App\Filament\Resources\SolicitudCompraResource\Pages;
 
-use App\Filament\Resources\CategoriaExistenciaResource;
+use App\Filament\Resources\SolicitudCompraResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditCategoriaExistencia extends EditRecord
+class EditSolicitudCompra extends EditRecord
 {
-    protected static string $resource = CategoriaExistenciaResource::class;
+    protected static string $resource = SolicitudCompraResource::class;
 
     protected function getHeaderActions(): array
     {

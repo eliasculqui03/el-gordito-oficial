@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('nota_solitud_compras', function (Blueprint $table) {
+        Schema::create('nota_solicitud_compras', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('solicitud_compra_id');
             $table->foreign('solicitud_compra_id')
@@ -19,8 +19,8 @@ return new class extends Migration
                 ->on('solicitud_compras')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
+            $table->enum('motivo', ['Nota', 'Aprobación', 'Rechazo']);
             $table->text('nota');
-            $table->boolean('estado');
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('nota_solitud_compras');
+        Schema::dropIfExists('nota_solicitud_compras');
     }
 };

@@ -12,7 +12,7 @@ class Empleado extends Model
 
     protected $fillable = [
         'nombre',
-        'tipo_documento',
+        'tipo_documento_id',
         'numero_documento',
         'telefono',
         'email',

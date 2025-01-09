@@ -4,9 +4,9 @@ namespace App\Filament\Resources\TipoDocumentoResource\Pages;
 
 use App\Filament\Resources\TipoDocumentoResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 
-class ListTipoDocumentos extends ListRecords
+class ManageTipoDocumentos extends ManageRecords
 {
     protected static string $resource = TipoDocumentoResource::class;
 

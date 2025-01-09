@@ -15,11 +15,14 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->unsignedBigInteger('tipo_existencia_id');
-            $table->foreign('tipo_existencia_id')->references('id')->on('tipo_existencias');
+            $table->foreign('tipo_existencia_id')->references('id')->on('tipo_existencias')->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->unsignedBigInteger('categoria_existencia_id');
-            $table->foreign('categoria_existencia_id')->references('id')->on('categoria_existencias');
+            $table->foreign('categoria_existencia_id')->references('id')->on('categoria_existencias')->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->unsignedBigInteger('unidad_medida_id');
-            $table->foreign('unidad_medida_id')->references('id')->on('unidad_medidas');
+            $table->foreign('unidad_medida_id')->references('id')->on('unidad_medidas')->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->double('costo_compra');
             $table->double('precio_venta');
             $table->text('descripcion')->nullable();

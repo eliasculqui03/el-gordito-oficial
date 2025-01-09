@@ -6,9 +6,13 @@ use App\Filament\Resources\CategoriaExistenciaResource\Pages;
 use App\Filament\Resources\CategoriaExistenciaResource\RelationManagers;
 use App\Models\CategoriaExistencia;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -16,7 +20,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class CategoriaExistenciaResource extends Resource
 {
     protected static ?string $model = CategoriaExistencia::class;
-
 
     protected static ?string $navigationGroup = 'Existencias';
     //protected static ?int $navigationSort = 1;
@@ -27,13 +30,13 @@ class CategoriaExistenciaResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nombre')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('descripcion')
-                    ->columnSpanFull(),
-                Forms\Components\Toggle::make('estado')
+                //
+                TextInput::make('nombre')
                     ->required(),
+                TextInput::make('descripcion'),
+                Toggle::make('estado')
+                    ->label('Activo')
+                    ->default(true),
             ]);
     }
 
@@ -41,24 +44,22 @@ class CategoriaExistenciaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('nombre')
+                //
+                TextColumn::make('nombre')
+                    ->sortable()
                     ->searchable(),
-                Tables\Columns\IconColumn::make('estado')
+
+                IconColumn::make('estado')
+                    ->label('Estado')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -67,19 +68,10 @@ class CategoriaExistenciaResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCategoriaExistencias::route('/'),
-            'create' => Pages\CreateCategoriaExistencia::route('/create'),
-            'edit' => Pages\EditCategoriaExistencia::route('/{record}/edit'),
+            'index' => Pages\ManageCategoriaExistencias::route('/'),
         ];
     }
 }

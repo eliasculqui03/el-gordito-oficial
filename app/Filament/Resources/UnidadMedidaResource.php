@@ -6,9 +6,12 @@ use App\Filament\Resources\UnidadMedidaResource\Pages;
 use App\Filament\Resources\UnidadMedidaResource\RelationManagers;
 use App\Models\UnidadMedida;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -19,21 +22,21 @@ class UnidadMedidaResource extends Resource
 
     protected static ?string $navigationGroup = 'Existencias';
     //protected static ?int $navigationSort = 1;
-
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('simbolo')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('nombre')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Toggle::make('estado')
+                //
+                TextInput::make('nombre')
                     ->required(),
+                TextInput::make('simbolo')
+                    ->label('Símbolo')
+                    ->required(),
+                Toggle::make('estado')
+                    ->label('Activo')
+                    ->default(true),
             ]);
     }
 
@@ -41,26 +44,26 @@ class UnidadMedidaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('simbolo')
+                //
+                TextColumn::make('nombre')
+                    ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('nombre')
+
+                TextColumn::make('simbolo')
+                    ->label('Símbolo')
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\IconColumn::make('estado')
+                    ->label('Estado')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -69,19 +72,10 @@ class UnidadMedidaResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUnidadMedidas::route('/'),
-            'create' => Pages\CreateUnidadMedida::route('/create'),
-            'edit' => Pages\EditUnidadMedida::route('/{record}/edit'),
+            'index' => Pages\ManageUnidadMedidas::route('/'),
         ];
     }
 }

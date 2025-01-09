@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('categoria');
             $table->double('precio', 8, 2);
             $table->unsignedBigInteger('area_id');
-            $table->foreign('area_id')->references('id')->on('areas');
+            $table->foreign('area_id')->references('id')->on('areas')->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->text('descripcion')->nullable();
             $table->boolean('estado')->default(true);
             $table->timestamps();

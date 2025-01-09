@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->unsignedBigInteger('tipo_documento_id');
-            $table->foreign('tipo_documento_id')->references('id')->on('tipo_documentos');
+            $table->foreign('tipo_documento_id')->references('id')->on('tipo_documentos')->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->string('numero_documento');
             $table->string('telefono')->nullable();
             $table->string('email')->nullable();

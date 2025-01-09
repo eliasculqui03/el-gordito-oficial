@@ -37,8 +37,13 @@ class Existencia extends Model
         return $this->belongsTo(UnidadMedida::class);
     }
 
-    public function detalleordencompra(): HasMany
+    public function detalleOrdenCompra(): HasMany
     {
-        return $this->hasMany(UnidadMedida::class);
+        return $this->hasMany(DetalleOrdenCompra::class);
+    }
+
+    public function solicitudCompra(): HasMany
+    {
+        return $this->hasMany(SolicitudCompra::class);
     }
 }

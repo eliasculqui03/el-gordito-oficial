@@ -4,14 +4,16 @@ namespace App\Filament\Resources\CategoriaExistenciaResource\Pages;
 
 use App\Filament\Resources\CategoriaExistenciaResource;
 use Filament\Actions;
-use Filament\Resources\Pages\CreateRecord;
+use Filament\Resources\Pages\ManageRecords;
 
-class CreateCategoriaExistencia extends CreateRecord
+class ManageCategoriaExistencias extends ManageRecords
 {
     protected static string $resource = CategoriaExistenciaResource::class;
 
-    protected function getRedirectUrl(): string
+    protected function getHeaderActions(): array
     {
-        return $this->getResource()::getUrl('index'); // Redirige a la tabla
+        return [
+            Actions\CreateAction::make(),
+        ];
     }
 }

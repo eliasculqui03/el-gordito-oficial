@@ -30,10 +30,10 @@ return new class extends Migration
                 ->references('id')->on('existencias')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
-            $table->date('fecha_entrega');
+            $table->string('fecha_entrega');
             $table->integer('cantidad');
             $table->double('total', 10, 2);
-            $table->enum('estado', ['Pendiente', 'Aprobada', 'Rechazada'])->default('Pendiente');
+            $table->enum('estado', ['Pendiente', 'Aprobada', 'Rechazada', 'Cancelada'])->default('Pendiente');
             $table->timestamps();
         });
     }

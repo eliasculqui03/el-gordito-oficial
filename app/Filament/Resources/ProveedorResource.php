@@ -17,6 +17,9 @@ class ProveedorResource extends Resource
 {
     protected static ?string $model = Proveedor::class;
 
+    protected static ?string $navigationGroup = 'Compras';
+    //protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -41,7 +44,7 @@ class ProveedorResource extends Resource
                     ->maxLength(255)
                     ->default(null),
                 Forms\Components\Toggle::make('estado')
-                    ->required(),
+                    ->default(true),
             ]);
     }
 
@@ -75,6 +78,7 @@ class ProveedorResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

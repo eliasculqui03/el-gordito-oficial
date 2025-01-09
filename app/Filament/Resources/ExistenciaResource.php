@@ -47,7 +47,7 @@ class ExistenciaResource extends Resource
                 Forms\Components\Textarea::make('descripcion')
                     ->columnSpanFull(),
                 Forms\Components\Toggle::make('estado')
-                    ->required(),
+                    ->default(true),
             ]);
     }
 

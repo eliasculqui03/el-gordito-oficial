@@ -35,10 +35,10 @@ return new class extends Migration
                 ->on('orden_compras')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
-            $table->unsignedBigInteger('pedido_compra_id')->nullable();
-            $table->foreign('pedido_compra_id')
+            $table->unsignedBigInteger('solicitud_compra_id')->nullable();
+            $table->foreign('solicitud_compra_id')
                 ->references('id')
-                ->on('pedido_compras')
+                ->on('solicitud_compras')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
             $table->unsignedBigInteger('existencia_id');
@@ -49,7 +49,7 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->integer('cantidad');
             $table->double('subtotal', 10, 2);
-            $table->enum('estado', ['Pendiente', 'Procesada', 'Rechazada', 'Cancelada'])->default('Procesada');
+            $table->enum('estado', ['Pendiente', 'Aprobada', 'Rechazada', 'Cancelada'])->default('Pendiente');
             $table->timestamps();
         });
     }

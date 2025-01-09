@@ -6,9 +6,12 @@ use App\Filament\Resources\TipoDocumentoResource\Pages;
 use App\Filament\Resources\TipoDocumentoResource\RelationManagers;
 use App\Models\TipoDocumento;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -18,7 +21,7 @@ class TipoDocumentoResource extends Resource
     protected static ?string $model = TipoDocumento::class;
 
     protected static ?string $navigationGroup = 'Configuración';
-    protected static ?int $navigationSort = 1;
+    //protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -26,14 +29,14 @@ class TipoDocumentoResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('descripcion_larga')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('descripcion_corta')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Toggle::make('estado')
+
+                TextInput::make('descripcion_larga')
                     ->required(),
+                TextInput::make('descripcion_corta')
+                    ->required(),
+                Toggle::make('estado')
+                    ->label('Activo')
+                    ->default(true),
             ]);
     }
 
@@ -41,26 +44,26 @@ class TipoDocumentoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('descripcion_larga')
+                //
+                TextColumn::make('descripcion_larga')
+                    ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('descripcion_corta')
+
+                TextColumn::make('descripcion_corta')
+
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\IconColumn::make('estado')
+                    ->label('Estado')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -69,19 +72,10 @@ class TipoDocumentoResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTipoDocumentos::route('/'),
-            'create' => Pages\CreateTipoDocumento::route('/create'),
-            'edit' => Pages\EditTipoDocumento::route('/{record}/edit'),
+            'index' => Pages\ManageTipoDocumentos::route('/'),
         ];
     }
 }
