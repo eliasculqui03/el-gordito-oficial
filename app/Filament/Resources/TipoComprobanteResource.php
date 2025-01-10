@@ -20,6 +20,10 @@ class TipoComprobanteResource extends Resource
 {
     protected static ?string $model = TipoComprobante::class;
 
+
+    protected static ?string $navigationGroup = 'Configuración';
+    //protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
 
     public static function form(Form $form): Form
@@ -28,10 +32,10 @@ class TipoComprobanteResource extends Resource
             ->schema([
                 //
                 TextInput::make('codigo')
-                ->label('Código sunat')
-                ->required(),
+                    ->label('Código sunat')
+                    ->required(),
                 TextInput::make('descripcion')
-                ->required(),
+                    ->required(),
                 Toggle::make('estado')
                     ->label('Activo')
                     ->default(true),
@@ -44,24 +48,24 @@ class TipoComprobanteResource extends Resource
         return $table
             ->columns([
                 //
-                
-                TextColumn::make('codigo')
-                ->sortable()
-                ->searchable()
-                ->label('Codigo sunat'),
 
-            TextColumn::make('descripcion')
-                ->label('Descripción'),
-            Tables\Columns\IconColumn::make('estado')
-                ->label('Estado')
-                ->boolean(),
+                TextColumn::make('codigo')
+                    ->sortable()
+                    ->searchable()
+                    ->label('Codigo sunat'),
+
+                TextColumn::make('descripcion')
+                    ->label('Descripción'),
+                Tables\Columns\IconColumn::make('estado')
+                    ->label('Estado')
+                    ->boolean(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

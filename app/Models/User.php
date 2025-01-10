@@ -61,4 +61,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Area::class);
     }
+
+    public function ordencompra(): HasMany
+    {
+        return $this->hasMany(OrdenCompra::class);
+    }
+
+    public function solicitudCompra(): HasMany
+    {
+        return $this->hasMany(SolicitudCompra::class);
+    }
 }

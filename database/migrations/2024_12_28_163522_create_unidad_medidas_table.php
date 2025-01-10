@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('unidad_medidas', function (Blueprint $table) {
             $table->id();
+            $table->string('simbolo');
+            $table->string('nombre');
+            $table->boolean('estado')->default(true);
             $table->timestamps();
         });
     }
