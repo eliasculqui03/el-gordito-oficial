@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
+            
             $table->unsignedBigInteger('empleado_id')->nullable();
             $table->foreign('empleado_id')->references('id')->on('empleados');
             $table->string('foto')->nullable();
@@ -26,6 +27,12 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             //
+            $table->dropForeign(['empleado_id']);
+        
+            // Eliminar las columnas
+            $table->dropColumn('empleado_id');
+            $table->dropColumn('foto');
+            $table->dropColumn('descripcion');
         });
     }
 };
