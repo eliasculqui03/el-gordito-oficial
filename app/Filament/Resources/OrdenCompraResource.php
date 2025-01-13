@@ -46,32 +46,147 @@ class OrdenCompraResource extends Resource
                     ->default(null),
                 Forms\Components\TextInput::make('igv')
                     ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->readonly()
+                    ->default(18)
+                    ->prefix('%'),
                 Forms\Components\TextInput::make('total')
+                    ->prefix('S/.')
+                    ->default(0)
                     ->required()
-                    ->numeric(),
-
+                    ->readonly()
+                    ->numeric()
+                    ->live(),
                 Forms\Components\Repeater::make('detalleOrdenCompra')
                     ->relationship()
                     ->schema([
-                        Forms\Components\Select::make('pedido_compra_id')
-                            ->placeholder('Sin pedido de compra')
-                            ->relationship('pedidoCompra', 'id'),
+                        Forms\Components\Select::make('solicitud_compra_id')
+                            ->label('Solicitud de compra')
+                            ->placeholder('Sin solicitud de compra')
+                            ->relationship(
+                                'solicitudCompra',
+                                'id',
+                                fn($query) => $query->where('estado', 'Aprobada')->with('existencia')
+                            )
+                            ->getOptionLabelFromRecordUsing(fn($record) => "ID {$record->id} - {$record->existencia->nombre}")
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set, Forms\Get $get) {
+                                if ($state) {
+                                    // Si selecciona una solicitud
+                                    $pedidoCompra = \App\Models\SolicitudCompra::find($state);
+                                    if ($pedidoCompra) {
+                                        $set('existencia_id', $pedidoCompra->existencia_id);
+                                        $set('cantidad', $pedidoCompra->cantidad);
+                                        $set('subtotal', $pedidoCompra->total);
+                                    }
+                                } else {
+                                    // Si selecciona "Sin solicitud de compra"
+                                    $set('existencia_id', null);
+                                    $set('cantidad', 1);
+                                    $set('subtotal', 0);
+                                }
+                                $detalles = $get('../../detalleOrdenCompra');
+                                if (is_array($detalles)) {
+                                    $total = array_reduce($detalles, function ($carry, $item) {
+                                        return $carry + (float)($item['subtotal'] ?? 0);
+                                    }, 0);
+                                    $set('../../total', round($total, 2));
+                                }
+                            })
+                            ->columnSpan(1),
+
                         Forms\Components\Select::make('existencia_id')
-                            ->relationship('existencia', 'nombre')
-                            ->required(),
+                            ->relationship('existencia', 'nombre', function ($query) {
+                                return $query->where('estado', true);
+                            })
+                            ->required()
+                            ->live()
+                            //
+                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                if ($state && !$get('solicitud_compra_id')) {
+                                    $existencia = \App\Models\Existencia::find($state);
+                                    if ($existencia) {
+                                        $cantidad = $get('cantidad') ?? 1;
+                                        $subtotal = $existencia->costo_compra * $cantidad;
+                                        $set('subtotal', round($subtotal, 2));
+
+                                        // Calcular el total
+                                        $detalles = $get('../../detalleOrdenCompra');
+                                        if (is_array($detalles)) {
+                                            $total = array_reduce($detalles, function ($carry, $item) {
+                                                return $carry + (float)($item['subtotal'] ?? 0);
+                                            }, 0);
+                                            $set('../../total', round($total, 2));
+                                        }
+                                    }
+                                }
+                            })
+                            ->columnSpan(1),
+
                         Forms\Components\TextInput::make('cantidad')
                             ->required()
                             ->numeric()
-                            ->minValue(1),
+                            ->minValue(1)
+                            ->default(1)
+                            ->live()
+                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                if ($get('existencia_id')) {
+                                    $existencia = \App\Models\Existencia::find($get('existencia_id'));
+                                    if ($existencia && is_numeric($state)) {
+                                        $subtotal = $existencia->costo_compra * $state;
+                                        $set('subtotal', round($subtotal, 2));
+
+                                        // Calcular el total
+                                        $detalles = $get('../../detalleOrdenCompra');
+                                        if (is_array($detalles)) {
+                                            $total = array_reduce($detalles, function ($carry, $item) {
+                                                return $carry + (float)($item['subtotal'] ?? 0);
+                                            }, 0);
+                                            $set('../../total', round($total, 2));
+                                        }
+                                    }
+                                }
+                            })
+                            ->columnSpan(1),
+
                         Forms\Components\TextInput::make('subtotal')
                             ->required()
+                            ->readonly()
                             ->numeric()
-                            ->prefix('S/.'),
+                            ->prefix('S/.')
+                            ->live()
+                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                // Calcular el total cuando cambia cualquier subtotal
+                                $detalles = $get('../../detalleOrdenCompra');
+                                if (is_array($detalles)) {
+                                    $total = array_reduce($detalles, function ($carry, $item) {
+                                        return $carry + (float)($item['subtotal'] ?? 0);
+                                    }, 0);
+                                    $set('../../total', round($total, 2));
+                                }
+                            })
+                            ->columnSpan(1),
                     ])
-                    ->columns(3),
+                    ->columns(1)
+                    ->columnSpan('full')
+                    ->grid(3)
+
+                    ->live()
+                    ->afterStateUpdated(function ($state, Forms\Set $set) {
+                        if (is_array($state)) {
+                            $total = array_reduce($state, function ($carry, $item) {
+                                return $carry + (float)($item['subtotal'] ?? 0);
+                            }, 0);
+                            $set('total', round($total, 2));
+                        }
+                    })
+
+
+
             ]);
     }
+
+
 
     public static function table(Table $table): Table
     {
@@ -88,14 +203,13 @@ class OrdenCompraResource extends Resource
                 Tables\Columns\TextColumn::make('foto')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('igv')
-                    ->numeric()
-                    ->sortable(),
+                    ->numeric(),
                 Tables\Columns\TextColumn::make('total')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('detalleOrdenCompra.existencia.nombre')
-                    ->numeric()
-                    ->sortable(),
+                    ->badge()
+                    ->color('success'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -109,7 +223,7 @@ class OrdenCompraResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

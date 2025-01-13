@@ -33,7 +33,7 @@ return new class extends Migration
             $table->string('fecha_entrega');
             $table->integer('cantidad');
             $table->double('total', 10, 2);
-            $table->enum('estado', ['Pendiente', 'Aprobada', 'Rechazada', 'Cancelada'])->default('Pendiente');
+            $table->enum('estado', ['Pendiente', 'Aprobada', 'Rechazada', 'Cancelada', 'Pagada'])->default('Pendiente');
             $table->timestamps();
         });
     }

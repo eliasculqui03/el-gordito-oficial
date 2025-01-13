@@ -39,7 +39,9 @@ class SolicitudCompraResource extends Resource
                     ->required(),
 
                 Forms\Components\Select::make('existencia_id')
-                    ->relationship('existencia', 'nombre')
+                    ->relationship('existencia', 'nombre', function ($query) {
+                        return $query->where('estado', true);
+                    })
                     ->required()
                     ->live()
                     ->afterStateUpdated(function ($state, callable $set, $get) { // añadido $get aquí
@@ -104,6 +106,10 @@ class SolicitudCompraResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->label('ID')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('proveedor.nombre')
                     ->numeric()
                     ->sortable(),
@@ -126,6 +132,7 @@ class SolicitudCompraResource extends Resource
                         'success' => 'Aprobada',
                         'danger' => 'Rechazada',
                         'gray' => 'Cancelada',
+                        'success' => 'Pagada',
                     ]),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
