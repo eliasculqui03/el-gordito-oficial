@@ -114,8 +114,6 @@ class EmpresaResource extends Resource
                 )->columnSpan(4),
 
 
-
-
             ])->columns(8);
     }
 
