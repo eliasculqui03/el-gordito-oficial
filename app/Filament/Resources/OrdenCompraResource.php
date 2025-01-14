@@ -20,7 +20,7 @@ class OrdenCompraResource extends Resource
 
     protected static ?string $model = OrdenCompra::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-currency-dollar';
 
     public static function form(Form $form): Form
     {

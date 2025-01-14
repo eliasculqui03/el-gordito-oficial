@@ -17,7 +17,15 @@ class IngresoAlmacenResource extends Resource
 {
     protected static ?string $model = IngresoAlmacen::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel = 'Ingresos Almacen';
+    protected static ?string $label = 'Almacen';
+    protected static ?string $pluralLabel = 'Almacenes';
+
+
+    protected static ?string $navigationGroup = 'Inventario';
+    //protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationIcon = 'heroicon-o-document-plus';
 
     public static function form(Form $form): Form
     {

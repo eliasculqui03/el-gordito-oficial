@@ -20,7 +20,7 @@ class SucursalResource extends Resource
     protected static ?string $navigationGroup = 'Empresa';
     //protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
 
     public static function form(Form $form): Form
     {

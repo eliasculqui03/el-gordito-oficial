@@ -17,7 +17,11 @@ class AlmacenResource extends Resource
 {
     protected static ?string $model = Almacen::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $navigationGroup = 'Inventario';
+    //protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationIcon = 'heroicon-o-server-stack';
 
     public static function form(Form $form): Form
     {
@@ -29,6 +33,7 @@ class AlmacenResource extends Resource
                 Forms\Components\Textarea::make('descripcion')
                     ->columnSpanFull(),
                 Forms\Components\Toggle::make('estado')
+                    ->default(true)
                     ->required(),
             ]);
     }
@@ -55,6 +60,7 @@ class AlmacenResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -63,19 +69,10 @@ class AlmacenResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListAlmacens::route('/'),
-            'create' => Pages\CreateAlmacen::route('/create'),
-            'edit' => Pages\EditAlmacen::route('/{record}/edit'),
+            'index' => Pages\ManageAlmacens::route('/'),
         ];
     }
 }

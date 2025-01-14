@@ -20,7 +20,7 @@ class PlatoResource extends Resource
     protected static ?string $navigationGroup = 'Platos';
     //protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-fire';
 
     public static function form(Form $form): Form
     {

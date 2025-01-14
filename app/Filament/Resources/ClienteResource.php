@@ -18,7 +18,10 @@ class ClienteResource extends Resource
 {
     protected static ?string $model = Cliente::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Configuración';
+    //protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationIcon = 'heroicon-o-user-plus';
 
     public static function form(Form $form): Form
     {
