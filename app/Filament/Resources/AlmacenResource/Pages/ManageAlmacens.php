@@ -4,9 +4,9 @@ namespace App\Filament\Resources\AlmacenResource\Pages;
 
 use App\Filament\Resources\AlmacenResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 
-class ListAlmacens extends ListRecords
+class ManageAlmacens extends ManageRecords
 {
     protected static string $resource = AlmacenResource::class;
 

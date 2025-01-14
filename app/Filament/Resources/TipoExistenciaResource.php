@@ -24,7 +24,7 @@ class TipoExistenciaResource extends Resource
     protected static ?string $navigationGroup = 'Existencias';
     //protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-chevron-up-down';
 
     public static function form(Form $form): Form
     {

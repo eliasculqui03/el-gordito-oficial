@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AlmacenResource\Pages;
-use App\Filament\Resources\AlmacenResource\RelationManagers;
-use App\Models\Almacen;
+use App\Filament\Resources\InventarioResource\Pages;
+use App\Filament\Resources\InventarioResource\RelationManagers;
+use App\Models\Inventario;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,27 +13,27 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class AlmacenResource extends Resource
+class InventarioResource extends Resource
 {
-    protected static ?string $model = Almacen::class;
-
+    protected static ?string $model = Inventario::class;
 
     protected static ?string $navigationGroup = 'Inventario';
     //protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationIcon = 'heroicon-o-server-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-numbered-list';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nombre')
+                Forms\Components\Select::make('existencia_id')
+                    ->relationship('existencia', 'nombre')
+                    ->required(),
+                Forms\Components\TextInput::make('stock')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('descripcion')
-                    ->columnSpanFull(),
-                Forms\Components\Toggle::make('estado')
-                    ->default(true)
+                    ->numeric(),
+                Forms\Components\Select::make('almacen_id')
+                    ->relationship('almacen', 'nombre')
                     ->required(),
             ]);
     }
@@ -42,10 +42,15 @@ class AlmacenResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('nombre')
-                    ->searchable(),
-                Tables\Columns\IconColumn::make('estado')
-                    ->boolean(),
+                Tables\Columns\TextColumn::make('existencia.nombre')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('stock')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('almacen.nombre')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -60,7 +65,6 @@ class AlmacenResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -69,10 +73,19 @@ class AlmacenResource extends Resource
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageAlmacens::route('/'),
+            'index' => Pages\ListInventarios::route('/'),
+            'create' => Pages\CreateInventario::route('/create'),
+            'edit' => Pages\EditInventario::route('/{record}/edit'),
         ];
     }
 }

@@ -23,7 +23,7 @@ class TipoDocumentoResource extends Resource
     protected static ?string $navigationGroup = 'Configuración';
     //protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-identification';
 
     public static function form(Form $form): Form
     {

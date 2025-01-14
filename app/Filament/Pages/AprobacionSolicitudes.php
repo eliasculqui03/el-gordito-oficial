@@ -17,14 +17,12 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
 {
     use Tables\Concerns\InteractsWithTable;
 
-    protected static ?string $navigationGroup = 'Proveedor';
-    //protected static ?int $navigationSort = 1;
-
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
 
     protected static string $view = 'filament.pages.aprobacion-solicitudes';
     protected static ?string $navigationLabel = 'Aprobación de Solicitudes';
     protected static ?string $title = 'Aprobación de Solicitudes';
+
     protected static ?string $slug = 'aprobacion-solicitudes';
 
     public function table(Table $table): Table

@@ -46,4 +46,14 @@ class Existencia extends Model
     {
         return $this->hasMany(SolicitudCompra::class);
     }
+
+    public function ingresoAlmacen(): HasMany
+    {
+        return $this->hasMany(IngresoAlmacen::class);
+    }
+
+    public function inventario(): HasMany
+    {
+        return $this->hasMany(Inventario::class);
+    }
 }

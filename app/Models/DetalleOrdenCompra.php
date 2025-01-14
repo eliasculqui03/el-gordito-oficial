@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DetalleOrdenCompra extends Model
 {
@@ -24,7 +25,7 @@ class DetalleOrdenCompra extends Model
         return $this->belongsTo(OrdenCompra::class);
     }
 
-    public function pedidoCompra(): BelongsTo
+    public function solicitudCompra(): BelongsTo
     {
         return $this->belongsTo(SolicitudCompra::class);
     }
@@ -32,5 +33,10 @@ class DetalleOrdenCompra extends Model
     public function existencia(): BelongsTo
     {
         return $this->belongsTo(Existencia::class);
+    }
+
+    public function ingresoAlmacen(): HasMany
+    {
+        return $this->hasMany(IngresoAlmacen::class);
     }
 }

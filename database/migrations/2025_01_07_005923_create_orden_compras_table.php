@@ -49,7 +49,7 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->integer('cantidad');
             $table->double('subtotal', 10, 2);
-            $table->enum('estado', ['Pendiente', 'Aprobada', 'Rechazada', 'Cancelada'])->default('Pendiente');
+            $table->enum('estado', ['Pagada', 'Recibida'])->default('Pagada');
             $table->timestamps();
         });
     }
