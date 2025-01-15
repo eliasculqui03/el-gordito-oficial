@@ -16,7 +16,7 @@ class IngresoAlmacen extends Model
         'existencia_id',
         'cantidad',
         'almacen_id',
-        'estado',
+        
     ];
 
     public function detalleOrdenCompra(): BelongsTo

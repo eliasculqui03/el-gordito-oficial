@@ -4,9 +4,9 @@ namespace App\Filament\Resources\InventarioResource\Pages;
 
 use App\Filament\Resources\InventarioResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 
-class ListInventarios extends ListRecords
+class ManageInventarios extends ManageRecords
 {
     protected static string $resource = InventarioResource::class;
 

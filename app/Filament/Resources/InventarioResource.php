@@ -17,23 +17,20 @@ class InventarioResource extends Resource
 {
     protected static ?string $model = Inventario::class;
 
-    protected static ?string $navigationGroup = 'Inventario';
-    //protected static ?int $navigationSort = 1;
-
-    protected static ?string $navigationIcon = 'heroicon-o-numbered-list';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('existencia_id')
-                    ->relationship('existencia', 'nombre')
+                    ->relationship('existencia', 'id')
                     ->required(),
                 Forms\Components\TextInput::make('stock')
                     ->required()
                     ->numeric(),
                 Forms\Components\Select::make('almacen_id')
-                    ->relationship('almacen', 'nombre')
+                    ->relationship('almacen', 'id')
                     ->required(),
             ]);
     }
@@ -44,11 +41,12 @@ class InventarioResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('existencia.nombre')
                     ->numeric()
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stock')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('almacen.nombre')
+                Tables\Columns\TextColumn::make('almacen.id')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -65,6 +63,7 @@ class InventarioResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -73,19 +72,10 @@ class InventarioResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListInventarios::route('/'),
-            'create' => Pages\CreateInventario::route('/create'),
-            'edit' => Pages\EditInventario::route('/{record}/edit'),
+            'index' => Pages\ManageInventarios::route('/'),
         ];
     }
 }

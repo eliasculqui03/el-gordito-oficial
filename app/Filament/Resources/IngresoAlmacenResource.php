@@ -70,9 +70,7 @@ class IngresoAlmacenResource extends Resource
                 Forms\Components\Select::make('almacen_id')
                     ->relationship('almacen', 'nombre')
                     ->required(),
-                Forms\Components\Toggle::make('estado')
-                    ->default(true)
-                    ->required(),
+               
             ]);
     }
 
@@ -82,13 +80,16 @@ class IngresoAlmacenResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('detalleOrdenCompra.id')
                     ->numeric()
+                    
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->numeric()
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('existencia.nombre')
                     ->numeric()
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('cantidad.nombre')
                     ->numeric()
