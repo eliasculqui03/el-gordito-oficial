@@ -89,7 +89,6 @@ class IngresoAlmacenResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('existencia.nombre')
                     ->numeric()
-                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('cantidad.nombre')
                     ->numeric()
