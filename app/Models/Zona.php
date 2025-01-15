@@ -24,7 +24,7 @@ class Zona extends Model
         return $this->belongsTo(Caja::class);
     }
 
-    public function mesa(): HasMany
+    public function mesas(): HasMany
     {
         return $this->hasMany(Mesa::class);
     }

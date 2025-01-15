@@ -17,11 +17,7 @@ class CajaResource extends Resource
 {
     protected static ?string $model = Caja::class;
 
-
-    protected static ?string $navigationGroup = 'Empresa';
-    //protected static ?int $navigationSort = 1;
-
-    protected static ?string $navigationIcon = 'heroicon-o-computer-desktop';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
@@ -70,6 +66,7 @@ class CajaResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -78,19 +75,10 @@ class CajaResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCajas::route('/'),
-            'create' => Pages\CreateCaja::route('/create'),
-            'edit' => Pages\EditCaja::route('/{record}/edit'),
+            'index' => Pages\ManageCajas::route('/'),
         ];
     }
 }

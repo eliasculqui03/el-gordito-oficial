@@ -15,7 +15,7 @@ return [
     */
 
     'theme' => [
-       
+
         'colors' => [
             'sidebar' => 'bg-gray-800 text-white', // Barra lateral (fondo y texto).
             'navbar' => 'bg-blue-600 text-white',  // Barra superior (fondo y texto).
@@ -92,5 +92,24 @@ return [
     */
 
     'livewire_loading_delay' => 'default',
+
+    'layout' => [
+        'templates' => [
+            'action-section' => 'filament::components.layouts.app.action-section',
+            'content' => 'filament::components.layouts.app.content',
+            'footer' => 'filament::components.layouts.app.footer',
+            'header' => 'filament::components.layouts.app.header',
+            'sidebar' => 'filament::components.layouts.app.sidebar',
+        ],
+    ],
+
+    'assets' => [
+        'css' => [
+            'resources/css/app.css',
+        ],
+        'js' => [
+            'resources/js/app.js',
+        ],
+    ],
 
 ];

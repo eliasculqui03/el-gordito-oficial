@@ -24,12 +24,21 @@ class MesaResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('zona_id')
-                    ->relationship('zona', 'id')
+                    ->relationship('zona', 'nombre', function ($query) {
+                        return $query->where('estado', true);
+                    })
+                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->caja->nombre} - {$record->nombre}")
                     ->required(),
                 Forms\Components\TextInput::make('numero')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('estado')
+                Forms\Components\Select::make('estado')
+                    ->default('Libre')
+                    ->options([
+                        'Libre' => 'Libre',
+                        'Ocupada' => 'Ocupada',
+                        'Inhabilitada' => 'Inhabilitada'
+                    ])
                     ->required(),
             ]);
     }
@@ -38,13 +47,24 @@ class MesaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('zona.id')
+
+                Tables\Columns\TextColumn::make('zona.nombre')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('numero')
+                    ->label('Numero de mesa')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('estado'),
+                Tables\Columns\TextColumn::make('zona.caja.nombre')
+                    ->label('Caja')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('estado')
+                    ->badge()
+                    ->colors([
+                        'success' => 'Libre',
+                        'danger' => 'Ocupada',
+                        'gray' => 'Inhabilitada',
+                    ]),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
