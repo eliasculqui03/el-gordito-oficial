@@ -1,5 +1,7 @@
 <?php
 
+use App\Filament\Pages\PanelMesas;
+
 return [
 
     /*
@@ -170,5 +172,9 @@ return [
     */
 
     'pagination_theme' => 'tailwind',
+
+    'pages' => [
+        PanelMesas::class,
+    ],
 
 ];

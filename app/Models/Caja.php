@@ -27,7 +27,7 @@ class Caja extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function zona(): HasMany
+    public function zonas(): HasMany
     {
         return $this->hasMany(Zona::class);
     }

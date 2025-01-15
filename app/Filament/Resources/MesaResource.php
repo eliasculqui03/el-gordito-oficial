@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CajaResource\Pages;
-use App\Filament\Resources\CajaResource\RelationManagers;
-use App\Models\Caja;
+use App\Filament\Resources\MesaResource\Pages;
+use App\Filament\Resources\MesaResource\RelationManagers;
+use App\Models\Mesa;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,9 +13,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class CajaResource extends Resource
+class MesaResource extends Resource
 {
-    protected static ?string $model = Caja::class;
+    protected static ?string $model = Mesa::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -23,17 +23,22 @@ class CajaResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nombre')
+                Forms\Components\Select::make('zona_id')
+                    ->relationship('zona', 'nombre', function ($query) {
+                        return $query->where('estado', true);
+                    })
+                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->caja->nombre} - {$record->nombre}")
+                    ->required(),
+                Forms\Components\TextInput::make('numero')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\Select::make('sucursal_id')
-                    ->relationship('sucursal', 'nombre')
-                    ->required(),
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required(),
-                Forms\Components\Toggle::make('estado')
-                    ->default(true)
+                    ->numeric(),
+                Forms\Components\Select::make('estado')
+                    ->default('Libre')
+                    ->options([
+                        'Libre' => 'Libre',
+                        'Ocupada' => 'Ocupada',
+                        'Inhabilitada' => 'Inhabilitada'
+                    ])
                     ->required(),
             ]);
     }
@@ -42,16 +47,24 @@ class CajaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('nombre')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('sucursal.nombre')
+
+                Tables\Columns\TextColumn::make('zona.nombre')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('numero')
+                    ->label('Numero de mesa')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\IconColumn::make('estado')
-                    ->boolean(),
+                Tables\Columns\TextColumn::make('zona.caja.nombre')
+                    ->label('Caja')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('estado')
+                    ->badge()
+                    ->colors([
+                        'success' => 'Libre',
+                        'danger' => 'Ocupada',
+                        'gray' => 'Inhabilitada',
+                    ]),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -78,7 +91,7 @@ class CajaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageCajas::route('/'),
+            'index' => Pages\ManageMesas::route('/'),
         ];
     }
 }
