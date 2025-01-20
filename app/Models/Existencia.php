@@ -56,4 +56,9 @@ class Existencia extends Model
     {
         return $this->hasMany(Inventario::class);
     }
+
+    public function comandas(): HasMany
+    {
+        return $this->hasMany(ComandaExistencia::class);
+    }
 }

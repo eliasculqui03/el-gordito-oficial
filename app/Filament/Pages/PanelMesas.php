@@ -6,7 +6,7 @@ use Filament\Pages\Page;
 
 class PanelMesas extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
 
     protected static ?string $navigationLabel = 'Panel de Mesas';
 

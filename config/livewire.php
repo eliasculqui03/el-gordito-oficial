@@ -1,6 +1,7 @@
 <?php
 
 use App\Filament\Pages\PanelMesas;
+use App\Livewire\PanelComandas;
 
 return [
 
@@ -175,6 +176,7 @@ return [
 
     'pages' => [
         PanelMesas::class,
+        PanelComandas::class,
     ],
 
 ];

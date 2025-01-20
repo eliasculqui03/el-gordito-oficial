@@ -25,7 +25,7 @@ module.exports = {
                 warning: colors.yellow,
             },
             fontFamily: {
-                sans: ['DM Sans', ...defaultTheme.fontFamily.sans],
+                sans: ['PT Sans', ...defaultTheme.fontFamily.sans],
             },
         },
     },

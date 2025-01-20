@@ -28,4 +28,9 @@ class Zona extends Model
     {
         return $this->hasMany(Mesa::class);
     }
+
+    public function comandas(): HasMany
+    {
+        return $this->hasMany(Comanda::class);
+    }
 }
