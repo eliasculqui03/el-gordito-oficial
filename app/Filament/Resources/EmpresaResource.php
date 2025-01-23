@@ -48,8 +48,16 @@ class EmpresaResource extends Resource
                                 Forms\Components\TextInput::make('numero_decreto')
                                     ->maxLength(255)
                                     ->default(null),
-                                Forms\Components\TextInput::make('logo')
-                                    ->maxLength(255)
+                                Forms\Components\FileUpload::make('logo')
+                                    ->image()
+                                    ->imageEditor()
+                                    ->imageEditorAspectRatios([
+                                        null,
+                                        '16:9',
+                                        '4:3',
+                                        '1:1',
+                                    ])
+                                    ->storeFileNamesIn('logos')
                                     ->default(null),
                             ])->columns(4),
 
@@ -57,7 +65,7 @@ class EmpresaResource extends Resource
                 )->columnSpan(4),
                 Group::make()->schema(
                     [
-                        Section::make('Informacion')
+                        Section::make('Información')
 
                             ->schema([
                                 Forms\Components\TextInput::make('email')
@@ -105,8 +113,7 @@ class EmpresaResource extends Resource
                                 Forms\Components\TextInput::make('direccion_gerente')
                                     ->maxLength(255)
                                     ->default(null),
-                                Forms\Components\TextInput::make('fecha_ingreso_gerente')
-                                    ->maxLength(255)
+                                Forms\Components\DatePicker::make('fecha_ingreso_gerente')
                                     ->default(null),
                             ])->columns(4),
 
@@ -131,34 +138,7 @@ class EmpresaResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('numero_decreto')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('logo')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('telefono')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('direccion')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('moneda')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('facebook')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('youtube')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('whatsapp')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nombre_gerente')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('dni_gerente')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('telefono_gerente')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('correo_gerente')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('direccion_gerente')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('fecha_ingreso_gerente')
-                    ->searchable(),
+                Tables\Columns\ImageColumn::make('logo'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -174,11 +154,6 @@ class EmpresaResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

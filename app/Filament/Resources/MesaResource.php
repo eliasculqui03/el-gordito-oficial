@@ -41,8 +41,7 @@ class MesaResource extends Resource
                         'Libre' => 'Libre',
                         'Ocupada' => 'Ocupada',
                         'Inhabilitada' => 'Inhabilitada'
-                    ])
-                    ->required(),
+                    ]),
             ]);
     }
 
@@ -78,7 +77,9 @@ class MesaResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('zona.caja_id')
+                    ->label('Caja')
+                    ->relationship('zona.caja', 'nombre'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -52,6 +52,7 @@ class ZonaResource extends Resource
                     ->searchable(),
                 TextColumn::make('caja.nombre')
                     ->numeric()
+                    ->searchable()
                     ->sortable(),
                 IconColumn::make('estado')
                     ->boolean(),
@@ -65,9 +66,18 @@ class ZonaResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('caja_id')
+                    ->label('Caja')
+                    ->relationship('caja', 'nombre'),
+                Tables\Filters\SelectFilter::make('estado')
+                    ->options([
+                        '1' => 'Activo',
+                        '2' => 'Inactivo',
+                    ]),
+
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

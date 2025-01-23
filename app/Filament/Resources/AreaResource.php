@@ -48,7 +48,8 @@ class AreaResource extends Resource
                 TextColumn::make('nombre')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('user.name'),
+                TextColumn::make('user.name')
+                    ->label('Usuario'),
                 Tables\Columns\IconColumn::make('estado')
                     ->boolean(),
                 TextColumn::make('created_at')
@@ -66,12 +67,8 @@ class AreaResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
 
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

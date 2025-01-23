@@ -41,8 +41,10 @@ class OrdenCompraResource extends Resource
                         'Factura' => 'Factura',
                     ])
                     ->required(),
-                Forms\Components\TextInput::make('foto')
-                    ->maxLength(255)
+                Forms\Components\FileUpload::make('foto')
+                    ->image()
+                    ->directory('compras')
+                    ->imageEditor()
                     ->default(null),
                 Forms\Components\TextInput::make('igv')
                     ->required()
@@ -200,7 +202,7 @@ class OrdenCompraResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('factura')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('foto')
+                Tables\Columns\ImageColumn::make('foto')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('igv')
                     ->numeric(),
@@ -219,16 +221,12 @@ class OrdenCompraResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

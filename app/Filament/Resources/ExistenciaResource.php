@@ -56,16 +56,12 @@ class ExistenciaResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
+                    ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tipoExistencia.nombre')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('tipoExistencia.nombre'),
                 Tables\Columns\TextColumn::make('categoriaExistencia.nombre')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('unidadMedida.nombre')
-                    ->numeric()
-                    ->sortable(),
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('unidadMedida.nombre'),
                 Tables\Columns\TextColumn::make('costo_compra')
                     ->numeric()
                     ->sortable(),
@@ -85,9 +81,17 @@ class ExistenciaResource extends Resource
             ])
             ->filters([
                 //
+                Tables\Filters\SelectFilter::make('tipo_existencia_id')
+                    ->label('Tipo existencia')
+                    ->relationship('tipoExistencia', 'nombre'),
+                Tables\Filters\SelectFilter::make('categoria_existencia_id')
+                    ->label('Categoria existencia')
+                    ->relationship('categoriaExistencia', 'nombre'),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -17,7 +17,10 @@ class InventarioResource extends Resource
 {
     protected static ?string $model = Inventario::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Inventario';
+    //protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
 
     public static function form(Form $form): Form
     {
@@ -30,7 +33,7 @@ class InventarioResource extends Resource
                     ->required()
                     ->numeric(),
                 Forms\Components\Select::make('almacen_id')
-                    ->relationship('almacen', 'id')
+                    ->relationship('almacen', 'nombre')
                     ->required(),
             ]);
     }
@@ -46,14 +49,14 @@ class InventarioResource extends Resource
                 Tables\Columns\TextColumn::make('stock')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('almacen.id')
+                Tables\Columns\TextColumn::make('almacen.nombre')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Fecha de creación')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('Fecha de actualización')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

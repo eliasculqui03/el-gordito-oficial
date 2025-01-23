@@ -37,7 +37,8 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
                     ->label('ID')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('proveedor.nombre')
-                    ->label('Proveedor'),
+                    ->label('Proveedor')
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Solicitante')
@@ -54,7 +55,7 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
                     ->label('Cantidad'),
 
                 Tables\Columns\TextColumn::make('total')
-                    ->money('USD')
+                    ->money('Nuevos Soles')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('estado')
@@ -64,7 +65,6 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
                         'Pendiente' => 'warning',
                         default => 'gray',
                     }),
-
 
             ])
             ->actions([

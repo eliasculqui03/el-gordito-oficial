@@ -15,6 +15,11 @@ class CreateIngresoAlmacen extends CreateRecord
 {
     protected static string $resource = IngresoAlmacenResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index'); // Redirige a la tabla
+    }
+
     protected function afterCreate(): void
     {
         // Actualizar estado del detalle de orden de compra

@@ -31,7 +31,9 @@ class SolicitudCompraResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('proveedor_id')
-                    ->relationship('proveedor', 'nombre')
+                    ->relationship('proveedor', 'nombre', function ($query) {
+                        return $query->where('estado', true);
+                    })
                     ->required(),
 
                 Forms\Components\Select::make('user_id')
@@ -123,7 +125,7 @@ class SolicitudCompraResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('fecha_entrega')
-                    ->date()
+                    ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('estado')
                     ->badge()

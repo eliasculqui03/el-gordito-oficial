@@ -51,16 +51,24 @@ class UserResource extends Resource
                             ->required()
                             ->maxLength(255),
 
-                        Forms\Components\TextInput::make('password')
-                            ->password()
-                            ->maxLength(255),
+
 
                     ]),
                 Select::make('empleado_id')
-                    ->relationship('empleado', 'nombre'),
+                    ->relationship(
+                        'empleado',
+                        'nombre',
+                        function ($query) {
+                            return $query->where('estado', true);
+                        }
+                    ),
                 FileUpload::make('foto')
                     ->image()
-                    ->directory('usuarios'),
+                    ->avatar()
+                    ->directory('usuarios')
+                    ->imageEditor()
+
+                    ->circleCropper(),
                 RichEditor::make('descripcion')
 
 
@@ -96,6 +104,7 @@ class UserResource extends Resource
                     ->query(fn(Builder $query): Builder => $query->whereNotNull('email_verified_at'))
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Action::make('Verify')
                     ->icon('heroicon-o-check-badge')
@@ -111,11 +120,6 @@ class UserResource extends Resource
                         $user->email_verified_at = null;
                         $user->save();
                     })
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

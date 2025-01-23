@@ -29,9 +29,9 @@ class EmpleadoResource extends Resource
                 Forms\Components\TextInput::make('nombre')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('tipo_documento')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\Select::make('tipo_documento_id')
+                    ->relationship('tipoDocumento', 'descripcion_corta')
+                    ->required(),
                 Forms\Components\TextInput::make('numero_documento')
                     ->required()
                     ->maxLength(255),
@@ -55,12 +55,14 @@ class EmpleadoResource extends Resource
                 Forms\Components\TextInput::make('sueldo')
                     ->numeric()
                     ->default(null),
-                Forms\Components\TimePicker::make('hora_entrada')
-                    ->required(),
-                Forms\Components\TimePicker::make('hora_salida')
-                    ->required(),
+                Forms\Components\TextInput::make('hora_entrada')
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\TextInput::make('hora_salida')
+                    ->maxLength(255)
+                    ->default(null),
                 Forms\Components\Toggle::make('estado')
-                    ->required(),
+                    ->default(true),
             ]);
     }
 
@@ -70,8 +72,9 @@ class EmpleadoResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tipo_documento')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('tipoDocumento.descripcion_corta')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('numero_documento')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('telefono')
@@ -82,15 +85,7 @@ class EmpleadoResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('entidad_bancaria')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('numero_cuenta')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('sueldo')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('hora_entrada')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('hora_salida')
-                    ->searchable(),
+
                 Tables\Columns\IconColumn::make('estado')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -108,11 +103,6 @@ class EmpleadoResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

@@ -29,9 +29,13 @@ class PlatoResource extends Resource
                 Forms\Components\TextInput::make('nombre')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('categoria')
+                Forms\Components\Select::make('categoria')
                     ->required()
-                    ->maxLength(255),
+                    ->options([
+                        'Platos' => 'Platos',
+                        'Bebidas' => 'Bebidas'
+                    ])
+                    ->default('Platos'),
                 Forms\Components\TextInput::make('precio')
                     ->required()
                     ->numeric(),
@@ -79,6 +83,7 @@ class PlatoResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

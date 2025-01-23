@@ -70,7 +70,7 @@ class IngresoAlmacenResource extends Resource
                 Forms\Components\Select::make('almacen_id')
                     ->relationship('almacen', 'nombre')
                     ->required(),
-               
+
             ]);
     }
 
@@ -80,7 +80,7 @@ class IngresoAlmacenResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('detalleOrdenCompra.id')
                     ->numeric()
-                    
+                    ->label('ID de compra')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.name')
@@ -90,33 +90,30 @@ class IngresoAlmacenResource extends Resource
                 Tables\Columns\TextColumn::make('existencia.nombre')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('cantidad.nombre')
+                Tables\Columns\TextColumn::make('cantidad')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('almacen.nombre')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\IconColumn::make('estado')
-                    ->boolean(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Fecha de creación')
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
+                    ->label('Fecha de actualización')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\ViewAction::make(),
             ]);
     }
 
