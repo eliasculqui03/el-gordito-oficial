@@ -6,9 +6,13 @@ use App\Filament\Resources\InventarioResource\Pages;
 use App\Filament\Resources\InventarioResource\RelationManagers;
 use App\Models\Inventario;
 use Filament\Forms;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -27,7 +31,8 @@ class InventarioResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('existencia_id')
-                    ->relationship('existencia', 'id')
+                    ->relationship('existencia', 'nombre')
+                    ->unique(ignoreRecord: true)
                     ->required(),
                 Forms\Components\TextInput::make('stock')
                     ->required()
@@ -43,36 +48,77 @@ class InventarioResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('existencia.nombre')
-                    ->numeric()
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('stock')
                     ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('almacen.nombre')
-                    ->numeric()
-                    ->sortable(),
+                    ->formatStateUsing(function ($state) {
+                        return number_format($state, 0, '.', ',');
+                    }),
+                Tables\Columns\TextColumn::make('almacen.nombre'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Fecha de creación')
                     ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('Fecha de actualización')
-                    ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Actualización')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('almacen_id')
+                    ->label('Almacen')
+                    ->relationship('almacen', 'nombre'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+
+                Action::make('aumentar_stock')
+                    ->label('Agregar stock')
+                    ->icon('heroicon-o-plus')
+                    ->color('info')
+                    ->action(function (Inventario $record, array $data): void {
+                        $record->increment('stock', $data['cantidad']);
+                        $record->save();
+                    })
+                    ->form([
+                        Grid::make()
+                            ->schema([
+                                Forms\Components\TextInput::make('cantidad')
+                                    ->label('Cantidad')
+                                    ->numeric()
+                                    ->required(),
+                            ])->columns(1)
+                    ])->modalWidth('sm'),
+                Action::make('disminuir_stock')
+                    ->label('Eliminar Stock')
+                    ->icon('heroicon-o-minus')
+                    ->color('danger')
+                    ->action(function (Inventario $record, array $data): void {
+                        $cantidad = $data['cantidad'];
+                        if ($cantidad > $record->stock) {
+                            $cantidad = $record->stock;
+                        }
+                        $record->decrement('stock', $cantidad);
+                        $record->save();
+                    })
+                    ->form([
+                        Grid::make()
+                            ->schema([
+                                Forms\Components\TextInput::make('cantidad')
+                                    ->label('Cantidad')
+                                    ->numeric()
+                                    ->required(),
+                            ])->columns(1)
+                    ])->modalWidth('sm'),
+
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
+
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getPages(): array

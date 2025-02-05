@@ -33,9 +33,9 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
                     ->where('estado', 'Pendiente') // Asumiendo que '1' es el estado pendiente
             )
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('ID')
-                    ->sortable(),
+                // Tables\Columns\TextColumn::make('id')
+                //     ->label('ID')
+                //     ->sortable(),
                 Tables\Columns\TextColumn::make('proveedor.nombre')
                     ->label('Proveedor')
                     ->searchable(),
@@ -45,26 +45,32 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
                     ->searchable(),
                 Tables\Columns\TextColumn::make('fecha_entrega')
                     ->label('Fecha Entrega')
-                    ->date()
+                    ->dateTime()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('existencia.nombre')
                     ->label('Existencia'),
 
                 Tables\Columns\TextColumn::make('cantidad')
-                    ->label('Cantidad'),
+                    ->numeric()
+                    ->formatStateUsing(function ($state) {
+                        return number_format($state, 0, '.', ',');
+                    }),
 
                 Tables\Columns\TextColumn::make('total')
-                    ->money('Nuevos Soles')
+                    ->numeric()
+                    ->formatStateUsing(function ($state) {
+                        return 'S/. ' . number_format($state, 2);
+                    })
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('estado')
-                    ->label('Estado')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'Pendiente' => 'warning',
-                        default => 'gray',
-                    }),
+                // Tables\Columns\TextColumn::make('estado')
+                //     ->label('Estado')
+                //     ->badge()
+                //     ->color(fn(string $state): string => match ($state) {
+                //         'Pendiente' => 'warning',
+                //         default => 'gray',
+                //     }),
 
             ])
             ->actions([

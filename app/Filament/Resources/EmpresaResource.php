@@ -6,11 +6,13 @@ use App\Filament\Resources\EmpresaResource\Pages;
 use App\Filament\Resources\EmpresaResource\RelationManagers;
 use App\Models\Empresa;
 use Filament\Forms;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -28,100 +30,135 @@ class EmpresaResource extends Resource
     {
         return $form
             ->schema([
-                Group::make()->schema(
-                    [
-                        Section::make('Informacion')
+                Section::make()
+                    ->schema([
 
+
+                        Grid::make()
                             ->schema([
-                                Forms\Components\TextInput::make('nombre')
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('tipo_actividad')
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('ruc')
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('nombre_comercial')
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\TextInput::make('numero_decreto')
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\FileUpload::make('logo')
-                                    ->image()
-                                    ->imageEditor()
-                                    ->imageEditorAspectRatios([
-                                        null,
-                                        '16:9',
-                                        '4:3',
-                                        '1:1',
-                                    ])
-                                    ->storeFileNamesIn('logos')
-                                    ->default(null),
-                            ])->columns(4),
+                                Section::make('Información general')
 
-                    ]
-                )->columnSpan(4),
-                Group::make()->schema(
-                    [
-                        Section::make('Información')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('nombre')
+                                            ->label('Nombre de la empresa')
+                                            ->required()
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('tipo_actividad')
+                                            ->label('Tipo de actividad')
+                                            ->required()
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('ruc')
+                                            ->label('RUC')
+                                            ->unique(ignoreRecord: true)
+                                            ->required()
+                                            ->maxLength(11),
+                                        Forms\Components\TextInput::make('nombre_comercial')
+                                            ->label('Nombre del comercial')
+                                            ->maxLength(255)
+                                            ->default(null),
+                                        Forms\Components\TextInput::make('numero_decreto')
+                                            ->label('Número de decreto')
+                                            ->maxLength(255)
+                                            ->default(null),
+                                        Forms\Components\FileUpload::make('logo')
+                                            ->image()
+                                            ->imageEditor()
+                                            ->directory('empresa')
+                                            ->imageEditorAspectRatios([
+                                                null,
+                                                '16:9',
+                                                '4:3',
+                                                '1:1',
+                                            ]),
+                                    ])->columns(2)
+                                    ->columnSpan(2),
 
+                                Section::make('Información detallada')
+
+                                    ->schema([
+                                        Forms\Components\TextInput::make('email')
+                                            ->label('Correo electrónico')
+                                            ->email()
+                                            ->maxLength(255)
+                                            ->default(null),
+                                        Forms\Components\TextInput::make('telefono')
+                                            ->label('Numero de teléfono')
+                                            ->tel()
+                                            ->maxLength(255)
+                                            ->default(null),
+                                        Forms\Components\TextInput::make('direccion')
+                                            ->label('Dirección')
+                                            ->maxLength(255)
+                                            ->default(null),
+                                        Forms\Components\TextInput::make('moneda')
+                                            ->maxLength(255)
+                                            ->default(null),
+                                        Forms\Components\Textarea::make('mision')
+                                            ->label('Misión')
+                                            ->columnSpanFull(),
+                                        Forms\Components\Textarea::make('vision')
+                                            ->label('Visión')
+                                            ->columnSpanFull(),
+                                        Forms\Components\Textarea::make('descripcion')
+                                            ->label('Descripción')
+                                            ->columnSpanFull(),
+                                    ])->columns(2)
+                                    ->columnSpan(1),
+
+                            ])->columns(3),
+
+                        Grid::make()
                             ->schema([
-                                Forms\Components\TextInput::make('email')
-                                    ->email()
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\TextInput::make('telefono')
-                                    ->tel()
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\TextInput::make('direccion')
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\TextInput::make('moneda')
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\Textarea::make('mision')
-                                    ->columnSpanFull(),
-                                Forms\Components\Textarea::make('vision')
-                                    ->columnSpanFull(),
-                                Forms\Components\Textarea::make('descripcion')
-                                    ->columnSpanFull(),
-                                Forms\Components\TextInput::make('facebook')
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\TextInput::make('youtube')
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\TextInput::make('whatsapp')
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\TextInput::make('nombre_gerente')
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\TextInput::make('dni_gerente')
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\TextInput::make('telefono_gerente')
-                                    ->tel()
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\TextInput::make('correo_gerente')
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\TextInput::make('direccion_gerente')
-                                    ->maxLength(255)
-                                    ->default(null),
-                                Forms\Components\DatePicker::make('fecha_ingreso_gerente')
-                                    ->default(null),
-                            ])->columns(4),
 
-                    ]
-                )->columnSpan(4),
+                                Section::make('Redes Sociales')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('facebook')
+                                            ->placeholder('www.facebook.com')
+                                            ->maxLength(255)
+                                            ->default(null),
+                                        Forms\Components\TextInput::make('youtube')
+                                            ->placeholder('www.youtube.com')
+                                            ->maxLength(255)
+                                            ->default(null),
+                                        Forms\Components\TextInput::make('whatsapp')
+                                            ->placeholder('www.whastapp.com')
+                                            ->maxLength(255)
+                                            ->default(null),
+                                    ])->columnSpan(1),
 
+                                Section::make('Información del gerente')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('nombre_gerente')
+                                            ->label('Nombre del gerente')
+                                            ->maxLength(255)
+                                            ->default(null),
+                                        Forms\Components\TextInput::make('dni_gerente')
+                                            ->label('DNI')
+                                            ->maxLength(255)
+                                            ->default(null),
+                                        Forms\Components\TextInput::make('telefono_gerente')
+                                            ->label('Teléfono')
+                                            ->tel()
+                                            ->maxLength(255)
+                                            ->default(null),
+                                        Forms\Components\TextInput::make('correo_gerente')
+                                            ->label('Correo electrónico')
+                                            ->placeholder('example@email.com')
+                                            ->maxLength(255)
+                                            ->default(null),
+                                        Forms\Components\TextInput::make('direccion_gerente')
+                                            ->label('Domicilio')
+                                            ->maxLength(255)
+                                            ->default(null),
+                                        Forms\Components\DatePicker::make('fecha_ingreso_gerente')
+                                            ->label('Fecha de ingreso al cargo')
+                                            ->default(null),
+                                    ])->columnSpan(1)
+                                    ->columns(2),
+                            ])
+                    ])->columns(2)
 
-            ])->columns(8);
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -129,31 +166,43 @@ class EmpresaResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
+                    ->label('Nombre de la empresa')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tipo_actividad')
+                    ->label('Tipo de actividad')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('ruc')
+                    ->label('RUC')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nombre_comercial')
+                    ->label('Nombre del comercial')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('numero_decreto')
+                    ->label('Número de decreto')
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('logo'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
+                    ->label('Fecha de creación')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
+                    ->label('Fecha de actualización')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
             ]);
     }
 

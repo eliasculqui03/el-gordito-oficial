@@ -21,6 +21,10 @@ class TipoExistenciaResource extends Resource
 {
     protected static ?string $model = TipoExistencia::class;
 
+    protected static ?string $navigationLabel = 'Tipos de existencia';
+    protected static ?string $label = 'tipos de existencia';
+    protected static ?string $pluralLabel = 'Tipos de existencia';
+
     protected static ?string $navigationGroup = 'Existencias';
     //protected static ?int $navigationSort = 1;
 
@@ -46,7 +50,6 @@ class TipoExistenciaResource extends Resource
             ->columns([
 
                 TextColumn::make('nombre')
-                    ->sortable()
                     ->searchable(),
 
                 IconColumn::make('estado')

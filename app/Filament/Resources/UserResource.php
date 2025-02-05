@@ -7,6 +7,7 @@ use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
@@ -23,12 +24,14 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
+
     protected static ?string $navigationLabel = 'Usuarios';
-    protected static ?string $label = 'Usuario';
+    protected static ?string $label = 'usuario';
     protected static ?string $pluralLabel = 'Usuarios';
 
     protected static ?string $navigationGroup = 'Configuración';
@@ -41,38 +44,59 @@ class UserResource extends Resource
         return $form
             ->schema([
 
-                Section::make()
+                Section::make('')
                     ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('email')
-                            ->email()
-                            ->required()
-                            ->maxLength(255),
+                        Grid::make()
+                            ->schema([
+                                Section::make('Información del usuario')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('name')
+                                            ->label('Nombre')
+                                            ->required()
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('email')
+                                            ->label('Correo electrónico')
+                                            ->email()
+                                            ->unique(ignoreRecord: true)
+                                            ->required()
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('password')
+                                            ->label(fn(string $operation) => $operation === 'edit' ? 'Nueva Contraseña' : 'Contraseña')
+                                            ->password()
+                                            ->dehydrateStateUsing(fn($state) => !empty($state) ? Hash::make($state) : null)
+                                            ->required(fn(string $operation): bool => $operation === 'create')
+                                            ->revealable()
+                                            ->dehydrated(fn($state) => filled($state))
+                                    ])->columnSpan(1),
 
+                                Section::make('Información de Empleado')
+                                    ->schema([
+                                        Select::make('empleado_id')
+                                            ->relationship(
+                                                'empleado',
+                                                'nombre',
+                                                function ($query) {
+                                                    return $query->where('estado', true);
+                                                }
+                                            ),
+                                        FileUpload::make('foto')
+                                            ->image()
+                                            ->avatar()
+                                            ->directory('usuarios')
+                                            ->imageEditor()
 
+                                            ->circleCropper(),
+                                    ])->columnSpan(1),
+                            ])->columns(2),
+                        RichEditor::make('descripcion')
+                            ->label('Descripción')
+                            ->fileAttachmentsDirectory('usuarios_descrip')
 
                     ]),
-                Select::make('empleado_id')
-                    ->relationship(
-                        'empleado',
-                        'nombre',
-                        function ($query) {
-                            return $query->where('estado', true);
-                        }
-                    ),
-                FileUpload::make('foto')
-                    ->image()
-                    ->avatar()
-                    ->directory('usuarios')
-                    ->imageEditor()
-
-                    ->circleCropper(),
-                RichEditor::make('descripcion')
 
 
-            ]);
+
+            ])->columns(2);
     }
 
     public static function table(Table $table): Table
@@ -80,35 +104,39 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->label('Correo electrónico')
                     ->searchable(),
-                TextColumn::make('email_verified_at'),
+                TextColumn::make('email_verified_at')
+                    ->label('Verificación'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
+                    ->label('Fecha de creación')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
+                    ->label('Fecha de actualización')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('empleado.nombre')
-                    ->numeric()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\ImageColumn::make('foto')
-                    ->label('Imagen'), // Nombre de la columna en español
+                    ->circular()
+                    ->label('Foto'), // Nombre de la columna en español
             ])
             ->filters([
                 //filtros para la tabla
                 Filter::make('verified')
+                    ->label('Perfil verificado')
                     ->query(fn(Builder $query): Builder => $query->whereNotNull('email_verified_at'))
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
                 Action::make('Verify')
                     ->icon('heroicon-o-check-badge')
-                    ->color('secondary')
+                    ->color('info')
                     ->action(function (User $user) {
                         $user->email_verified_at = Date('Y-m-d H:i:s');
                         $user->save();
@@ -119,7 +147,12 @@ class UserResource extends Resource
                     ->action(function (User $user) {
                         $user->email_verified_at = null;
                         $user->save();
-                    })
+                    }),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ]);
     }
 

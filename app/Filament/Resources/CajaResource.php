@@ -9,6 +9,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -33,6 +34,7 @@ class CajaResource extends Resource
                     ->relationship('sucursal', 'nombre')
                     ->required(),
                 Forms\Components\Select::make('user_id')
+                    ->label('Usuario')
                     ->relationship('user', 'name')
                     ->required(),
                 Forms\Components\Toggle::make('estado')
@@ -46,19 +48,21 @@ class CajaResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('sucursal.nombre')
                     ->numeric(),
                 Tables\Columns\TextColumn::make('user.name')
+                    ->label('Usuario')
                     ->numeric(),
                 Tables\Columns\IconColumn::make('estado')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Fecha de creación')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Fecha de actualización')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -69,9 +73,11 @@ class CajaResource extends Resource
                     ->relationship('user', 'name'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
             ]);
     }
 

@@ -9,8 +9,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Support\Facades\Storage;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasAvatar
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -74,5 +76,10 @@ class User extends Authenticatable
     public function ingresoAlmacen(): HasMany
     {
         return $this->hasMany(IngresoAlmacen::class);
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return $this->foto ? Storage::url($this->foto) : null;
     }
 }

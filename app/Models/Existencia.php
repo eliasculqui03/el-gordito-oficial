@@ -16,7 +16,7 @@ class Existencia extends Model
         'tipo_existencia_id',
         'categoria_existencia_id',
         'unidad_medida_id',
-        'costo_compra',
+        'precio_compra',
         'precio_venta',
         'descripcion',
         'estado'

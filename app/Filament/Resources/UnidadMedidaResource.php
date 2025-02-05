@@ -11,6 +11,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,6 +20,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class UnidadMedidaResource extends Resource
 {
     protected static ?string $model = UnidadMedida::class;
+
+
+    protected static ?string $navigationLabel = 'Unidades de medida';
+    protected static ?string $label = 'unidades de medida';
+    protected static ?string $pluralLabel = 'Unidades de medida';
 
     protected static ?string $navigationGroup = 'Existencias';
     //protected static ?int $navigationSort = 1;
@@ -46,12 +52,9 @@ class UnidadMedidaResource extends Resource
             ->columns([
                 //
                 TextColumn::make('nombre')
-                    ->sortable()
                     ->searchable(),
-
                 TextColumn::make('simbolo')
                     ->label('Símbolo')
-                    ->sortable()
                     ->searchable(),
                 Tables\Columns\IconColumn::make('estado')
                     ->label('Estado')
@@ -61,9 +64,11 @@ class UnidadMedidaResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
             ]);
     }
 

@@ -12,6 +12,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -51,18 +52,18 @@ class ZonaResource extends Resource
                 TextColumn::make('nombre')
                     ->searchable(),
                 TextColumn::make('caja.nombre')
-                    ->numeric()
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
                 IconColumn::make('estado')
                     ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
+                    ->label('Fecha de creación')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
+                    ->label('Fecha de actualización')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
@@ -71,15 +72,17 @@ class ZonaResource extends Resource
                     ->relationship('caja', 'nombre'),
                 Tables\Filters\SelectFilter::make('estado')
                     ->options([
-                        '1' => 'Activo',
-                        '2' => 'Inactivo',
+                        '1' => 'Habilitado',
+                        '2' => 'Deshabilitado',
                     ]),
 
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

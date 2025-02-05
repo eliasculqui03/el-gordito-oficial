@@ -8,7 +8,11 @@ use App\Models\NotaSolicitudCompra;
 use App\Models\SolicitudCompra;
 use Filament\Actions\Action;
 use Filament\Forms;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -30,108 +34,143 @@ class SolicitudCompraResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('proveedor_id')
-                    ->relationship('proveedor', 'nombre', function ($query) {
-                        return $query->where('estado', true);
-                    })
-                    ->required(),
 
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required(),
+                Section::make('Información general')
+                    ->schema([
+                        Forms\Components\Group::make()
+                            ->schema(fn(string $operation) => match ($operation) {
+                                'view' => [
+                                    Placeholder::make('usuario')
+                                        ->content(function ($record) {
+                                            // Busca el usuario por el user_id del registro
+                                            $user = \App\Models\User::find($record->user_id);
+                                            return $user ? $user->name : 'Usuario no encontrado';
+                                        })
+                                        ->label('Usuario'),
+                                ],
+                                default => [
+                                    Hidden::make('user_id')
+                                        ->default(auth()->id())
+                                        ->dehydrated(true)
+                                        ->afterStateHydrated(function (Hidden $component) {
+                                            $component->state(auth()->id());
+                                        }),
+                                    Placeholder::make('usuario')
+                                        ->content(auth()->user()->name)
+                                        ->label('Usuario'),
+                                ],
+                            }),
+                        Forms\Components\Select::make('proveedor_id')
+                            ->relationship('proveedor', 'nombre', function ($query) {
+                                return $query->where('estado', true);
+                            })
+                            ->required(),
+                        Forms\Components\DateTimePicker::make('fecha_entrega')
+                            ->required(),
 
-                Forms\Components\Select::make('existencia_id')
-                    ->relationship('existencia', 'nombre', function ($query) {
-                        return $query->where('estado', true);
-                    })
-                    ->required()
-                    ->live()
-                    ->afterStateUpdated(function ($state, callable $set, $get) { // añadido $get aquí
-                        if ($state) {
-                            $existencia = \App\Models\Existencia::find($state);
-                            if ($existencia) {
-                                $set('costo_compra', $existencia->costo_compra);
-                                // Usar $get en lugar de $this->data
-                                $cantidad = $get('cantidad') ?? 1;
-                                $set('total', $existencia->costo_compra * $cantidad);
-                            }
-                        }
-                    }),
-
-                Forms\Components\TextInput::make('costo_compra')
-                    ->label('Precio compra')
-                    ->numeric()
-                    ->prefix('S/.'),
-
-                Forms\Components\TextInput::make('cantidad')
-                    ->required()
-                    ->numeric()
-                    ->default(1)
-                    ->minValue(1)
-                    ->live()
-                    ->rules(['min:1'])
-                    ->afterStateUpdated(function ($state, callable $set, $get) {
-                        $precio = $get('costo_compra');
-                        if ($precio && is_numeric($state)) {
-                            $total = round($precio * $state, 2); // Redondear a 2 decimales
-                            $set('total', $total);
-                        }
-                    }),
-
-                Forms\Components\TextInput::make('total')
-                    ->required()
-                    ->numeric()
-
-                    ->prefix('S/.')
-                    ->step('0.01') // Permite decimales
-                    ->inputMode('decimal'), // Mejor para entrada numérica
+                        Forms\Components\Select::make('estado')
+                            ->options([
+                                'Pendiente' => 'Pendiente',
+                                'Aprobada' => 'Aprobada',
+                                'Rechazada' => 'Rechazada',
+                                'Cancelada' => 'Cancelada'
+                            ])
+                            ->required()
+                            ->visible(fn($context) => $context === 'edit'),
 
 
+                    ])->columnS(4),
 
 
-                Forms\Components\DateTimePicker::make('fecha_entrega')
-                    ->required(),
-                Forms\Components\Select::make('estado')
-                    ->options([
-                        'Pendiente' => 'Pendiente',
-                        'Aprobada' => 'Aprobada',
-                        'Rechazada' => 'Rechazada',
-                        'Cancelada' => 'Cancelada'
-                    ])
-                    ->required()
-                    ->visible(fn($context) => $context === 'edit'),
+                Section::make('')
+                    ->schema([
+                        Forms\Components\Select::make('existencia_id')
+                            ->relationship('existencia', 'nombre', function ($query) {
+                                return $query->where('estado', true);
+                            })
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set, $get) { // añadido $get aquí
+                                if ($state) {
+                                    $existencia = \App\Models\Existencia::find($state);
+                                    if ($existencia) {
+                                        $set('precio_compra', $existencia->precio_compra);
+                                        // Usar $get en lugar de $this->data
+                                        $cantidad = $get('cantidad') ?? 1;
+                                        $set('total', $existencia->precio_compra * $cantidad);
+                                    }
+                                }
+                            }),
 
-            ]);
+                        Forms\Components\TextInput::make('precio_compra')
+                            ->label('Precio compra')
+                            ->numeric()
+                            ->prefix('S/.'),
+
+
+                    ])->columnSpan(1),
+
+                Section::make('')
+
+                    ->schema([
+                        Forms\Components\TextInput::make('cantidad')
+                            ->required()
+                            ->numeric()
+                            ->default(1)
+                            ->minValue(1)
+                            ->live()
+                            ->rules(['min:1'])
+                            ->afterStateUpdated(function ($state, callable $set, $get) {
+                                $precio = $get('precio_compra');
+                                if ($precio && is_numeric($state)) {
+                                    $total = round($precio * $state, 2); // Redondear a 2 decimales
+                                    $set('total', $total);
+                                }
+                            }),
+
+                        Forms\Components\TextInput::make('total')
+                            ->required()
+                            ->numeric()
+                            ->disabled()
+                            ->dehydrated()
+                            ->prefix('S/.')
+                            ->step('0.01') // Permite decimales
+                            ->inputMode('decimal'), // Mejor para entrada numérica
+                    ])->columnSpan(1)
+
+
+            ])->columns(3);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->query(SolicitudCompra::query()->latest())
             ->columns([
                 Tables\Columns\TextColumn::make('id')
-                    ->label('ID')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('ID'),
                 Tables\Columns\TextColumn::make('proveedor.nombre')
-                    ->numeric()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('existencia.nombre')
-                    ->numeric()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('cantidad')
                     ->numeric()
-                    ->sortable(),
+                    ->formatStateUsing(function ($state) {
+                        return number_format($state, 0, '.', ',');
+                    }),
                 Tables\Columns\TextColumn::make('total')
+                    ->label('Total')
                     ->numeric()
-                    ->sortable(),
+                    ->formatStateUsing(function ($state) {
+                        return 'S/. ' . number_format($state, 2);
+                    }),
                 Tables\Columns\TextColumn::make('fecha_entrega')
-                    ->dateTime()
-                    ->sortable(),
+                    ->dateTime(),
                 Tables\Columns\TextColumn::make('estado')
                     ->badge()
                     ->colors([
                         'primary' => 'Pendiente',
-                        'success' => 'Aprobada',
+                        'info' => 'Aprobada',
                         'danger' => 'Rechazada',
                         'gray' => 'Cancelada',
                         'success' => 'Pagada',
@@ -139,22 +178,36 @@ class SolicitudCompraResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
+                    ->label('Fecha de creación')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
+                    ->label('Fecha de actualización')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->recordUrl(null)
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('estado')
+                    ->options([
+                        'Pendiente' => 'Pendiente',
+                        'Aprobada' => 'Aprobada',
+                        'Rechazada' => 'Rechazada',
+                        'Cancelada' => 'Cancelada',
+                    ]),
+
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
 
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
                 Tables\Actions\Action::make('view_notes')
                     ->label('Ver Notas')
+                    ->color('info')
                     ->icon('heroicon-o-chat-bubble-left-right')
                     ->modalHeading('Notas de la Solicitud')
                     ->form([

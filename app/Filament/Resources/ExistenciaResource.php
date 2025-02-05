@@ -6,9 +6,11 @@ use App\Filament\Resources\ExistenciaResource\Pages;
 use App\Filament\Resources\ExistenciaResource\RelationManagers;
 use App\Models\Existencia;
 use Filament\Forms;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -26,29 +28,47 @@ class ExistenciaResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nombre')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Select::make('tipo_existencia_id')
-                    ->relationship('tipoExistencia', 'nombre')
-                    ->required(),
-                Forms\Components\Select::make('categoria_existencia_id')
-                    ->relationship('categoriaExistencia', 'nombre')
-                    ->required(),
-                Forms\Components\Select::make('unidad_medida_id')
-                    ->relationship('unidadMedida', 'nombre')
-                    ->required(),
-                Forms\Components\TextInput::make('costo_compra')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('precio_venta')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\Textarea::make('descripcion')
-                    ->columnSpanFull(),
-                Forms\Components\Toggle::make('estado')
-                    ->default(true),
-            ]);
+                Section::make()
+                    ->schema([
+                        Forms\Components\TextInput::make('nombre')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\Select::make('tipo_existencia_id')
+                            ->label('Tipo de existencia')
+                            ->relationship('tipoExistencia', 'nombre')
+                            ->required(),
+                        Forms\Components\Select::make('categoria_existencia_id')
+                            ->label('Categoria')
+                            ->relationship('categoriaExistencia', 'nombre')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        Forms\Components\Select::make('unidad_medida_id')
+                            ->label('Unidad de medida')
+                            ->relationship('unidadMedida', 'nombre')
+                            ->required(),
+                        Forms\Components\Textarea::make('descripcion')
+                            ->label('Descripción')
+                            ->columnSpanFull(),
+                        Forms\Components\Toggle::make('estado')
+                            ->default(true),
+                    ])->columnSpan(2)
+                    ->columns(2),
+
+                Section::make('Precios')
+                    ->schema([
+                        Forms\Components\TextInput::make('precio_compra')
+                            ->label('Precio de compra')
+                            ->prefix('S/.')
+                            ->required()
+                            ->numeric(),
+                        Forms\Components\TextInput::make('precio_venta')
+                            ->label('Precio de venta')
+                            ->prefix('S/.')
+                            ->required()
+                            ->numeric(),
+                    ])->columnSpan(1)
+            ])->columns(3);
     }
 
     public static function table(Table $table): Table
@@ -56,42 +76,64 @@ class ExistenciaResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
-                    ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tipoExistencia.nombre'),
+                Tables\Columns\TextColumn::make('tipoExistencia.nombre')
+                    ->searchable()
+                    ->label('Tipo'),
                 Tables\Columns\TextColumn::make('categoriaExistencia.nombre')
+                    ->label('Categoria')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('unidadMedida.nombre'),
-                Tables\Columns\TextColumn::make('costo_compra')
+                Tables\Columns\TextColumn::make('unidadMedida.nombre')
+                    ->label('U. de medida'),
+                Tables\Columns\TextColumn::make('precio_compra')
                     ->numeric()
+                    ->formatStateUsing(function ($state) {
+                        return 'S/. ' . number_format($state, 2);
+                    })
+                    ->label('P. de compra')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('precio_venta')
                     ->numeric()
+                    ->formatStateUsing(function ($state) {
+                        return 'S/. ' . number_format($state, 2);
+                    })
+                    ->label('P. de venta')
                     ->sortable(),
                 Tables\Columns\IconColumn::make('estado')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
+                    ->label('Fecha de creación')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
+                    ->label('Fecha de actualización')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
                 Tables\Filters\SelectFilter::make('tipo_existencia_id')
-                    ->label('Tipo existencia')
+                    ->label('Tipo')
                     ->relationship('tipoExistencia', 'nombre'),
                 Tables\Filters\SelectFilter::make('categoria_existencia_id')
-                    ->label('Categoria existencia')
+                    ->label('Categoria')
+                    ->searchable()
+                    ->preload()
                     ->relationship('categoriaExistencia', 'nombre'),
+                Tables\Filters\SelectFilter::make('estado')
+                    ->options([
+                        '1' => 'Habilitado',
+                        '2' => 'Deshabilitado',
+                    ]),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

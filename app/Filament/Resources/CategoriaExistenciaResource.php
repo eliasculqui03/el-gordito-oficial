@@ -21,6 +21,10 @@ class CategoriaExistenciaResource extends Resource
 {
     protected static ?string $model = CategoriaExistencia::class;
 
+    protected static ?string $navigationLabel = 'Categoria de existencias';
+    protected static ?string $label = 'categoria';
+    protected static ?string $pluralLabel = 'Categoria de existencias';
+
     protected static ?string $navigationGroup = 'Existencias';
     //protected static ?int $navigationSort = 1;
 
@@ -46,9 +50,7 @@ class CategoriaExistenciaResource extends Resource
             ->columns([
                 //
                 TextColumn::make('nombre')
-                    ->sortable()
                     ->searchable(),
-
                 IconColumn::make('estado')
                     ->label('Estado')
                     ->boolean(),

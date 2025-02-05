@@ -34,6 +34,7 @@ class AreaResource extends Resource
                     ->required(),
                 Select::make('user_id')
                     ->relationship('user', 'name')
+                    ->label('Usuario')
                     ->required(),
                 Toggle::make('estado')
                     ->default(true),

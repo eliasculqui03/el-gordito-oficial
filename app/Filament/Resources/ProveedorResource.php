@@ -9,6 +9,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -16,6 +17,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class ProveedorResource extends Resource
 {
     protected static ?string $model = Proveedor::class;
+
+    protected static ?string $navigationLabel = 'Proveedores';
+    protected static ?string $label = 'proveedor';
+    protected static ?string $pluralLabel = 'Proveedores';
 
     protected static ?string $navigationGroup = 'Compras';
     //protected static ?int $navigationSort = 1;
@@ -55,31 +60,40 @@ class ProveedorResource extends Resource
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tipoDocumento.descripcion_corta')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Tipo de documento'),
                 Tables\Columns\TextColumn::make('numero_documento')
+                    ->label('N° de documento')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('telefono')
+                    ->label('Teléfono')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->label('Correo electrónico')
                     ->searchable(),
                 Tables\Columns\IconColumn::make('estado')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
+                    ->label('Fecha de creación')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
+                    ->label('Fecha de actualización')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])
+
             ]);
     }
 

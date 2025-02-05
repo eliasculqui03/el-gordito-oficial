@@ -30,6 +30,7 @@ return new class extends Migration
                 ->references('id')->on('existencias')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
+            $table->double('precio_compra', 10, 2);
             $table->string('fecha_entrega');
             $table->integer('cantidad');
             $table->double('total', 10, 2);

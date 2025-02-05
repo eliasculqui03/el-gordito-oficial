@@ -23,7 +23,7 @@ return new class extends Migration
             $table->unsignedBigInteger('unidad_medida_id');
             $table->foreign('unidad_medida_id')->references('id')->on('unidad_medidas')->onUpdate('cascade')
                 ->onDelete('cascade');
-            $table->double('costo_compra');
+            $table->double('precio_compra');
             $table->double('precio_venta');
             $table->text('descripcion')->nullable();
             $table->boolean('estado')->default(true);

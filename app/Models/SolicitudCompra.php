@@ -14,6 +14,7 @@ class SolicitudCompra extends Model
     protected $fillable = [
         'proveedor_id',
         'user_id',
+        'precio_compra',
         'existencia_id',
         'fecha_entrega',
         'cantidad',

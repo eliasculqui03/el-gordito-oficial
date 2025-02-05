@@ -20,6 +20,10 @@ class TipoDocumentoResource extends Resource
 {
     protected static ?string $model = TipoDocumento::class;
 
+    protected static ?string $navigationLabel = 'Tipos de documento';
+    protected static ?string $label = 'tipo de documento';
+    protected static ?string $pluralLabel = 'Tipos de documentos';
+
     protected static ?string $navigationGroup = 'Configuración';
     //protected static ?int $navigationSort = 1;
 

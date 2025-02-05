@@ -28,12 +28,9 @@ class ClienteResource extends Resource
         return $form
             ->schema([
 
-                Forms\Components\Select::make('tipo_documento')
-                    ->required()
-                    ->options([
-                        'DNI' => 'DNI',
-                        'CE' => 'CE'
-                    ]),
+                Forms\Components\Select::make('tipo_documento_id')
+                    ->relationship('tipoDocumento', 'descripcion_corta')
+                    ->required(),
                 Forms\Components\TextInput::make('numero_documento')
                     ->required()
                     ->maxLength(8)
@@ -107,7 +104,7 @@ class ClienteResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tipo_documento')
+                Tables\Columns\TextColumn::make('tipoDocumento.descripcion_corta')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('numero_documento')
                     ->searchable(),

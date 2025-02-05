@@ -112,4 +112,10 @@ return [
         ],
     ],
 
+    'brand' => [
+        'logo' => fn() => \App\Models\Empresa::first()->logo,
+        // También puedes usar
+        // 'logo_url' => fn () => \App\Models\Empresa::first()->logo,
+    ],
+
 ];

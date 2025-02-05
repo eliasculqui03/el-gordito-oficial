@@ -9,6 +9,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -16,6 +17,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class SucursalResource extends Resource
 {
     protected static ?string $model = Sucursal::class;
+
+    protected static ?string $navigationLabel = 'Sucursales';
+    protected static ?string $label = 'Sucursal';
+    protected static ?string $pluralLabel = 'Sucursales';
 
     protected static ?string $navigationGroup = 'Empresa';
     //protected static ?int $navigationSort = 1;
@@ -33,20 +38,26 @@ class SucursalResource extends Resource
                     ->relationship('empresa', 'nombre')
                     ->required(),
                 Forms\Components\TextInput::make('tipo_establecimiento')
+                    ->label('Tipo de establecimiento')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\DatePicker::make('fecha_inicio_operaciones')
+                    ->label('Inicio de operaciones')
                     ->required(),
                 Forms\Components\DatePicker::make('fecha_final_operaciones')
+                    ->label('Fin de operaciones')
                     ->required(),
                 Forms\Components\TextInput::make('direccion')
+                    ->label('Dirección')
                     ->maxLength(255)
                     ->default(null),
                 Forms\Components\TextInput::make('telefono')
+                    ->label('Teléfono')
                     ->tel()
                     ->maxLength(255)
                     ->default(null),
                 Forms\Components\TextInput::make('correo')
+                    ->label('Correo electrónico')
                     ->email()
                     ->maxLength(255)
                     ->default(null),
@@ -59,36 +70,42 @@ class SucursalResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('empresa.nombre')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('empresa.nombre'),
                 Tables\Columns\TextColumn::make('tipo_establecimiento')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('fecha_inicio_operaciones')
+                    ->label('Inicio de operaciones')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('fecha_final_operaciones')
+                    ->label('Fin de operaciones')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('direccion')
+                    ->label('Dirección')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('telefono')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('correo')
-                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Fecha de creación')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Fecha de actualización')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+
+                ])
 
             ]);
     }
