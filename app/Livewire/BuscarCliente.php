@@ -9,8 +9,15 @@ use Livewire\Component;
 class BuscarCliente extends Component
 {
 
-    public $numero_documento = '';
-    public $nombre = '';
+
+    public $numero_documento;
+    public $nombre;
+
+    public function updatedNumeroDocumento($value)
+    {
+
+        $this->dispatch('numeroDocumentoActualizado', numero: $value);
+    }
 
     public function buscar()
     {
@@ -30,6 +37,8 @@ class BuscarCliente extends Component
                 ->send();
         }
     }
+
+
 
 
     public function render()

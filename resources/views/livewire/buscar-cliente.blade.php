@@ -3,7 +3,7 @@
         <!-- Campo DNI -->
         <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
             <div class="flex w-full">
-                <input wire:model="numero_documento" id="numero-documento" type="text"
+                <input wire:model="numero_documento" id="numero_documento" type="text"
                     placeholder="Ingrese N° de documento"
                     class="w-full px-4 py-2 border border-gray-300 sm:w-64 text-sm/6 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                 <button wire:click="buscar"
@@ -18,6 +18,7 @@
             </div>
             <div class="flex justify-center w-full sm:w-auto sm:justify-start">
                 <livewire:crear-cliente>
+
             </div>
         </div>
 
@@ -29,4 +30,6 @@
                 value="{{ $nombre }}" disabled placeholder="Nombre del cliente" />
         </div>
     </div>
+
+
 </div>
