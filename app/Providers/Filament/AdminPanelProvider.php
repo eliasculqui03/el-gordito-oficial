@@ -26,7 +26,14 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        $empresa = Empresa::first();
+        try {
+            $empresa = Empresa::first();
+            $logo = $empresa ? Storage::url($empresa->logo) : null;
+        } catch (\Exception $e) {
+            $logo = null; // O una imagen por defecto
+        }
+
+        //$empresa = Empresa::first();
         return $panel
             ->font('Roboto Flex')
             ->default()
@@ -43,7 +50,8 @@ class AdminPanelProvider extends PanelProvider
                 'gray' => '#6b7280',       // Gris
                 'dark' => '#1f2937'        // Negro
             ])
-            ->brandLogo(fn() => $empresa ? Storage::url($empresa->logo) : null)
+            ->brandLogo($logo)
+            //->brandLogo(fn() => $empresa ? Storage::url($empresa->logo) : null)
             ->profile()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

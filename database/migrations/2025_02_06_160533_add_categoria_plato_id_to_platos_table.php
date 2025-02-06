@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('clientes', function (Blueprint $table) {
-            $table->unsignedBigInteger('tipo_documento_id')->after('nombre');
-            $table->foreign('tipo_documento_id')->references('id')->on('tipo_documentos')
+        Schema::table('platos', function (Blueprint $table) {
+            $table->unsignedBigInteger('categoria_plato_id')->after('nombre');
+            $table->foreign('categoria_plato_id')->references('id')->on('categoria_platos')
                 ->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
@@ -23,9 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('clientes', function (Blueprint $table) {
-            $table->dropForeign(['tipo_documento_id']);
-            $table->dropColumn('tipo_documento_id');
+        Schema::table('platos', function (Blueprint $table) {
+            $table->dropForeign(['categoria_plato_id']);
+            $table->dropColumn('categoria_plato_id');
         });
     }
 };
