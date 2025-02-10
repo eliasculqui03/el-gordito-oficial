@@ -36,7 +36,8 @@ class TipoExistenciaResource extends Resource
             ->schema([
                 TextInput::make('nombre')
                     ->required(),
-                TextInput::make('descripcion'),
+                TextInput::make('descripcion')
+                    ->label('Descripción'),
                 Toggle::make('estado')
                     ->label('Activo')
                     ->default(true),

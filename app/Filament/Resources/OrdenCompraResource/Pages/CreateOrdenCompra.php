@@ -12,6 +12,11 @@ class CreateOrdenCompra extends CreateRecord
 {
     protected static string $resource = OrdenCompraResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index'); // Redirige a la tabla
+    }
+
     protected function afterCreate(): void
     {
         // Obtener todas las solicitudes de compra asociadas

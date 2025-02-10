@@ -21,7 +21,7 @@ class AreaResource extends Resource
 {
     protected static ?string $model = Area::class;
 
-    protected static ?string $navigationGroup = 'Platos';
+    protected static ?string $navigationGroup = 'Platos y bebidas';
     //protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';

@@ -78,7 +78,9 @@ class UserResource extends Resource
                                                 function ($query) {
                                                     return $query->where('estado', true);
                                                 }
-                                            ),
+                                            )
+                                            ->searchable()
+                                            ->preload(),
                                         FileUpload::make('foto')
                                             ->image()
                                             ->avatar()

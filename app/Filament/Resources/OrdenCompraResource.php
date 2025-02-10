@@ -256,10 +256,15 @@ class OrdenCompraResource extends Resource
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('foto')
                     ->searchable(),
+
                 Tables\Columns\TextColumn::make('igv')
-                    ->numeric(),
+                    ->numeric()
+                    ->suffix('%'),
                 Tables\Columns\TextColumn::make('total')
                     ->numeric()
+                    ->formatStateUsing(function ($state) {
+                        return 'S/. ' . number_format($state, 2);
+                    })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('detalleOrdenCompra.existencia.nombre')
                     ->badge()

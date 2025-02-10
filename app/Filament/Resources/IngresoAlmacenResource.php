@@ -133,6 +133,8 @@ class IngresoAlmacenResource extends Resource
                     ->formatStateUsing(function ($state) {
                         return number_format($state, 0, '.', ',');
                     }),
+                Tables\Columns\TextColumn::make('existencia.unidadMedida.simbolo')
+                    ->label('U. de medida'),
                 Tables\Columns\TextColumn::make('almacen.nombre'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

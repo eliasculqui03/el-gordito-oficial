@@ -54,6 +54,8 @@ class InventarioResource extends Resource
                     ->formatStateUsing(function ($state) {
                         return number_format($state, 0, '.', ',');
                     }),
+                Tables\Columns\TextColumn::make('existencia.unidadMedida.simbolo')
+                    ->label('U. de medida'),
                 Tables\Columns\TextColumn::make('almacen.nombre'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Fecha de creación')
@@ -90,7 +92,7 @@ class InventarioResource extends Resource
                             ])->columns(1)
                     ])->modalWidth('sm'),
                 Action::make('disminuir_stock')
-                    ->label('Eliminar Stock')
+                    ->label('Eliminar stock')
                     ->icon('heroicon-o-minus')
                     ->color('danger')
                     ->action(function (Inventario $record, array $data): void {

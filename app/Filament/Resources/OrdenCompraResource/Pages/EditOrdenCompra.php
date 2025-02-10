@@ -10,6 +10,11 @@ class EditOrdenCompra extends EditRecord
 {
     protected static string $resource = OrdenCompraResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index'); // Redirige a la tabla
+    }
+
     protected function getHeaderActions(): array
     {
         return [

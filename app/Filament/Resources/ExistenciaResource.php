@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ExistenciaResource\Pages;
 use App\Filament\Resources\ExistenciaResource\RelationManagers;
+use App\Models\CategoriaExistencia;
 use App\Models\Existencia;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
@@ -36,13 +37,26 @@ class ExistenciaResource extends Resource
                         Forms\Components\Select::make('tipo_existencia_id')
                             ->label('Tipo de existencia')
                             ->relationship('tipoExistencia', 'nombre')
+                            ->live() // Esto hace que el campo se actualice en tiempo real
+                            ->afterStateUpdated(fn(callable $set) => $set('categoria_existencia_id', null)) // Reset categoria cuando cambia el tipo
                             ->required(),
+
                         Forms\Components\Select::make('categoria_existencia_id')
                             ->label('Categoria')
-                            ->relationship('categoriaExistencia', 'nombre')
+                            ->options(function (callable $get) {
+                                $tipoExistenciaId = $get('tipo_existencia_id');
+
+                                if (!$tipoExistenciaId) {
+                                    return [];
+                                }
+
+                                return CategoriaExistencia::where('tipo_existencia_id', $tipoExistenciaId)
+                                    ->pluck('nombre', 'id');
+                            })
                             ->searchable()
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->disabled(fn(callable $get) => !$get('tipo_existencia_id')), // Deshabilita si no hay tipo seleccionado
                         Forms\Components\Select::make('unidad_medida_id')
                             ->label('Unidad de medida')
                             ->relationship('unidadMedida', 'nombre')
@@ -60,11 +74,13 @@ class ExistenciaResource extends Resource
                         Forms\Components\TextInput::make('precio_compra')
                             ->label('Precio de compra')
                             ->prefix('S/.')
+                            ->minValue(0)
                             ->required()
                             ->numeric(),
                         Forms\Components\TextInput::make('precio_venta')
                             ->label('Precio de venta')
                             ->prefix('S/.')
+                            ->minValue(0)
                             ->required()
                             ->numeric(),
                     ])->columnSpan(1)
@@ -94,6 +110,7 @@ class ExistenciaResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('precio_venta')
                     ->numeric()
+
                     ->formatStateUsing(function ($state) {
                         return 'S/. ' . number_format($state, 2);
                     })

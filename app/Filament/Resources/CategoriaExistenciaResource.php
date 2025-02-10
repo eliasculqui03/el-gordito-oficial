@@ -6,6 +6,7 @@ use App\Filament\Resources\CategoriaExistenciaResource\Pages;
 use App\Filament\Resources\CategoriaExistenciaResource\RelationManagers;
 use App\Models\CategoriaExistencia;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
@@ -35,9 +36,15 @@ class CategoriaExistenciaResource extends Resource
         return $form
             ->schema([
                 //
+                Select::make('tipo_existencia_id')
+                    ->required()
+                    ->relationship('tipoExistencia', 'nombre'),
+
                 TextInput::make('nombre')
                     ->required(),
-                TextInput::make('descripcion'),
+                TextInput::make('descripcion')
+                    ->label('Descripción')
+                    ->columnSpanFull(),
                 Toggle::make('estado')
                     ->label('Activo')
                     ->default(true),

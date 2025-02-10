@@ -40,11 +40,11 @@ class CreateIngresoAlmacen extends CreateRecord
                 ]
             );
 
-            Notification::make()
-                ->title('Ingreso creado exitosamente')
-                ->body('Se ha actualizado el inventario y el estado del detalle de orden de compra.')
-                ->success()
-                ->send();
+            // Notification::make()
+            //     ->title('Ingreso creado exitosamente')
+            //     //->body('Se ha actualizado el inventario y el estado del detalle de orden de compra.')
+            //     ->success()
+            //     ->send();
         } catch (QueryException $e) {
             Notification::make()
                 ->title('Error al actualizar inventario')

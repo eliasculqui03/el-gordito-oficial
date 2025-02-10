@@ -18,6 +18,10 @@ class AlmacenResource extends Resource
     protected static ?string $model = Almacen::class;
 
 
+    protected static ?string $navigationLabel = 'Almacenes';
+    protected static ?string $label = 'almacén';
+    protected static ?string $pluralLabel = 'Almacenes';
+
     protected static ?string $navigationGroup = 'Inventario';
     //protected static ?int $navigationSort = 1;
 
@@ -30,8 +34,8 @@ class AlmacenResource extends Resource
                 Forms\Components\TextInput::make('nombre')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('descripcion')
-                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('descripcion')
+                    ->label('Descripción'),
                 Forms\Components\Toggle::make('estado')
                     ->default(true)
                     ->required(),

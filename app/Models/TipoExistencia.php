@@ -16,4 +16,10 @@ class TipoExistencia extends Model
     {
         return $this->hasMany(Existencia::class);
     }
+
+
+    public function categoriaExistencia(): HasMany
+    {
+        return $this->hasMany(CategoriaExistencia::class);
+    }
 }

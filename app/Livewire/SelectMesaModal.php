@@ -3,17 +3,30 @@
 namespace App\Livewire;
 
 use App\Models\Caja;
+use App\Models\Mesa;
 use App\Models\Zona;
 use Livewire\Component;
 
 class SelectMesaModal extends Component
 {
 
+    public $isOpen = false;
     public $cajas;
     public $zonas;
     public $cajaActual = null;
     public $zonaActual = null;
     public $mesaSeleccionada = null;
+    public $mesaSeleccionadaId = null;
+
+    public function closeModalMesa()
+    {
+        $this->isOpen = false;
+    }
+
+    public function openModalMesa()
+    {
+        $this->isOpen = true;
+    }
 
     public function mount()
     {
@@ -33,11 +46,11 @@ class SelectMesaModal extends Component
         $this->zonaActual = $zonaId;
     }
 
-    public function seleccionarMesa($mesaId)
+    public function seleccionarMesa(Mesa $mesa)
     {
-        $this->mesaSeleccionada = $mesaId;
-        $this->dispatch('mesa-seleccionada', mesaId: $mesaId);
-        $this->dispatch('close-modal');
+        $this->mesaSeleccionada = $mesa->numero;
+        $this->mesaSeleccionadaId = $mesa->id;
+        $this->closeModalMesa();
     }
 
     public function render()
