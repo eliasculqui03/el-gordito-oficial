@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-
-class Area extends Model
+class AreaExistencia extends Model
 {
     use HasFactory;
 
@@ -24,10 +23,8 @@ class Area extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function plato(): HasMany
+    public function existencia(): HasMany
     {
-        return $this->hasMany(Plato::class);
+        return $this->hasMany(Existencia::class);
     }
-
-
 }

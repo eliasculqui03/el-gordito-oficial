@@ -25,6 +25,7 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->double('precio_compra');
             $table->double('precio_venta');
+
             $table->text('descripcion')->nullable();
             $table->boolean('estado')->default(true);
             $table->timestamps();

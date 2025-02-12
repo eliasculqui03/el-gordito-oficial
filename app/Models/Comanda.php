@@ -32,12 +32,12 @@ class Comanda extends Model
         return $this->belongsTo(Mesa::class);
     }
 
-    public function existencias(): HasMany
+    public function comandaExistencias(): HasMany
     {
         return $this->hasMany(ComandaExistencia::class);
     }
 
-    public function platos(): HasMany
+    public function ComandaPlatos(): HasMany
     {
         return $this->hasMany(ComandaPlato::class);
     }

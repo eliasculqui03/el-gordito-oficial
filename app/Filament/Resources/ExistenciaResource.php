@@ -15,6 +15,7 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ExistenciaResource extends Resource
 {
@@ -61,9 +62,12 @@ class ExistenciaResource extends Resource
                             ->label('Unidad de medida')
                             ->relationship('unidadMedida', 'nombre')
                             ->required(),
+                        Forms\Components\Select::make('area_existencia_id')
+                            ->label('Área')
+                            ->relationship('areaExistencia', 'nombre')
+                            ->required(),
                         Forms\Components\Textarea::make('descripcion')
-                            ->label('Descripción')
-                            ->columnSpanFull(),
+                            ->label('Descripción'),
                         Forms\Components\Toggle::make('estado')
                             ->default(true),
                     ])->columnSpan(2)
@@ -130,7 +134,7 @@ class ExistenciaResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+
                 Tables\Filters\SelectFilter::make('tipo_existencia_id')
                     ->label('Tipo')
                     ->relationship('tipoExistencia', 'nombre'),
@@ -139,6 +143,9 @@ class ExistenciaResource extends Resource
                     ->searchable()
                     ->preload()
                     ->relationship('categoriaExistencia', 'nombre'),
+                Tables\Filters\SelectFilter::make('area_existencia_id')
+                    ->label('Área')
+                    ->relationship('areaExistencia', 'nombre'),
                 Tables\Filters\SelectFilter::make('estado')
                     ->options([
                         '1' => 'Habilitado',
@@ -155,6 +162,7 @@ class ExistenciaResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    ExportBulkAction::make()
                 ]),
             ]);
     }

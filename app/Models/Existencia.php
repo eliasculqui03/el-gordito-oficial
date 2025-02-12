@@ -18,6 +18,7 @@ class Existencia extends Model
         'unidad_medida_id',
         'precio_compra',
         'precio_venta',
+        'area_existencia_id',
         'descripcion',
         'estado'
     ];
@@ -60,5 +61,10 @@ class Existencia extends Model
     public function comandas(): HasMany
     {
         return $this->hasMany(ComandaExistencia::class);
+    }
+
+    public function areaExistencia(): BelongsTo
+    {
+        return $this->belongsTo(AreaExistencia::class);
     }
 }

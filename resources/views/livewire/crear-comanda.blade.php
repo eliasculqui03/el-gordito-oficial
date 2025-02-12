@@ -42,39 +42,39 @@
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
             <!-- Columna izquierda (Platos y Existencias) -->
             <div class="lg:col-span-8">
+
                 <!-- Sección Platos -->
                 <div class="p-4 mb-4 bg-white border shadow-sm dark:bg-gray-800 dark:border-gray-700 rounded-xl">
-                    <h3 class="mb-4 text-lg font-semibold text-gray-700 dark:text-gray-300">Platos y bebidas </h3>
-                    <div class="flex gap-4">
-                        <!-- Menú de categorías (izquierda) -->
-                        <div class="w-48 border-r shrink-0 dark:border-gray-700">
-                            <button wire:click="$set('categoria_plato_id', '')"
-                                class="w-full px-4 py-2 mb-1 text-left transition-colors rounded-lg
-                                {{ !$categoria_plato_id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
-                                Todo
+                    <h3 class="mb-4 text-lg font-semibold text-gray-700 dark:text-gray-300">Platos y bebidas</h3>
+
+                    <!-- Menú de categorías (superior) -->
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button wire:click="$set('categoria_plato_id', '')"
+                            class="px-4 py-2 text-sm/6 transition-colors rounded-lg
+            {{ !$categoria_plato_id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                            TODOS
+                        </button>
+                        @foreach ($categorias_platos as $categoria)
+                            <button wire:click="$set('categoria_plato_id', '{{ $categoria->id }}')"
+                                class="px-4 py-2 text-sm/6 transition-colors rounded-lg
+                {{ $categoria_plato_id == $categoria->id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                                {{ $categoria->nombre }}
                             </button>
-                            @foreach ($categorias_platos as $categoria)
-                                <button wire:click="$set('categoria_plato_id', '{{ $categoria->id }}')"
-                                    class="w-full px-4 py-2 mb-1 text-left text-sm/6 transition-colors rounded-lg
-                                    {{ $categoria_plato_id == $categoria->id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
-                                    {{ $categoria->nombre }}
+                        @endforeach
+                    </div>
+
+                    <!-- Lista de platos -->
+                    <div class="overflow-y-auto" style="height: 300px">
+                        <div class="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                            @foreach ($platos as $plato)
+                                <button wire:click="agregarPlato({{ $plato->id }})"
+                                    class="p-3 text-left transition-colors rounded-lg text-sm/6 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600">
+                                    <p class="font-medium dark:text-gray-200">{{ $plato->nombre }}</p>
+                                    <p class="text-gray-600 text-sm/6 dark:text-gray-400">
+                                        S/ {{ number_format($plato->precio, 2) }}
+                                    </p>
                                 </button>
                             @endforeach
-                        </div>
-
-                        <!-- Lista de platos (derecha) -->
-                        <div class="flex-1 overflow-y-auto" style="height: 300px">
-                            <div class="grid gap-2 sm:grid-cols-2">
-                                @foreach ($platos as $plato)
-                                    <button wire:click="agregarPlato({{ $plato->id }})"
-                                        class="w-full p-3 text-left transition-colors rounded-lg text-sm/6 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600">
-                                        <p class="font-medium dark:text-gray-200">{{ $plato->nombre }}</p>
-                                        <p class="text-gray-600 text-sm/6 dark:text-gray-400">
-                                            S/ {{ number_format($plato->precio, 2) }}
-                                        </p>
-                                    </button>
-                                @endforeach
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -82,50 +82,54 @@
                 <!-- Sección Existencias -->
                 <div class="p-4 bg-white border shadow-sm dark:border-gray-700 dark:bg-gray-800 rounded-xl">
                     <h3 class="mb-4 text-lg font-semibold text-gray-700 dark:text-gray-300">Existencias</h3>
-                    <div class="flex gap-4">
-                        <!-- Menú de tipos y categorías (izquierda) -->
-                        <div class="w-48 border-r shrink-0 dark:border-gray-700">
+                    <div class="flex flex-col gap-4">
+                        <!-- Menú de tipos y categorías (arriba) -->
+                        <div class="flex gap-4">
                             <!-- Tipos de Existencia -->
-                            <div class="mb-4">
+                            <div class="w-1/2">
                                 <h4 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Tipos</h4>
-                                <button wire:click="$set('tipo_existencia_id', '')"
-                                    class="w-full px-4 py-2 mb-1 text-left transition-colors rounded-lg
-                                    {{ !$tipo_existencia_id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
-                                    Todos los tipos
-                                </button>
-                                @foreach ($tipos_existencia as $tipo)
-                                    <button wire:click="$set('tipo_existencia_id', '{{ $tipo->id }}')"
-                                        class=" text-sm/6 w-full px-4 py-2 mb-1 text-left transition-colors rounded-lg
-                                        {{ $tipo_existencia_id == $tipo->id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
-                                        {{ $tipo->nombre }}
+                                <div class="flex flex-wrap gap-2">
+                                    <button wire:click="$set('tipo_existencia_id', '')"
+                                        class="px-4 py-2 text-sm/6 transition-colors rounded-lg
+                        {{ !$tipo_existencia_id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                                        TODOS
                                     </button>
-                                @endforeach
+                                    @foreach ($tipos_existencia as $tipo)
+                                        <button wire:click="$set('tipo_existencia_id', '{{ $tipo->id }}')"
+                                            class="px-4 py-2 text-sm/6 transition-colors rounded-lg
+                            {{ $tipo_existencia_id == $tipo->id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                                            {{ $tipo->nombre }}
+                                        </button>
+                                    @endforeach
+                                </div>
                             </div>
 
                             <!-- Categorías de Existencia -->
-                            <div>
+                            <div class="w-1/2">
                                 <h4 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Categorías</h4>
-                                <button wire:click="$set('categoria_existencia_id', '')"
-                                    class="w-full px-4 py-2 mb-1 text-left transition-colors rounded-lg
-                                    {{ !$categoria_existencia_id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
-                                    Todas las categorías
-                                </button>
-                                @foreach ($categorias_existencias as $categoria)
-                                    <button wire:click="$set('categoria_existencia_id', '{{ $categoria->id }}')"
-                                        class="text-sm/6 w-full px-4 py-2 mb-1 text-left transition-colors rounded-lg
-                                        {{ $categoria_existencia_id == $categoria->id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
-                                        {{ $categoria->nombre }}
+                                <div class="flex flex-wrap gap-2">
+                                    <button wire:click="$set('categoria_existencia_id', '')"
+                                        class="px-4 py-2 text-sm/6 transition-colors rounded-lg
+                        {{ !$categoria_existencia_id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                                        TODOS
                                     </button>
-                                @endforeach
+                                    @foreach ($categorias_existencias as $categoria)
+                                        <button wire:click="$set('categoria_existencia_id', '{{ $categoria->id }}')"
+                                            class="px-4 py-2 text-sm/6 transition-colors rounded-lg
+                            {{ $categoria_existencia_id == $categoria->id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                                            {{ $categoria->nombre }}
+                                        </button>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Lista de existencias (derecha) -->
-                        <div class="flex-1 overflow-y-auto" style="height: 300px">
-                            <div class="grid gap-2 sm:grid-cols-2">
+                        <!-- Lista de existencias (abajo) -->
+                        <div class="overflow-y-auto" style="height: 300px">
+                            <div class="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                                 @foreach ($existencias as $existencia)
                                     <button wire:click="agregarExistencia({{ $existencia->id }})"
-                                        class="w-full p-3 text-left transition-colors rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600">
+                                        class="p-3 text-left transition-colors rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600">
                                         <p class="font-medium text-sm/6 dark:text-gray-200">{{ $existencia->nombre }}
                                         </p>
                                         <p class="mb-1 text-xs text-gray-500 dark:text-gray-400"><?php echo $existencia->unidadMedida->nombre; ?></p>
@@ -138,10 +142,14 @@
                         </div>
                     </div>
                 </div>
+
+
+
             </div>
 
             <!-- Columna derecha (Comanda) -->
             <div class="lg:col-span-4">
+
                 <div class="p-4 mb-4 bg-white border shadow-sm dark:border-gray-700 top-4 dark:bg-gray-800 rounded-xl">
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <label for="mesaSeleccionada" class="text-gray-700 dark:text-gray-200">Nro. Mesa:</label>
@@ -152,12 +160,14 @@
                             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-700 dark:hover:bg-blue-800 dark:focus:ring-blue-600">
                             Cambiar Mesa
                         </button>
+
+
+                        <!-- Inicio modal -->
                         @if ($isOpen)
                             <div
                                 class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/50 dark:bg-gray-950/75">
                                 <div
-                                    class="relative w-11/12 max-w-4xl p-4 bg-white shadow-lg rounded-xl dark:bg-gray-800 dark:ring-1 dark:ring-white/10">
-
+                                    class="relative w-full max-w-4xl p-4 mx-2 bg-white shadow-lg rounded-xl dark:bg-gray-800 dark:ring-1 dark:ring-white/10 sm:mx-0">
                                     <div class="flex items-center justify-between pb-4 border-b dark:border-gray-700">
                                         <h2 class="text-xl font-bold text-gray-900 dark:text-white">Seleccionar Mesa
                                         </h2>
@@ -171,85 +181,74 @@
                                         </button>
                                     </div>
 
-                                    <div class="mt-4 space-y-4">
-                                        <div class="grid grid-cols-4 gap-4">
-
-                                            <!-- Cajas -->
-                                            <div class="col-span-1 space-y-2">
-                                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Cajas
-                                                </h3>
+                                    <div class="mt-4">
+                                        <!-- Cajas -->
+                                        <div>
+                                            <h3 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Cajas
+                                            </h3>
+                                            <div class="flex flex-wrap gap-2">
                                                 @foreach ($cajas as $caja)
                                                     <button wire:click="cambiarCaja({{ $caja->id }})"
-                                                        class="w-full px-3 py-2 text-left text-sm rounded-lg
-                {{ $cajaActual == $caja->id
-                    ? 'bg-primary-600 text-white dark:bg-primary-700'
-                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                                                        class="px-3 py-2 text-sm rounded-lg
+                                    {{ $cajaActual == $caja->id ? 'bg-primary-600 text-white dark:bg-primary-700' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                                                         {{ $caja->nombre }}
                                                     </button>
                                                 @endforeach
                                             </div>
+                                        </div>
 
-                                            <!-- Zonas -->
-                                            <div class="col-span-1 space-y-2">
-                                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Zonas
-                                                </h3>
+                                        <!-- Zonas -->
+                                        <div class="mt-4">
+                                            <h3 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Zonas
+                                            </h3>
+                                            <div class="flex flex-wrap gap-2">
                                                 @if ($zonas)
                                                     @foreach ($zonas as $zona)
                                                         <button wire:click="cambiarZona({{ $zona->id }})"
-                                                            class="w-full px-3 py-2 text-left text-sm rounded-lg
-                  {{ $zonaActual == $zona->id
-                      ? 'bg-primary-600 text-white dark:bg-primary-700'
-                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                                                            class="px-3 py-2 text-sm rounded-lg
+                                        {{ $zonaActual == $zona->id ? 'bg-primary-600 text-white dark:bg-primary-700' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                                                             {{ $zona->nombre }}
                                                         </button>
                                                     @endforeach
                                                 @endif
                                             </div>
+                                        </div>
 
-                                            <!-- Mesas -->
-                                            <div class="col-span-2">
-                                                @if ($zonaActual && $zonas->count())
-                                                    <div class="grid grid-cols-2 gap-4">
-                                                        @foreach ($zonas->firstWhere('id', $zonaActual)->mesas as $mesa)
-                                                            <div wire:click="seleccionarMesa({{ $mesa }})"
-                                                                class="p-4 cursor-pointer rounded-xl shadow-sm
-    {{ $mesaSeleccionadaId == $mesa->id ? 'bg-blue-100 dark:bg-blue-800' : 'bg-white dark:bg-gray-700' }}">
-
-                                                                <div class="flex flex-col items-center">
+                                        <!-- Mesas -->
+                                        <div class="mt-4">
+                                            @if ($zonaActual && $zonas->count())
+                                                <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                                                    @foreach ($zonas->firstWhere('id', $zonaActual)->mesas as $mesa)
+                                                        <div wire:click="seleccionarMesa({{ $mesa }})"
+                                                            class="p-4 cursor-pointer rounded-xl shadow-sm
+                                        {{ $mesaSeleccionadaId == $mesa->id ? 'bg-blue-100 dark:bg-blue-800' : 'bg-white dark:bg-gray-700' }}">
+                                                            <div class="flex flex-col items-center">
+                                                                <span class="text-lg font-bold dark:text-gray-200">Mesa
+                                                                    {{ $mesa->numero }}</span>
+                                                                <div
+                                                                    class="flex items-center gap-2 px-3 py-1 mt-2 rounded-lg
+                                            {{ $mesa->estado === 'Libre' ? 'bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900 dark:text-red-400' }}">
+                                                                    <span>
+                                                                        @if ($mesa->estado === 'Libre')
+                                                                            <x-heroicon-m-check-circle
+                                                                                class="w-5 h-5" />
+                                                                        @else
+                                                                            <x-heroicon-m-x-circle class="w-5 h-5" />
+                                                                        @endif
+                                                                    </span>
                                                                     <span
-                                                                        class="text-lg font-bold dark:text-gray-200">Mesa
-                                                                        {{ $mesa->numero }}</span>
-
-                                                                    <div
-                                                                        class="flex items-center gap-2 px-3 py-1 mt-2 rounded-lg
-      {{ $mesa->estado === 'Libre'
-          ? 'bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-400'
-          : 'bg-red-50 text-red-700 dark:bg-red-900 dark:text-red-400' }}">
-                                                                        <span>
-                                                                            @if ($mesa->estado === 'Libre')
-                                                                                <x-heroicon-m-check-circle
-                                                                                    class="w-5 h-5" />
-                                                                            @else
-                                                                                <x-heroicon-m-x-circle
-                                                                                    class="w-5 h-5" />
-                                                                            @endif
-                                                                        </span>
-                                                                        <span
-                                                                            class="text-sm font-medium">{{ $mesa->estado }}</span>
-                                                                    </div>
+                                                                        class="text-sm font-medium">{{ $mesa->estado }}</span>
                                                                 </div>
-
                                                             </div>
-                                                        @endforeach
-                                                    </div>
-                                                @else
-                                                    <div
-                                                        class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                                                        Selecciona una zona
-                                                    </div>
-                                                @endif
-                                            </div>
-
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <div
+                                                    class="flex items-center justify-center h-32 text-gray-500 dark:text-gray-400">
+                                                    Selecciona una zona
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
 
@@ -259,10 +258,10 @@
                                             Cerrar
                                         </button>
                                     </div>
-
                                 </div>
                             </div>
                         @endif
+                        <!-- Fin modl -->
                     </div>
                 </div>
 
@@ -283,9 +282,28 @@
                                                 <h5 class="text-sm font-medium text-gray-900 dark:text-white">
                                                     {{ $item['nombre'] }}</h5>
                                                 <div class="flex items-center gap-2">
-                                                    <input type="number"
-                                                        wire:model="itemsPlatos.{{ $index }}.cantidad"
-                                                        class="w-16 text-center border-gray-300 rounded-lg dark:bg-gray-700">
+                                                    <div class="flex items-center">
+                                                        <button wire:click="decrementarPlato({{ $index }})"
+                                                            class="flex items-center justify-center w-8 h-8 text-gray-500 transition-colors border rounded-l-lg hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-600">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M20 12H4" />
+                                                            </svg>
+                                                        </button>
+                                                        <span
+                                                            class="flex items-center justify-center w-12 h-8 text-sm border-t border-b dark:border-gray-600 dark:text-gray-200">
+                                                            {{ $item['cantidad'] }}
+                                                        </span>
+                                                        <button wire:click="incrementarPlato({{ $index }})"
+                                                            class="flex items-center justify-center w-8 h-8 text-gray-500 transition-colors border rounded-r-lg hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-600">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M12 4v16m8-8H4" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
                                                     <span class="text-sm text-gray-500 dark:text-gray-400">
                                                         x S/ {{ number_format($item['precio'], 2) }}
                                                     </span>
@@ -317,9 +335,30 @@
                                                 <h5 class="text-sm font-medium text-gray-900 dark:text-white">
                                                     {{ $item['nombre'] }}</h5>
                                                 <div class="flex items-center gap-2">
-                                                    <input type="number"
-                                                        wire:model="itemsExistencias.{{ $index }}.cantidad"
-                                                        class="w-16 text-center border-gray-300 rounded-lg dark:bg-gray-700">
+                                                    <div class="flex items-center">
+                                                        <button
+                                                            wire:click="decrementarExistencia({{ $index }})"
+                                                            class="flex items-center justify-center w-8 h-8 text-gray-500 transition-colors border rounded-l-lg hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-600">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M20 12H4" />
+                                                            </svg>
+                                                        </button>
+                                                        <span
+                                                            class="flex items-center justify-center w-12 h-8 text-sm border-t border-b dark:border-gray-600 dark:text-gray-200">
+                                                            {{ $item['cantidad'] }}
+                                                        </span>
+                                                        <button
+                                                            wire:click="incrementarExistencia({{ $index }})"
+                                                            class="flex items-center justify-center w-8 h-8 text-gray-500 transition-colors border rounded-r-lg hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-600">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M12 4v16m8-8H4" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
                                                     <span class="text-sm text-gray-500 dark:text-gray-400">
                                                         x S/ {{ number_format($item['precio'], 2) }}
                                                     </span>

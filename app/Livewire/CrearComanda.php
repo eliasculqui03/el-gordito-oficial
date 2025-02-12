@@ -254,4 +254,49 @@ class CrearComanda extends Component
         $this->mesaSeleccionadaId = $mesa->id;
         $this->closeModalMesa();
     }
+
+
+    public function incrementarPlato($index)
+    {
+        $this->itemsPlatos[$index]['cantidad']++;
+        $this->actualizarSubtotalPlato($index);
+        $this->calcularTotal();
+    }
+
+    public function decrementarPlato($index)
+    {
+        if ($this->itemsPlatos[$index]['cantidad'] > 1) {
+            $this->itemsPlatos[$index]['cantidad']--;
+            $this->actualizarSubtotalPlato($index);
+            $this->calcularTotal();
+        }
+    }
+
+    public function incrementarExistencia($index)
+    {
+        $this->itemsExistencias[$index]['cantidad']++;
+        $this->actualizarSubtotalExistencia($index);
+        $this->calcularTotal();
+    }
+
+    public function decrementarExistencia($index)
+    {
+        if ($this->itemsExistencias[$index]['cantidad'] > 1) {
+            $this->itemsExistencias[$index]['cantidad']--;
+            $this->actualizarSubtotalExistencia($index);
+            $this->calcularTotal();
+        }
+    }
+
+    private function actualizarSubtotalPlato($index)
+    {
+        $this->itemsPlatos[$index]['subtotal'] =
+            $this->itemsPlatos[$index]['cantidad'] * $this->itemsPlatos[$index]['precio'];
+    }
+
+    private function actualizarSubtotalExistencia($index)
+    {
+        $this->itemsExistencias[$index]['subtotal'] =
+            $this->itemsExistencias[$index]['cantidad'] * $this->itemsExistencias[$index]['precio'];
+    }
 }
