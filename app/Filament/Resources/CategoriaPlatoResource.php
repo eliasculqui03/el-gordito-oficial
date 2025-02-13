@@ -17,6 +17,10 @@ class CategoriaPlatoResource extends Resource
 {
     protected static ?string $model = CategoriaPlato::class;
 
+    protected static ?string $navigationLabel = 'Categorias';
+    protected static ?string $label = 'categoria';
+    protected static ?string $pluralLabel = 'Categorias';
+
     protected static ?string $navigationGroup = 'Platos y bebidas';
     //protected static ?int $navigationSort = 1;
 

@@ -41,7 +41,8 @@ class PlatoResource extends Resource
                 Forms\Components\TextInput::make('precio')
                     ->required()
                     ->minValue(0)
-                    ->numeric(),
+                    ->numeric()
+                    ->prefix('S/.'),
                 Forms\Components\Select::make('area_id')
                     ->relationship('area', 'nombre', function ($query) {
                         $query->where('estado', true); // Filtra las cajas activas

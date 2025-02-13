@@ -159,6 +159,7 @@ class OrdenCompraResource extends Resource
                                             }
                                         }
                                     })
+                                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->nombre}")
                                     ->distinct()
                                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                                     ->columnSpan(1),

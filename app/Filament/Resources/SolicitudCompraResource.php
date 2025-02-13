@@ -88,6 +88,7 @@ class SolicitudCompraResource extends Resource
                             ->relationship('existencia', 'nombre', function ($query) {
                                 return $query->where('estado', true);
                             })
+                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->nombre}")
                             ->required()
                             ->live()
                             ->afterStateUpdated(function ($state, callable $set, $get) { // añadido $get aquí
@@ -100,19 +101,24 @@ class SolicitudCompraResource extends Resource
                                         $set('total', $existencia->precio_compra * $cantidad);
                                     }
                                 }
-                            }),
-
-                        Forms\Components\TextInput::make('precio_compra')
-                            ->label('Precio compra')
-                            ->numeric()
-                            ->prefix('S/.'),
+                            })
+                            ->searchable()
+                            ->preload(),
 
 
-                    ])->columnSpan(1),
+
+
+                    ])->columnSpan(2),
 
                 Section::make('')
 
                     ->schema([
+                        Forms\Components\TextInput::make('precio_compra')
+                            ->label('Precio compra')
+                            ->numeric()
+                            ->disabled()
+                            ->dehydrated()
+                            ->prefix('S/.'),
                         Forms\Components\TextInput::make('cantidad')
                             ->required()
                             ->numeric()
@@ -136,10 +142,11 @@ class SolicitudCompraResource extends Resource
                             ->prefix('S/.')
                             ->step('0.01') // Permite decimales
                             ->inputMode('decimal'), // Mejor para entrada numérica
-                    ])->columnSpan(1)
+                    ])->columns(3)
+                    ->columnSpan(2)
 
 
-            ])->columns(3);
+            ])->columns(4);
     }
 
     public static function table(Table $table): Table

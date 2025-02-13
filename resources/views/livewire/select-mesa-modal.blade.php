@@ -118,3 +118,39 @@
 
 
 </div>
+
+
+
+<div class="p-4">
+    <div class="flex flex-col items-center">
+        <span class="mb-3 text-xl font-bold text-gray-800 dark:text-white">
+            Mesa {{ $mesa->numero }}
+        </span>
+        <div
+            class="flex items-center justify-center w-full gap-2 px-3 py-2 rounded-lg
+                               {{ $mesa->estado === 'Libre'
+                                   ? 'bg-green-50 dark:bg-green-900/30'
+                                   : ($mesa->estado === 'Ocupada'
+                                       ? 'bg-red-50 dark:bg-red-900/30'
+                                       : 'bg-gray-50 dark:bg-gray-700') }}">
+            <span>
+                @if ($mesa->estado === 'Libre')
+                    <x-heroicon-o-check-circle class="w-5 h-5 text-green-500 dark:text-green-400" />
+                @elseif($mesa->estado === 'Ocupada')
+                    <x-heroicon-o-user class="w-5 h-5 text-red-500 dark:text-red-400" />
+                @else
+                    <x-heroicon-o-x-circle class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                @endif
+            </span>
+            <span
+                class="text-sm font-medium
+                                   {{ $mesa->estado === 'Libre'
+                                       ? 'text-green-700 dark:text-green-400'
+                                       : ($mesa->estado === 'Ocupada'
+                                           ? 'text-red-700 dark:text-red-400'
+                                           : 'text-gray-700 dark:text-gray-400') }}">
+                {{ $mesa->estado }}
+            </span>
+        </div>
+    </div>
+</div>

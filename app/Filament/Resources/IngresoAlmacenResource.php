@@ -96,11 +96,15 @@ class IngresoAlmacenResource extends Resource
                 Section::make('Agregar existencia')
                     ->schema([
                         Forms\Components\Select::make('existencia_id')
-                            ->relationship('existencia', 'nombre')
+                            ->relationship('existencia', 'nombre', fn($query) => $query->where('estado', 1))
                             ->required()
 
                             ->disabled(fn($get) => $get('existencia_id_disabled'))
-                            ->dehydrated(true),
+                            ->dehydrated(true)
+                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->nombre}")
+                            ->searchable()
+                            ->preload()
+                            ->columnSpan(2),
                         Forms\Components\TextInput::make('cantidad')
                             ->required()
                             ->numeric()

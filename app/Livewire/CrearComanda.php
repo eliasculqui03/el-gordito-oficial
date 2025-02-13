@@ -6,12 +6,16 @@ use App\Models\Caja;
 use App\Models\CategoriaExistencia;
 use App\Models\CategoriaPlato;
 use App\Models\Cliente;
+use App\Models\Comanda;
+use App\Models\ComandaExistencia;
+use App\Models\ComandaPlato;
 use App\Models\Existencia;
 use App\Models\Mesa;
 use App\Models\Plato;
 use App\Models\TipoExistencia;
 use App\Models\Zona;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class CrearComanda extends Component
@@ -25,7 +29,7 @@ class CrearComanda extends Component
 
     public $numero_documento;
     public $nombre;
-
+    public $id_cliente;
     public $itemsPlatos = [];
     public $itemsExistencias = [];
     public $total = 0;
@@ -36,6 +40,10 @@ class CrearComanda extends Component
         $this->cargarExistencias();
         $this->cajas = Caja::where('estado', true)->get();
         $this->zonas = collect();
+        $primerTipo = TipoExistencia::where('estado', 1)->first();
+        if ($primerTipo) {
+            $this->tipo_existencia_id = $primerTipo->id;
+        }
     }
 
     public function updatedCategoriaplatoId()
@@ -87,7 +95,15 @@ class CrearComanda extends Component
         ]);
     }
 
-
+    public function getListaMesasProperty()
+    {
+        if ($this->zonaActual) {
+            return Mesa::where('zona_id', $this->zonaActual)
+                ->orderBy('numero')
+                ->get();
+        }
+        return collect();
+    }
 
     public function updatedNumeroDocumento($value)
     {
@@ -101,6 +117,7 @@ class CrearComanda extends Component
 
         if ($cliente) {
             $this->nombre = $cliente->nombre;
+            $this->id_cliente = $cliente->id;
             Notification::make()
                 ->title('Cliente encontrado')
                 ->success()
@@ -134,7 +151,7 @@ class CrearComanda extends Component
             'nombre' => $existencia->nombre,
             'precio' => $existencia->precio_venta,
             'cantidad' => 1,
-            'subtotal' => $existencia->precio
+            'subtotal' => $existencia->precio_venta
         ]);
     }
 
@@ -223,6 +240,7 @@ class CrearComanda extends Component
     public $zonaActual = null;
     public $mesaSeleccionada = null;
     public $mesaSeleccionadaId = null;
+    public $zonaSeleccionadaId = null;
 
     public function closeModalMesa()
     {
@@ -238,22 +256,88 @@ class CrearComanda extends Component
 
     public function cambiarCaja($cajaId)
     {
+        // Validar que la caja exista y esté activa
+        $caja = Caja::where('id', $cajaId)
+            ->where('estado', true)
+            ->first();
+
+        if (!$caja) {
+            Notification::make()
+                ->title('Error')
+                ->body('La caja seleccionada no está disponible')
+                ->danger()
+                ->send();
+            return;
+        }
+
         $this->cajaActual = $cajaId;
-        $this->zonas = Zona::where('caja_id', $cajaId)->get();
+        $this->zonas = Zona::where('caja_id', $cajaId)
+            ->where('estado', true)
+            ->get();
         $this->zonaActual = null;
+        $this->zonaSeleccionadaId = null;
+        $this->mesaSeleccionada = null;
+        $this->mesaSeleccionadaId = null;
     }
 
     public function cambiarZona($zonaId)
     {
+        // Validar que la zona pertenezca a la caja actual y esté activa
+        $zona = Zona::where('id', $zonaId)
+            ->where('caja_id', $this->cajaActual)
+            ->where('estado', true)
+            ->first();
+
+        if (!$zona) {
+            Notification::make()
+                ->title('Error')
+                ->body('La zona seleccionada no está disponible')
+                ->danger()
+                ->send();
+            return;
+        }
+
         $this->zonaActual = $zonaId;
+        $this->zonaSeleccionadaId = $zonaId;
+        $this->mesaSeleccionada = null;
+        $this->mesaSeleccionadaId = null;
     }
 
     public function seleccionarMesa(Mesa $mesa)
     {
+        // Validar que la mesa esté disponible
+        if ($mesa->estado !== 'Libre') {
+            Notification::make()
+                ->title('Mesa no disponible')
+                ->body('Esta mesa está ocupada o inhabilitada')
+                ->danger()
+                ->send();
+            return;
+        }
+
+        // Validar que la mesa pertenezca a la zona actual
+        if ($mesa->zona_id !== $this->zonaActual) {
+            Notification::make()
+                ->title('Error')
+                ->body('La mesa no pertenece a la zona seleccionada')
+                ->danger()
+                ->send();
+            return;
+        }
+
         $this->mesaSeleccionada = $mesa->numero;
         $this->mesaSeleccionadaId = $mesa->id;
+        $this->zonaSeleccionadaId = $mesa->zona_id;
+
         $this->closeModalMesa();
+
+        Notification::make()
+            ->title('Mesa seleccionada')
+            ->body("Mesa {$mesa->numero} seleccionada correctamente")
+            ->success()
+            ->send();
     }
+
 
 
     public function incrementarPlato($index)
@@ -298,5 +382,157 @@ class CrearComanda extends Component
     {
         $this->itemsExistencias[$index]['subtotal'] =
             $this->itemsExistencias[$index]['cantidad'] * $this->itemsExistencias[$index]['precio'];
+    }
+
+
+
+    public function validarComanda()
+    {
+
+        $mesa = Mesa::find($this->mesaSeleccionadaId);
+
+        if (!$mesa) {
+            Notification::make()
+                ->title('Error')
+                ->body('La mesa seleccionada no existe')
+                ->danger()
+                ->send();
+            return false;
+        }
+
+        if ($mesa->estado !== 'Libre') {
+            Notification::make()
+                ->title('Mesa Ocupada')
+                ->body('La mesa ' . $mesa->numero . ' no está disponible')
+                ->warning()
+                ->send();
+            return false;
+        }
+
+        if (empty($this->id_cliente)) {
+            Notification::make()
+                ->title('Campo requerido')
+                ->body('Debe seleccionar un cliente')
+                ->danger()
+                ->send();
+            return false;
+        }
+
+        if (empty($this->cajaActual)) {
+            Notification::make()
+                ->title('Campo requerido')
+                ->body('Debe seleccionar una caja')
+                ->danger()
+                ->send();
+            return false;
+        }
+
+        if (empty($this->zonaSeleccionadaId)) {
+            Notification::make()
+                ->title('Campo requerido')
+                ->body('Debe seleccionar una zona')
+                ->danger()
+                ->send();
+            return false;
+        }
+
+        if (empty($this->mesaSeleccionadaId)) {
+            Notification::make()
+                ->title('Campo requerido')
+                ->body('Debe seleccionar una mesa')
+                ->danger()
+                ->send();
+            return false;
+        }
+
+        if (count($this->itemsPlatos) == 0 && count($this->itemsExistencias) == 0) {
+            Notification::make()
+                ->title('Campo requerido')
+                ->body('Debe agregar al menos un producto')
+                ->danger()
+                ->send();
+            return false;
+        }
+
+        return true;
+    }
+
+    public function guardarComanda()
+    {
+        if (!$this->validarComanda()) {
+            return;
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Crear la comanda
+            $comanda = Comanda::create([
+                'cliente_id' => $this->id_cliente,
+                'zona_id' => $this->zonaSeleccionadaId,
+                'mesa_id' => $this->mesaSeleccionadaId,
+                'caja_id' => $this->cajaActual,
+                'total' => $this->total,
+                'estado' => true,
+            ]);
+
+            // Guardar los platos
+            foreach ($this->itemsPlatos as $item) {
+                ComandaPlato::create([
+                    'comanda_id' => $comanda->id,
+                    'plato_id' => $item['id'],
+                    'cantidad' => $item['cantidad'],
+                    'precio' => $item['precio'],
+                    'subtotal' => $item['subtotal'],
+                    'estado' => true,
+                ]);
+            }
+
+            // Guardar las existencias
+            foreach ($this->itemsExistencias as $item) {
+                ComandaExistencia::create([
+                    'comanda_id' => $comanda->id,
+                    'existencia_id' => $item['id'],
+                    'cantidad' => $item['cantidad'],
+                    'precio' => $item['precio'],
+                    'subtotal' => $item['subtotal'],
+                    'estado' => true,
+                ]);
+            }
+
+            // Actualizar estado de la mesa
+            Mesa::where('id', $this->mesaSeleccionadaId)
+                ->update(['estado' => 'Ocupada']);
+
+            DB::commit();
+
+            // Limpiar el formulario
+            $this->limpiarComandaTotal();
+
+            Notification::make()
+                ->title('Éxito')
+                ->body('Comanda guardada correctamente')
+                ->success()
+                ->send();
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            Notification::make()
+                ->title('Error')
+                ->body('Error al guardar la comanda: ' . $e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    public function limpiarComandaTotal()
+    {
+        $this->itemsPlatos = [];
+        $this->itemsExistencias = [];
+        $this->total = 0;
+        $this->id_cliente = '';
+        $this->nombre = '';
+        $this->numero_documento = '';
+        // No limpiamos la mesa seleccionada para mantener el contexto
     }
 }
