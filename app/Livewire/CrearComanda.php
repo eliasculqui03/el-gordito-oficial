@@ -11,6 +11,7 @@ use App\Models\ComandaExistencia;
 use App\Models\ComandaPlato;
 use App\Models\Existencia;
 use App\Models\Mesa;
+use App\Models\MesaZona;
 use App\Models\Plato;
 use App\Models\TipoExistencia;
 use App\Models\Zona;
@@ -38,12 +39,7 @@ class CrearComanda extends Component
     {
         $this->cargarPlatos();
         $this->cargarExistencias();
-        $this->cajas = Caja::where('estado', true)->get();
-        $this->zonas = collect();
-        $primerTipo = TipoExistencia::where('estado', 1)->first();
-        if ($primerTipo) {
-            $this->tipo_existencia_id = $primerTipo->id;
-        }
+        $this->zonas = Zona::where('estado', true)->with('mesas')->get();
     }
 
     public function updatedCategoriaplatoId()
@@ -95,15 +91,7 @@ class CrearComanda extends Component
         ]);
     }
 
-    public function getListaMesasProperty()
-    {
-        if ($this->zonaActual) {
-            return Mesa::where('zona_id', $this->zonaActual)
-                ->orderBy('numero')
-                ->get();
-        }
-        return collect();
-    }
+
 
     public function updatedNumeroDocumento($value)
     {
@@ -234,11 +222,10 @@ class CrearComanda extends Component
 
 
     public $isOpen = false;
-    public $cajas;
     public $zonas;
-    public $cajaActual = null;
-    public $zonaActual = null;
-    public $mesaSeleccionada = null;
+
+    public $zonaSeleccionada = null;
+    public $mesaSeleccionada = '';
     public $mesaSeleccionadaId = null;
     public $zonaSeleccionadaId = null;
 
@@ -254,88 +241,55 @@ class CrearComanda extends Component
 
 
 
-    public function cambiarCaja($cajaId)
+    public function seleccionarZona($zonaId)
     {
-        // Validar que la caja exista y esté activa
-        $caja = Caja::where('id', $cajaId)
-            ->where('estado', true)
-            ->first();
-
-        if (!$caja) {
-            Notification::make()
-                ->title('Error')
-                ->body('La caja seleccionada no está disponible')
-                ->danger()
-                ->send();
-            return;
-        }
-
-        $this->cajaActual = $cajaId;
-        $this->zonas = Zona::where('caja_id', $cajaId)
-            ->where('estado', true)
-            ->get();
-        $this->zonaActual = null;
-        $this->zonaSeleccionadaId = null;
-        $this->mesaSeleccionada = null;
-        $this->mesaSeleccionadaId = null;
+        $this->zonaSeleccionada = $zonaId;
     }
 
-    public function cambiarZona($zonaId)
+    public function seleccionarMesa($mesa)
     {
-        // Validar que la zona pertenezca a la caja actual y esté activa
-        $zona = Zona::where('id', $zonaId)
-            ->where('caja_id', $this->cajaActual)
-            ->where('estado', true)
-            ->first();
-
-        if (!$zona) {
-            Notification::make()
-                ->title('Error')
-                ->body('La zona seleccionada no está disponible')
-                ->danger()
-                ->send();
-            return;
-        }
-
-        $this->zonaActual = $zonaId;
-        $this->zonaSeleccionadaId = $zonaId;
-        $this->mesaSeleccionada = null;
-        $this->mesaSeleccionadaId = null;
-    }
-
-    public function seleccionarMesa(Mesa $mesa)
-    {
-        // Validar que la mesa esté disponible
-        if ($mesa->estado !== 'Libre') {
+        if ($mesa['estado'] !== 'Libre') {
             Notification::make()
                 ->title('Mesa no disponible')
-                ->body('Esta mesa está ocupada o inhabilitada')
-                ->danger()
+                ->body('Esta mesa se encuentra ocupada.')
+                ->warning()
                 ->send();
             return;
         }
 
-        // Validar que la mesa pertenezca a la zona actual
-        if ($mesa->zona_id !== $this->zonaActual) {
+        $mesaZona = MesaZona::where('mesa_id', $mesa['id'])
+            ->where('zona_id', $this->zonaSeleccionada)
+            ->first();
+
+        if (!$mesaZona) {
             Notification::make()
                 ->title('Error')
-                ->body('La mesa no pertenece a la zona seleccionada')
+                ->body('Error al seleccionar la mesa y zona.')
                 ->danger()
                 ->send();
             return;
         }
 
-        $this->mesaSeleccionada = $mesa->numero;
-        $this->mesaSeleccionadaId = $mesa->id;
-        $this->zonaSeleccionadaId = $mesa->zona_id;
+        $this->mesaSeleccionada = $mesa['numero'];
+        $this->mesaSeleccionadaId = $mesa['id'];
+        $this->zonaSeleccionadaId = $this->zonaSeleccionada; // Guardamos la zona seleccionada
 
         $this->closeModalMesa();
 
         Notification::make()
             ->title('Mesa seleccionada')
-            ->body("Mesa {$mesa->numero} seleccionada correctamente")
+            ->body("Has seleccionado la mesa {$mesa['numero']}")
             ->success()
             ->send();
+    }
+
+    public function getMesasZonaProperty()
+    {
+        if (!$this->zonaSeleccionada) {
+            return collect();
+        }
+
+        return Zona::find($this->zonaSeleccionada)->mesas;
     }
 
 
@@ -384,11 +338,8 @@ class CrearComanda extends Component
             $this->itemsExistencias[$index]['cantidad'] * $this->itemsExistencias[$index]['precio'];
     }
 
-
-
     public function validarComanda()
     {
-
         $mesa = Mesa::find($this->mesaSeleccionadaId);
 
         if (!$mesa) {
@@ -400,7 +351,17 @@ class CrearComanda extends Component
             return false;
         }
 
-        if ($mesa->estado !== 'Libre') {
+        $mesaZona = $mesa->zonas()->where('zona_id', $this->zonaSeleccionadaId)->first();
+        if (!$mesaZona) {
+            Notification::make()
+                ->title('Error')
+                ->body('La mesa no pertenece a la zona seleccionada')
+                ->danger()
+                ->send();
+            return false;
+        }
+
+        if ($mesa->estado === 'Ocupada') {
             Notification::make()
                 ->title('Mesa Ocupada')
                 ->body('La mesa ' . $mesa->numero . ' no está disponible')
@@ -413,15 +374,6 @@ class CrearComanda extends Component
             Notification::make()
                 ->title('Campo requerido')
                 ->body('Debe seleccionar un cliente')
-                ->danger()
-                ->send();
-            return false;
-        }
-
-        if (empty($this->cajaActual)) {
-            Notification::make()
-                ->title('Campo requerido')
-                ->body('Debe seleccionar una caja')
                 ->danger()
                 ->send();
             return false;
@@ -471,9 +423,8 @@ class CrearComanda extends Component
                 'cliente_id' => $this->id_cliente,
                 'zona_id' => $this->zonaSeleccionadaId,
                 'mesa_id' => $this->mesaSeleccionadaId,
-                'caja_id' => $this->cajaActual,
                 'total' => $this->total,
-                'estado' => true,
+
             ]);
 
             // Guardar los platos
@@ -484,7 +435,7 @@ class CrearComanda extends Component
                     'cantidad' => $item['cantidad'],
                     'precio' => $item['precio'],
                     'subtotal' => $item['subtotal'],
-                    'estado' => true,
+
                 ]);
             }
 
@@ -496,7 +447,7 @@ class CrearComanda extends Component
                     'cantidad' => $item['cantidad'],
                     'precio' => $item['precio'],
                     'subtotal' => $item['subtotal'],
-                    'estado' => true,
+
                 ]);
             }
 
@@ -506,7 +457,6 @@ class CrearComanda extends Component
 
             DB::commit();
 
-            // Limpiar el formulario
             $this->limpiarComandaTotal();
 
             Notification::make()
@@ -533,6 +483,7 @@ class CrearComanda extends Component
         $this->id_cliente = '';
         $this->nombre = '';
         $this->numero_documento = '';
-        // No limpiamos la mesa seleccionada para mantener el contexto
+        $this->mesaSeleccionada = '';
+        $this->mesaSeleccionadaId = null;
     }
 }

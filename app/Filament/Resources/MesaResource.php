@@ -6,6 +6,7 @@ use App\Filament\Resources\MesaResource\Pages;
 use App\Filament\Resources\MesaResource\RelationManagers;
 use App\Models\Mesa;
 use Filament\Forms;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -26,22 +27,22 @@ class MesaResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('zona_id')
-                    ->relationship('zona', 'nombre', function ($query) {
-                        return $query->where('estado', true);
-                    })
-                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->caja->nombre} - {$record->nombre}")
-                    ->required(),
                 Forms\Components\TextInput::make('numero')
                     ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->unique(ignoreRecord: true),
+                CheckboxList::make('zonas')
+                    ->relationship('zonas', 'nombre')
+                    ->searchable()
+                    ->columns(3),
                 Forms\Components\Select::make('estado')
-                    ->default('Libre')
                     ->options([
                         'Libre' => 'Libre',
                         'Ocupada' => 'Ocupada',
-                        'Inhabilitada' => 'Inhabilitada'
-                    ]),
+                        'Inhablitada' => 'Inhabilitada'
+                    ])
+                    ->default('Libre'),
+
             ]);
     }
 
@@ -49,13 +50,9 @@ class MesaResource extends Resource
     {
         return $table
             ->columns([
-
                 Tables\Columns\TextColumn::make('numero')
-                    ->label('Numero de mesa')
-                    ->numeric(),
-                Tables\Columns\TextColumn::make('zona.nombre'),
-                Tables\Columns\TextColumn::make('zona.caja.nombre')
-                    ->label('Caja'),
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('estado')
                     ->badge()
                     ->colors([
@@ -66,24 +63,14 @@ class MesaResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->label('Fecha de creación')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->label('Fecha de actualización')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('zona.caja_id')
-                    ->label('Caja')
-                    ->relationship('zona.caja', 'nombre'),
-                Tables\Filters\SelectFilter::make('estado')
-                    ->options([
-                        'Libre' => 'Libre',
-                        'Ocupada' => 'Ocupada',
-                        'Inhabilitada' => 'Inhabilitada'
-                    ]),
+                //
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

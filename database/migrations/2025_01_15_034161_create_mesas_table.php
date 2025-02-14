@@ -13,12 +13,9 @@ return new class extends Migration
     {
         Schema::create('mesas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('zona_id'); // Clave foránea para la tabla 'zonas'
-            $table->integer('numero'); // Número de mesa
+            $table->integer('numero')->unique(); // Número de mesa
             $table->enum('estado', ['Ocupada', 'Libre', 'Inhabilitada'])->default('Libre');
             $table->timestamps();
-
-            $table->foreign('zona_id')->references('id')->on('zonas')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

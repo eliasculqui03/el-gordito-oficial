@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Zona extends Model
@@ -19,14 +20,14 @@ class Zona extends Model
     /**
      * Relación con el modelo Caja.
      */
-    public function caja(): BelongsTo
+    public function cajas(): BelongsToMany
     {
-        return $this->belongsTo(Caja::class);
+        return $this->belongsToMany(Caja::class);
     }
 
-    public function mesas(): HasMany
+    public function mesas(): BelongsToMany
     {
-        return $this->hasMany(Mesa::class);
+        return $this->belongsToMany(Mesa::class);
     }
 
     public function comandas(): HasMany

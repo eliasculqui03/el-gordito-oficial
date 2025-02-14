@@ -13,6 +13,7 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\CheckboxList;
 
 class CajaResource extends Resource
 {
@@ -21,7 +22,7 @@ class CajaResource extends Resource
     protected static ?string $navigationGroup = 'Empresa';
     //protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-calculator';
 
     public static function form(Form $form): Form
     {
@@ -37,6 +38,12 @@ class CajaResource extends Resource
                     ->label('Usuario')
                     ->relationship('user', 'name')
                     ->required(),
+                CheckboxList::make('zonas')
+                    ->relationship('zonas',  'nombre',  function ($query) {
+                        $query->where('estado', true); // Filtra las mesas cuyo estado es true
+                    })
+                    ->searchable()
+                    ->columns(3),
                 Forms\Components\Toggle::make('estado')
                     ->default(true)
                     ->required(),

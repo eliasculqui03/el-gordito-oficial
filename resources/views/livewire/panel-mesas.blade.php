@@ -1,64 +1,42 @@
 <div class="min-h-screen m-2 border border-gray-200 bg-gray-50 dark:bg-gray-900 dark:border-gray-700 rounded-2xl">
-
     @vite('resources/css/app.css')
     <div class="flex">
         <!-- Menú Lateral -->
         <div
             class="w-64 min-h-screen bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 rounded-l-2xl">
-            <!-- Cajas -->
+            <!-- Zonas -->
             <div class="p-4">
                 <h3 class="mb-3 text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
-                    Cajas
+                    Zonas
                 </h3>
                 <div class="space-y-1">
-                    @foreach ($cajas as $caja)
-                        @if ($caja->estado)
-                            <button wire:click="cambiarCaja({{ $caja->id }})"
-                                class="w-full text-left px-3 py-2 rounded-lg transition-colors text-sm
-                                    {{ $cajaActual == $caja->id
-                                        ? 'bg-primary-600 text-white'
-                                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
-                                {{ $caja->nombre }}
-                            </button>
-                        @endif
+                    @foreach ($zonas as $zona)
+                        <button wire:click="seleccionarZona({{ $zona->id }})"
+                            class="w-full text-left px-3 py-2 rounded-lg transition-colors text-sm
+                                {{ $zonaSeleccionada == $zona->id
+                                    ? 'bg-primary-600 text-white'
+                                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                            {{ $zona->nombre }}
+                        </button>
                     @endforeach
                 </div>
             </div>
-
-            <!-- Zonas -->
-            @if ($zonas && $zonas->count() > 0)
-                <div class="p-4 border-t border-gray-200 dark:border-gray-700">
-                    <h3 class="mb-3 text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
-                        Zonas
-                    </h3>
-                    <div class="space-y-1">
-                        @foreach ($zonas as $zona)
-                            <button wire:click="cambiarZona({{ $zona->id }})"
-                                class="w-full text-left px-3 py-2 rounded-lg transition-colors text-sm
-                                    {{ $zonaActual == $zona->id
-                                        ? 'bg-primary-600 text-white'
-                                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
-                                {{ $zona->nombre }}
-                            </button>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
         </div>
 
         <!-- Contenido Principal -->
         <div class="flex-1 p-6">
-            @if ($zonaActual)
+            @if ($zonaSeleccionada)
                 <div class="mb-6">
                     <h2 class="text-xl font-bold text-gray-800 dark:text-white">
-                        {{ $zonas->firstWhere('id', $zonaActual)->nombre }}
+                        {{ $zonas->firstWhere('id', $zonaSeleccionada)->nombre }}
                     </h2>
                 </div>
 
                 <!-- Grid de Mesas -->
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                    @foreach ($zonas->firstWhere('id', $zonaActual)->mesas as $mesa)
-                        <div wire:click="cambiarEstadoMesa({{ $mesa->id }})"
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+                    wire:poll.1s>
+                    @foreach ($zonas->firstWhere('id', $zonaSeleccionada)->mesas as $mesa)
+                        <div wire:key="mesa-{{ $mesa->id }}" wire:click="cambiarEstadoMesa({{ $mesa->id }})"
                             class="overflow-hidden transition-all duration-200 bg-white shadow-sm cursor-pointer dark:bg-gray-800 rounded-xl hover:shadow-md group">
                             <div class="p-4">
                                 <div class="flex flex-col items-center">
@@ -67,9 +45,9 @@
                                     </span>
                                     <div
                                         class="flex items-center gap-2 px-3 py-2 rounded-lg w-full justify-center
-                                        {{ $mesa->estado === 'libre'
+                                        {{ $mesa->estado === 'Libre'
                                             ? 'bg-green-50 dark:bg-green-900/30'
-                                            : ($mesa->estado === 'ocupado'
+                                            : ($mesa->estado === 'Ocupada'
                                                 ? 'bg-red-50 dark:bg-red-900/30'
                                                 : 'bg-gray-50 dark:bg-gray-700') }}">
                                         <span>
@@ -85,12 +63,12 @@
                                         </span>
                                         <span
                                             class="text-sm font-medium
-                                            {{ $mesa->estado === 'libre'
+                                            {{ $mesa->estado === 'Libre'
                                                 ? 'text-green-700 dark:text-green-400'
-                                                : ($mesa->estado === 'ocupado'
+                                                : ($mesa->estado === 'Ocupada'
                                                     ? 'text-red-700 dark:text-red-400'
                                                     : 'text-gray-700 dark:text-gray-400') }}">
-                                            {{ $mesa->estado }}
+                                            {{ ucfirst($mesa->estado) }}
                                         </span>
                                     </div>
                                 </div>

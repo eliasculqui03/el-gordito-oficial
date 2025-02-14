@@ -149,82 +149,61 @@
 
                 <div class="p-4 mb-4 bg-white border shadow-sm dark:border-gray-700 top-4 dark:bg-gray-800 rounded-xl">
                     <div class="flex flex-wrap items-center justify-between gap-2">
-                        <label for="mesaSeleccionada" class="text-gray-700 dark:text-gray-200">Nro. Mesa:</label>
-                        <input type="text" id="mesaSeleccionada" wire:model="mesaSeleccionada" readonly disabled
-                            class="w-20 px-3 py-1 text-lg font-semibold text-gray-800 bg-gray-100 border border-gray-300 rounded-lg ring-1 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600">
-                        <input type="hidden" disabled wire:model="mesaSeleccionadaId">
-                        <input type="hidden" disabled wire:model="zonaSeleccionadaId">
+                        <!-- Input de Mesa -->
+                        <div class="flex items-center gap-2">
+                            <label for="mesaSeleccionada" class="text-gray-700 dark:text-gray-200">Nro. Mesa:</label>
+                            <input type="text" id="mesaSeleccionada" wire:model="mesaSeleccionada" readonly disabled
+                                class="w-20 px-3 py-1 text-lg font-semibold text-gray-800 bg-gray-100 border border-gray-300 rounded-lg ring-1 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600">
+                            <input type="hidden" wire:model="mesaSeleccionadaId">
+                        </div>
+
                         <button wire:click="openModalMesa"
                             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-blue-700 dark:hover:bg-blue-800 dark:focus:ring-blue-600">
                             Cambiar Mesa
                         </button>
-                        <!-- Inicio modal -->
+                        <!-- Modal de Selección de Mesa -->
                         @if ($isOpen)
                             <div
                                 class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/50 dark:bg-gray-950/75">
                                 <div
                                     class="relative w-full max-w-4xl p-4 mx-2 bg-white shadow-lg rounded-xl dark:bg-gray-800 dark:ring-1 dark:ring-white/10 sm:mx-0">
+                                    <!-- Cabecera del Modal -->
                                     <div class="flex items-center justify-between pb-4 border-b dark:border-gray-700">
                                         <h2 class="text-xl font-bold text-gray-900 dark:text-white">Seleccionar Mesa
                                         </h2>
                                         <button wire:click="closeModalMesa"
                                             class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
+                                            <x-heroicon-o-x-mark class="w-5 h-5" />
                                         </button>
                                     </div>
 
                                     <div class="mt-4">
-                                        <!-- Cajas -->
-                                        <div>
-                                            <h3 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Cajas
+                                        <!-- Zonas -->
+                                        <div class="mb-6">
+                                            <h3 class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400">Zonas
                                             </h3>
                                             <div class="flex flex-wrap gap-2">
-                                                @foreach ($cajas as $caja)
-                                                    <button wire:click="cambiarCaja({{ $caja->id }})"
-                                                        class="px-3 py-2 text-sm rounded-lg
-                                    {{ $cajaActual == $caja->id ? 'bg-primary-600 text-white dark:bg-primary-700' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
-                                                        {{ $caja->nombre }}
+                                                @foreach ($zonas as $zona)
+                                                    <button wire:click="seleccionarZona({{ $zona->id }})"
+                                                        class="px-4 py-2 text-sm transition-colors rounded-lg
+                                {{ $zonaSeleccionada == $zona->id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                                                        {{ $zona->nombre }}
                                                     </button>
                                                 @endforeach
                                             </div>
                                         </div>
 
-                                        <!-- Zonas -->
-                                        <div class="mt-4">
-                                            <h3 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Zonas
-                                            </h3>
-                                            <div class="flex flex-wrap gap-2">
-                                                @if ($zonas)
-                                                    @foreach ($zonas as $zona)
-                                                        <button wire:click="cambiarZona({{ $zona->id }})"
-                                                            class="px-3 py-2 text-sm rounded-lg
-                                        {{ $zonaActual == $zona->id ? 'bg-primary-600 text-white dark:bg-primary-700' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
-                                                            {{ $zona->nombre }}
-                                                        </button>
-                                                    @endforeach
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <!--Mesas -->
-
-                                        <div class="mt-4" wire:poll.3s="$refresh">
-                                            @if ($zonaActual && $zonas->count())
+                                        <!-- Mesas -->
+                                        <div class="mt-4" wire:poll.2s>
+                                            @if ($zonaSeleccionada)
                                                 <div
                                                     class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                                                    @foreach ($this->listaMesas as $mesa)
-                                                        <div
+                                                    @foreach ($this->mesasZona as $mesa)
+                                                        <div wire:key="mesa-{{ $mesa->id }}"
                                                             @if ($mesa->estado === 'Libre') wire:click="seleccionarMesa({{ $mesa }})"
-                        wire:key="mesa-{{ $mesa->id }}"
-                        class="overflow-hidden transition-all duration-200 bg-white shadow-sm cursor-pointer dark:bg-gray-800 rounded-xl hover:shadow-md group
-                        {{ $mesaSeleccionadaId == $mesa->id ? 'ring-2 ring-primary-500 dark:ring-primary-400' : '' }}"
-                    @else
-                        class="overflow-hidden transition-all duration-200 bg-white shadow-sm opacity-75 cursor-not-allowed dark:bg-gray-800 rounded-xl group" @endif>
-                                                            <!-- ... resto del código de la mesa ... -->
+                                        class="overflow-hidden transition-all duration-200 bg-white shadow-sm cursor-pointer dark:bg-gray-800 rounded-xl hover:shadow-md group {{ $mesaSeleccionadaId == $mesa->id ? 'ring-2 ring-primary-500 dark:ring-primary-400' : '' }}"
+                                    @else
+                                        class="overflow-hidden transition-all duration-200 bg-white shadow-sm opacity-75 cursor-not-allowed dark:bg-gray-800 rounded-xl group" @endif>
                                                             <div class="p-4">
                                                                 <div class="flex flex-col items-center">
                                                                     <span
@@ -232,12 +211,12 @@
                                                                         Mesa {{ $mesa->numero }}
                                                                     </span>
                                                                     <div
-                                                                        class="flex items-center justify-center w-full gap-2 px-3 py-2 rounded-lg
-                               {{ $mesa->estado === 'Libre'
-                                   ? 'bg-green-50 dark:bg-green-900/30'
-                                   : ($mesa->estado === 'Ocupada'
-                                       ? 'bg-red-50 dark:bg-red-900/30'
-                                       : 'bg-gray-50 dark:bg-gray-700') }}">
+                                                                        class="flex items-center gap-2 px-3 py-2 rounded-lg w-full justify-center
+                                                {{ $mesa->estado === 'Libre'
+                                                    ? 'bg-green-50 dark:bg-green-900/30'
+                                                    : ($mesa->estado === 'Ocupada'
+                                                        ? 'bg-red-50 dark:bg-red-900/30'
+                                                        : 'bg-gray-50 dark:bg-gray-700') }}">
                                                                         <span>
                                                                             @if ($mesa->estado === 'Libre')
                                                                                 <x-heroicon-o-check-circle
@@ -252,15 +231,23 @@
                                                                         </span>
                                                                         <span
                                                                             class="text-sm font-medium
-                                   {{ $mesa->estado === 'Libre'
-                                       ? 'text-green-700 dark:text-green-400'
-                                       : ($mesa->estado === 'Ocupada'
-                                           ? 'text-red-700 dark:text-red-400'
-                                           : 'text-gray-700 dark:text-gray-400') }}">
-                                                                            {{ $mesa->estado }}
+                                                    {{ $mesa->estado === 'Libre'
+                                                        ? 'text-green-700 dark:text-green-400'
+                                                        : ($mesa->estado === 'Ocupada'
+                                                            ? 'text-red-700 dark:text-red-400'
+                                                            : 'text-gray-700 dark:text-gray-400') }}">
+                                                                            {{ ucfirst($mesa->estado) }}
                                                                         </span>
                                                                     </div>
                                                                 </div>
+                                                            </div>
+                                                            <div
+                                                                class="px-4 py-2 text-xs text-center text-gray-500 bg-gray-50 dark:bg-gray-700/50 dark:text-gray-400 group-hover:bg-gray-100 dark:group-hover:bg-gray-700">
+                                                                @if ($mesa->estado === 'Libre')
+                                                                    Click para seleccionar mesa
+                                                                @else
+                                                                    Mesa no disponible
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     @endforeach
@@ -272,8 +259,6 @@
                                                 </div>
                                             @endif
                                         </div>
-
-
                                     </div>
 
                                     <div class="flex justify-end mt-6">
@@ -285,7 +270,7 @@
                                 </div>
                             </div>
                         @endif
-                        <!-- Fin modal -->
+
                     </div>
                 </div>
 
