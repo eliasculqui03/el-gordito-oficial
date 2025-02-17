@@ -39,11 +39,8 @@ class ZonaResource extends Resource
                     ->relationship('cajas', 'nombre', function ($query) {
                         $query->where('estado', true); // Filtra las mesas cuyo estado es true
                     })
-                    ->searchable(),
-                CheckboxList::make('mesas')
-                    ->relationship('mesas', 'numero')
                     ->searchable()
-                    ->columns(6),
+                    ->columns(3),
                 Forms\Components\Toggle::make('estado')
                     ->required()
                     ->default(true),

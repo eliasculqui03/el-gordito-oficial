@@ -28,10 +28,20 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
 
     public function table(Table $table): Table
     {
+        $userEmail = auth()->user()->email;
+        $query = SolicitudCompra::query()->where('estado', 'Pendiente');
+
+        // Verificar si el usuario es un proveedor
+        $proveedor = \App\Models\Proveedor::where('email', $userEmail)->first();
+
+        if ($proveedor) {
+            // Si es proveedor, mostrar solo sus solicitudes
+            $query->where('proveedor_id', $proveedor->id);
+        }
+
         return $table
             ->query(
-                SolicitudCompra::query()
-                    ->where('estado', 'Pendiente') // Asumiendo que '1' es el estado pendiente
+                $query
             )
             ->columns([
                 // Tables\Columns\TextColumn::make('id')
@@ -162,6 +172,6 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
                     ->modalWidth('lg')
             ])
             ->defaultSort('created_at', 'desc')
-            ->poll('30s');
+            ->poll('10s');
     }
 }

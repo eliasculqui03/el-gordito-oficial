@@ -6,7 +6,6 @@ use App\Filament\Resources\MesaResource\Pages;
 use App\Filament\Resources\MesaResource\RelationManagers;
 use App\Models\Mesa;
 use Filament\Forms;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -30,11 +29,12 @@ class MesaResource extends Resource
                 Forms\Components\TextInput::make('numero')
                     ->required()
                     ->numeric()
+                    ->minValue(1)
                     ->unique(ignoreRecord: true),
-                CheckboxList::make('zonas')
-                    ->relationship('zonas', 'nombre')
-                    ->searchable()
-                    ->columns(3),
+                Forms\Components\Select::make('zona_id')
+                    ->label('Zonas')
+                    ->required()
+                    ->relationship('zona', 'nombre'),
                 Forms\Components\Select::make('estado')
                     ->options([
                         'Libre' => 'Libre',
@@ -42,7 +42,6 @@ class MesaResource extends Resource
                         'Inhablitada' => 'Inhabilitada'
                     ])
                     ->default('Libre'),
-
             ]);
     }
 
@@ -51,8 +50,9 @@ class MesaResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('numero')
-                    ->numeric()
-                    ->sortable(),
+                    ->numeric(),
+                Tables\Columns\TextColumn::make('zona.nombre')
+                    ->label('Zona'),
                 Tables\Columns\TextColumn::make('estado')
                     ->badge()
                     ->colors([
@@ -73,6 +73,7 @@ class MesaResource extends Resource
                 //
             ])
             ->actions([
+
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

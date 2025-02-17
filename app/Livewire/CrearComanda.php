@@ -225,9 +225,10 @@ class CrearComanda extends Component
     public $zonas;
 
     public $zonaSeleccionada = null;
-    public $mesaSeleccionada = '';
+    public $mesaSeleccionada = null;
     public $mesaSeleccionadaId = null;
     public $zonaSeleccionadaId = null;
+
 
     public function closeModalMesa()
     {
@@ -239,11 +240,11 @@ class CrearComanda extends Component
         $this->isOpen = true;
     }
 
-
-
     public function seleccionarZona($zonaId)
     {
         $this->zonaSeleccionada = $zonaId;
+        $this->mesaSeleccionada = '';
+        $this->mesaSeleccionadaId = null;
     }
 
     public function seleccionarMesa($mesa)
@@ -257,14 +258,11 @@ class CrearComanda extends Component
             return;
         }
 
-        $mesaZona = MesaZona::where('mesa_id', $mesa['id'])
-            ->where('zona_id', $this->zonaSeleccionada)
-            ->first();
-
-        if (!$mesaZona) {
+        // Verificar que la mesa pertenezca a la zona seleccionada
+        if ($mesa['zona_id'] != $this->zonaSeleccionada) {
             Notification::make()
                 ->title('Error')
-                ->body('Error al seleccionar la mesa y zona.')
+                ->body('Esta mesa no pertenece a la zona seleccionada.')
                 ->danger()
                 ->send();
             return;
@@ -272,7 +270,7 @@ class CrearComanda extends Component
 
         $this->mesaSeleccionada = $mesa['numero'];
         $this->mesaSeleccionadaId = $mesa['id'];
-        $this->zonaSeleccionadaId = $this->zonaSeleccionada; // Guardamos la zona seleccionada
+        $this->zonaSeleccionadaId = $this->zonaSeleccionada;
 
         $this->closeModalMesa();
 
@@ -289,7 +287,9 @@ class CrearComanda extends Component
             return collect();
         }
 
-        return Zona::find($this->zonaSeleccionada)->mesas;
+        return Mesa::where('zona_id', $this->zonaSeleccionada)
+            ->orderBy('numero')
+            ->get();
     }
 
 
@@ -351,8 +351,8 @@ class CrearComanda extends Component
             return false;
         }
 
-        $mesaZona = $mesa->zonas()->where('zona_id', $this->zonaSeleccionadaId)->first();
-        if (!$mesaZona) {
+        // Validar que la mesa pertenezca a la zona seleccionada
+        if ($mesa->zona_id !== $this->zonaSeleccionadaId) {
             Notification::make()
                 ->title('Error')
                 ->body('La mesa no pertenece a la zona seleccionada')
@@ -361,7 +361,8 @@ class CrearComanda extends Component
             return false;
         }
 
-        if ($mesa->estado === 'Ocupada') {
+        // Validar que la mesa esté libre
+        if ($mesa->estado !== 'Libre') {
             Notification::make()
                 ->title('Mesa Ocupada')
                 ->body('La mesa ' . $mesa->numero . ' no está disponible')

@@ -19,9 +19,9 @@ class Mesa extends Model
     ];
 
 
-    public function zonas(): BelongsToMany
+    public function zona(): BelongsTo
     {
-        return $this->belongsToMany(Zona::class);
+        return $this->belongsTo(Zona::class);
     }
 
     public function comandas(): HasMany

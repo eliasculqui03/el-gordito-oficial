@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('mesas', function (Blueprint $table) {
             $table->id();
             $table->integer('numero')->unique(); // Número de mesa
+            $table->unsignedBigInteger('zona_id');
             $table->enum('estado', ['Ocupada', 'Libre', 'Inhabilitada'])->default('Libre');
             $table->timestamps();
+
+            $table->foreign('zona_id')->references('id')->on('zonas')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 
