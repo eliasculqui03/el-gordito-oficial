@@ -3,10 +3,15 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Inventario;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\ChartWidget;
 
 class GraficoStock extends ChartWidget
 {
+
+    use HasWidgetShield;
+
     protected static ?string $heading = 'Gráfico de barras ';
 
     protected function getData(): array

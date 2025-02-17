@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Livewire\NotasModal;
 use App\Models\SolicitudCompra;
 use App\Models\NotaSolicitudCompra;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Pages\Page;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
 {
-    use Tables\Concerns\InteractsWithTable;
+    use Tables\Concerns\InteractsWithTable, HasPageShield;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
 

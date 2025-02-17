@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
@@ -26,8 +28,21 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Hash;
 
-class UserResource extends Resource
+class UserResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'publish'
+        ];
+    }
+
     protected static ?string $model = User::class;
 
     protected static ?string $navigationLabel = 'Usuarios';
@@ -88,6 +103,11 @@ class UserResource extends Resource
                                             ->imageEditor()
 
                                             ->circleCropper(),
+                                        Forms\Components\Select::make('roles')
+                                            ->relationship('roles', 'name')
+                                            ->multiple()
+                                            ->preload()
+                                            ->searchable(),
                                     ])->columnSpan(1),
                             ])->columns(2),
                         RichEditor::make('descripcion')
