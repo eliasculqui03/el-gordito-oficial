@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('cliente_id')->nullable(); // Clave foránea hacia la tabla 'clientes'
             $table->unsignedBigInteger('zona_id'); // Clave foránea hacia la tabla 'zonas'
             $table->unsignedBigInteger('mesa_id'); // Clave foránea hacia la tabla 'mesas'
-            $table->enum('estado', ['Abierta', 'Cerrada', 'Cancelada'])->default('Abierta'); // Estados de la comanda
+            $table->enum('estado', ['Abierta', 'Procesando', 'Completada', 'Cancelada'])->default('Abierta'); // Estados de la comanda
             $table->timestamps(); // Incluye created_at y updated_at
 
             // Definir claves foráneas

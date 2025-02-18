@@ -19,13 +19,13 @@ class CrearComanda extends Page
     public $mesaSeleccionada = null;
 
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-document-plus';
 
     protected static string $view = 'filament.pages.crear-comanda';
 
-    public function getTitle(): string  // Cambiamos a getTitle() que es el método correcto
+    public function getTitle(): string
     {
         $nextId = Comanda::latest('id')->first()?->id ?? 0;
-        return 'COMANDA N° ' . ($nextId + 1);
+        return 'COMANDA N° ' . str_pad(($nextId + 1), 4, '0', STR_PAD_LEFT);
     }
 }

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('plato_id'); // Clave foránea hacia 'platos'
             $table->integer('cantidad'); // Cantidad del plato solicitado
             $table->double('subtotal', 10, 2); // Subtotal de la cantidad * precio_unitario
-            $table->enum('estado', ['Pendiente', 'Procesando', 'Entregando', 'Completado', 'Cancelada'])->default('Pendiente'); // Estado del registro
+            $table->enum('estado', ['Pendiente', 'Procesando', 'Listo', 'Entregando', 'Completado', 'Cancelado'])->default('Pendiente'); // Estado del registro
             $table->timestamps(); // Campos 'created_at' y 'updated_at'
 
             // Definir claves foráneas

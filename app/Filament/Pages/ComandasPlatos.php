@@ -9,7 +9,7 @@ class ComandasPlatos extends Page
 {
     use HasPageShield;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
 
     protected static string $view = 'filament.pages.comandas-platos';
 }

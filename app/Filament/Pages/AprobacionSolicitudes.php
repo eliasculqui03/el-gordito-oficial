@@ -172,6 +172,6 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
                     ->modalWidth('lg')
             ])
             ->defaultSort('created_at', 'desc')
-            ->poll('10s');
+            ->poll('5s');
     }
 }

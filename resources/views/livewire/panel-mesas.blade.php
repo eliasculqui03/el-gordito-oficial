@@ -1,9 +1,9 @@
 <div class="min-h-screen m-2 border border-gray-200 bg-gray-50 dark:bg-gray-900 dark:border-gray-700 rounded-2xl">
     @vite('resources/css/app.css')
 
-    <!-- Contenido Principal con Zonas en la parte superior -->
+    <!-- Contenido Principal -->
     <div class="p-6">
-        <!-- Zonas en la parte superior -->
+        <!-- Menú de Zonas en la parte superior -->
         <div class="mb-6">
             <h3 class="mb-3 text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                 Zonas
@@ -22,7 +22,11 @@
         </div>
 
         @if ($zonaSeleccionada)
-
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-gray-800 dark:text-white">
+                    {{ $zonas->firstWhere('id', $zonaSeleccionada)->nombre }}
+                </h2>
+            </div>
 
             <!-- Grid de Mesas -->
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" wire:poll.1s>
@@ -36,11 +40,11 @@
                                 </span>
                                 <div
                                     class="flex items-center gap-2 px-3 py-2 rounded-lg w-full justify-center
-                                        {{ $mesa->estado === 'Libre'
-                                            ? 'bg-green-50 dark:bg-green-900/30'
-                                            : ($mesa->estado === 'Ocupada'
-                                                ? 'bg-red-50 dark:bg-red-900/30'
-                                                : 'bg-gray-50 dark:bg-gray-700') }}">
+                                    {{ $mesa->estado === 'Libre'
+                                        ? 'bg-green-50 dark:bg-green-900/30'
+                                        : ($mesa->estado === 'Ocupada'
+                                            ? 'bg-red-50 dark:bg-red-900/30'
+                                            : 'bg-gray-50 dark:bg-gray-700') }}">
                                     <span>
                                         @if ($mesa->estado === 'Libre')
                                             <x-heroicon-o-check-circle
@@ -53,11 +57,11 @@
                                     </span>
                                     <span
                                         class="text-sm font-medium
-                                            {{ $mesa->estado === 'Libre'
-                                                ? 'text-green-700 dark:text-green-400'
-                                                : ($mesa->estado === 'Ocupada'
-                                                    ? 'text-red-700 dark:text-red-400'
-                                                    : 'text-gray-700 dark:text-gray-400') }}">
+                                        {{ $mesa->estado === 'Libre'
+                                            ? 'text-green-700 dark:text-green-400'
+                                            : ($mesa->estado === 'Ocupada'
+                                                ? 'text-red-700 dark:text-red-400'
+                                                : 'text-gray-700 dark:text-gray-400') }}">
                                         {{ ucfirst($mesa->estado) }}
                                     </span>
                                 </div>
@@ -74,7 +78,7 @@
             <div class="flex items-center justify-center h-full">
                 <div class="text-center text-gray-500 dark:text-gray-400">
                     <x-heroicon-o-arrow-up class="w-8 h-8 mx-auto mb-2" />
-                    Selecciona una zona
+                    Selecciona una zona del menú
                 </div>
             </div>
         @endif

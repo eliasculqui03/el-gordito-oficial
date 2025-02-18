@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('existencia_id'); // Clave foránea para 'existencias'
             $table->integer('cantidad'); // Cantidad del producto
             $table->double('subtotal', 10, 2); // Subtotal con 2 decimales
-            $table->enum('estado', ['Pendiente', 'Entregando', 'Completada', 'Cancelada'])->default('Pendiente'); // Estado con valores definidos
+            $table->enum('estado', ['Pendiente', 'Procesando', 'Listo', 'Entregando', 'Completado', 'Cancelado'])->default('Pendiente'); // Estado con valores definidos
             $table->timestamps(); // 'created_at' y 'updated_at'
 
             // Definir claves foráneas
