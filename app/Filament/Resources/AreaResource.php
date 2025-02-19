@@ -32,10 +32,14 @@ class AreaResource extends Resource
             ->schema([
                 TextInput::make('nombre')
                     ->required(),
-                Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->label('Usuario')
-                    ->required(),
+                Forms\Components\Select::make('users')
+                    ->label('Agregar usuarios')
+                    ->relationship('users', 'name')
+                    ->multiple()
+                    ->preload()
+                    ->searchable(),
+                Forms\Components\Textarea::make('descripcion')
+                    ->columnSpanFull(),
                 Toggle::make('estado')
                     ->default(true),
             ]);
@@ -49,7 +53,8 @@ class AreaResource extends Resource
                 TextColumn::make('nombre')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('user.name')
+                TextColumn::make('users.name')
+                    ->badge()
                     ->label('Usuario'),
                 Tables\Columns\IconColumn::make('estado')
                     ->boolean(),

@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -60,9 +61,14 @@ class User extends Authenticatable implements HasAvatar
         return $this->hasMany(Caja::class);
     }
 
-    public function area(): HasMany
+    public function areas(): BelongsToMany
     {
-        return $this->hasMany(Area::class);
+        return $this->belongsToMany(Area::class);
+    }
+
+    public function areaExistencias(): BelongsToMany
+    {
+        return $this->belongsToMany(AreaExistencia::class);
     }
 
     public function ordencompra(): HasMany
@@ -82,5 +88,10 @@ class User extends Authenticatable implements HasAvatar
     public function getFilamentAvatarUrl(): ?string
     {
         return $this->foto ? Storage::url($this->foto) : null;
+    }
+
+    public function zonas(): BelongsToMany
+    {
+        return $this->belongsToMany(Zona::class);
     }
 }

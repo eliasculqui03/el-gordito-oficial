@@ -41,6 +41,12 @@ class ZonaResource extends Resource
                     })
                     ->searchable()
                     ->columns(3),
+                Forms\Components\Select::make('users')
+                    ->label('Mozos')
+                    ->multiple()
+                    ->relationship('users', 'name')
+                    ->preload()
+                    ->searchable(),
                 Forms\Components\Toggle::make('estado')
                     ->required()
                     ->default(true),
@@ -53,6 +59,9 @@ class ZonaResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('users.name')
+                    ->label('Mozos')
+                    ->badge(),
                 Tables\Columns\IconColumn::make('estado')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')

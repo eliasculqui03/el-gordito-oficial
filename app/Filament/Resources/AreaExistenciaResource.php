@@ -20,7 +20,7 @@ class AreaExistenciaResource extends Resource
     protected static ?string $navigationGroup = 'Existencias';
     //protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
 
     public static function form(Form $form): Form
     {
@@ -29,13 +29,17 @@ class AreaExistenciaResource extends Resource
                 Forms\Components\TextInput::make('nombre')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required(),
+                Forms\Components\Select::make('users')
+                    ->label('Agregar usuarios')
+                    ->relationship('users', 'name')
+                    ->multiple()
+                    ->preload()
+                    ->searchable(),
                 Forms\Components\Textarea::make('descripcion')
                     ->columnSpanFull(),
                 Forms\Components\Toggle::make('estado')
-                    ->required(),
+                    ->required()
+                    ->default(true),
             ]);
     }
 
@@ -45,9 +49,9 @@ class AreaExistenciaResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('users.name')
+                    ->label('Usuarios')
+                    ->badge(),
                 Tables\Columns\IconColumn::make('estado')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -63,6 +67,7 @@ class AreaExistenciaResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
