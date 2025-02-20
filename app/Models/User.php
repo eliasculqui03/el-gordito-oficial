@@ -94,4 +94,9 @@ class User extends Authenticatable implements HasAvatar
     {
         return $this->belongsToMany(Zona::class);
     }
+
+    public function asignacionPlatos(): HasMany
+    {
+        return $this->hasMany(AsignacionPlato::class);
+    }
 }

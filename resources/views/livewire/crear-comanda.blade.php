@@ -1,6 +1,6 @@
 <div>
     @vite('resources/css/app.css')
-    <div class="min-h-screen p-4 bg-gray-50 dark:bg-gray-900">
+    <div class="min-h-screen p-4 ">
         <!-- Barra superior -->
         <div class="p-4 mb-4 bg-white border shadow-sm dark:bg-gray-800 rounded-xl dark:border-gray-700 ">
             <div class="flex flex-col space-y-6 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-6 ">

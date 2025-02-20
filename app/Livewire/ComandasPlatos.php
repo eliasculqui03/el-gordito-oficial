@@ -170,4 +170,17 @@ class ComandasPlatos extends Component
             ->values()
             ->all();
     }
+
+    public function validarProcesar($comandaId)
+    {
+        $comanda = Comanda::find($comandaId);
+
+        foreach ($comanda->comandaPlatos as $comandaPlato) {
+            if ($comandaPlato->estado !== 'Pendiente') {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
