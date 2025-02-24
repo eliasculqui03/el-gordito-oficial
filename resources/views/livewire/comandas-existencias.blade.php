@@ -48,7 +48,7 @@
                         class="flex items-center justify-between p-4 bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                         <div class="flex items-center gap-3">
                             <span class="text-base font-semibold text-gray-900 dark:text-white">
-                                Comanda #{{ str_pad($comanda->id, 4, '0', STR_PAD_LEFT) }}
+                                #{{ str_pad($comanda->id, 4, '0', STR_PAD_LEFT) }}
                             </span>
                             <div
                                 class="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full

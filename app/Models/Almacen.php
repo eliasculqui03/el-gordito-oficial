@@ -27,4 +27,9 @@ class Almacen extends Model
     {
         return $this->hasMany(Inventario::class);
     }
+
+    public function salidaAlmacens(): HasMany
+    {
+        return $this->hasMany(SalidaAlmacen::class);
+    }
 }

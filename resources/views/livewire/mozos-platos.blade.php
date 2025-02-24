@@ -6,7 +6,59 @@
             <!-- Encabezado Principal -->
             <div class="mb-8 text-center">
                 <h1 class="text-3xl font-bold text-gray-800">Gestión de Platos</h1>
-                <p class="mt-2 text-gray-600">Administra los platos listos y asignados para entregar</p>
+                <p class="mt-2 text-gray-600">
+                    Bienvenido, <span class="font-medium text-indigo-600">{{ Auth::user()->name }}</span>
+                </p>
+
+                <div class="mt-3 space-y-1">
+                    <!-- Áreas asignadas -->
+                    <p class="text-sm text-gray-600">
+                        @php
+                            $areasIds = $this->getAreasAsignadasIds();
+                            $areas = empty($areasIds)
+                                ? []
+                                : DB::table('areas')->whereIn('id', $areasIds)->pluck('nombre')->toArray();
+                        @endphp
+
+                        <span class="font-medium">Áreas:</span>
+                        @if (count($areas) > 0)
+                            <span class="inline-flex items-center gap-1">
+                                @foreach ($areas as $area)
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {{ $area }}
+                                    </span>
+                                @endforeach
+                            </span>
+                        @else
+                            <span class="text-xs italic">Acceso a todas las áreas</span>
+                        @endif
+                    </p>
+
+                    <!-- Zonas asignadas -->
+                    <p class="text-sm text-gray-600">
+                        @php
+                            $zonasIds = $this->getZonasAsignadasIds();
+                            $zonas = empty($zonasIds)
+                                ? []
+                                : DB::table('zonas')->whereIn('id', $zonasIds)->pluck('nombre')->toArray();
+                        @endphp
+
+                        <span class="font-medium">Zonas:</span>
+                        @if (count($zonas) > 0)
+                            <span class="inline-flex items-center gap-1">
+                                @foreach ($zonas as $zona)
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                        {{ $zona }}
+                                    </span>
+                                @endforeach
+                            </span>
+                        @else
+                            <span class="text-xs italic">Acceso a todas las zonas</span>
+                        @endif
+                    </p>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -35,7 +87,7 @@
                                             <div class="px-4 py-2 border-b border-gray-200 bg-gray-50">
                                                 <div class="flex items-center justify-between">
                                                     <span class="font-medium text-gray-700">
-                                                        Comanda
+
                                                         #{{ str_pad($platoListo->comanda_id, 4, '0', STR_PAD_LEFT) }}
                                                     </span>
                                                     <span
@@ -83,19 +135,94 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Footer con botón -->
+                                            <!-- Footer con botones -->
                                             <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
-                                                <button wire:click="asignarPlato({{ $platoListo->id }})"
-                                                    class="inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white transition-colors duration-150 bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg"
-                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                                    </svg>
-                                                    Asignar para entregar
-                                                </button>
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    <button wire:click="asignarPlato({{ $platoListo->id }})"
+                                                        class="inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white transition-colors duration-150 bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                                        <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                                        </svg>
+                                                        Asignar
+                                                    </button>
+                                                    <button wire:click="confirmarCancelacion({{ $platoListo->id }})"
+                                                        class="inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white transition-colors duration-150 bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                                        <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                        Cancelar
+                                                    </button>
+                                                </div>
                                             </div>
+
+                                            <!-- Modal de confirmación -->
+                                            @if ($mostrarConfirmacion)
+                                                <div class="fixed inset-0 z-50 overflow-y-auto"
+                                                    aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                                                    <div
+                                                        class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                                                        <!-- Fondo oscuro -->
+                                                        <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+                                                            aria-hidden="true"></div>
+
+                                                        <!-- Centrado del modal -->
+                                                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen"
+                                                            aria-hidden="true">&#8203;</span>
+
+                                                        <!-- Contenido del modal -->
+                                                        <div
+                                                            class="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                                                            <div class="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
+                                                                <div class="sm:flex sm:items-start">
+                                                                    <div
+                                                                        class="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-red-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
+                                                                        <!-- Ícono de alerta -->
+                                                                        <svg class="w-6 h-6 text-red-600"
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            fill="none" viewBox="0 0 24 24"
+                                                                            stroke="currentColor" aria-hidden="true">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round" stroke-width="2"
+                                                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                                        </svg>
+                                                                    </div>
+                                                                    <div
+                                                                        class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                                                        <h3 class="text-lg font-medium leading-6 text-gray-900"
+                                                                            id="modal-title">
+                                                                            Cancelar plato
+                                                                        </h3>
+                                                                        <div class="mt-2">
+                                                                            <p class="text-sm text-gray-500">
+                                                                                ¿Estás seguro de que deseas cancelar
+                                                                                este plato? Esta acción no se puede
+                                                                                revertir.
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div
+                                                                class="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
+                                                                <button type="button" wire:click="procederCancelacion"
+                                                                    class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                                                    Sí, cancelar plato
+                                                                </button>
+                                                                <button type="button" wire:click="cerrarConfirmacion"
+                                                                    class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                                                    Cancelar
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
+
                                         </div>
                                     @endforeach
                                 </div>
@@ -108,9 +235,7 @@
                                         </path>
                                     </svg>
                                     <h3 class="mt-2 text-lg font-medium text-gray-900">No hay platos listos</h3>
-                                    <p class="mt-1 text-sm text-gray-500">
-                                        Cuando la cocina marque platos como listos, aparecerán aquí.
-                                    </p>
+
                                 </div>
                             @endif
                         </div>
@@ -142,7 +267,7 @@
                                             <div class="px-4 py-2 border-b border-gray-200 bg-gray-50">
                                                 <div class="flex items-center justify-between">
                                                     <span class="font-medium text-gray-700">
-                                                        Comanda
+
                                                         #{{ str_pad($asignacion->comandaPlato->comanda_id, 4, '0', STR_PAD_LEFT) }}
                                                     </span>
                                                     <span
@@ -225,9 +350,7 @@
                                         </path>
                                     </svg>
                                     <h3 class="mt-2 text-lg font-medium text-gray-900">No tienes platos asignados</h3>
-                                    <p class="mt-1 text-sm text-gray-500">
-                                        Cuando asignes platos para entregar, aparecerán aquí.
-                                    </p>
+
                                 </div>
                             @endif
                         </div>

@@ -67,4 +67,9 @@ class Existencia extends Model
     {
         return $this->belongsTo(AreaExistencia::class);
     }
+
+    public function salidaAlmacens(): HasMany
+    {
+        return $this->hasMany(SalidaAlmacen::class);
+    }
 }

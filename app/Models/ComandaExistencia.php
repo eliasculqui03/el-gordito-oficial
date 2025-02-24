@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ComandaExistencia extends Model
 {
@@ -26,5 +27,10 @@ class ComandaExistencia extends Model
     public function existencia(): BelongsTo
     {
         return $this->belongsTo(Existencia::class);
+    }
+
+    public function salidaAlmacens(): HasMany
+    {
+        return $this->hasMany(SalidaAlmacen::class);
     }
 }

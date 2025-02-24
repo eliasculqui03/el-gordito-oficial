@@ -162,7 +162,9 @@ class OrdenCompraResource extends Resource
                                     ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->nombre}")
                                     ->distinct()
                                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                                    ->columnSpan(1),
+                                    ->columnSpan(1)
+                                    ->disabled(fn(Forms\Get $get): bool => filled($get('solicitud_compra_id')))
+                                    ->dehydrated(fn(Forms\Get $get): bool => !filled($get('solicitud_compra_id'))),
 
                                 Forms\Components\TextInput::make('cantidad')
                                     ->required()
@@ -188,6 +190,8 @@ class OrdenCompraResource extends Resource
                                             }
                                         }
                                     })
+                                    ->disabled(fn(Forms\Get $get): bool => filled($get('solicitud_compra_id')))
+                                    ->dehydrated(fn(Forms\Get $get): bool => !filled($get('solicitud_compra_id')))
                                     ->columnSpan(1),
 
                                 Forms\Components\TextInput::make('subtotal')

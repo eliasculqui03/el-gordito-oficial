@@ -99,4 +99,9 @@ class User extends Authenticatable implements HasAvatar
     {
         return $this->hasMany(AsignacionPlato::class);
     }
+
+    public function salidaAlmacens(): HasMany
+    {
+        return $this->hasMany(SalidaAlmacen::class);
+    }
 }

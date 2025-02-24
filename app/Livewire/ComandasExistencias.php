@@ -46,6 +46,7 @@ class ComandasExistencias extends Component
         }
     }
 
+
     public function procesarComanda($comandaId)
     {
         $comanda = Comanda::findOrFail($comandaId);

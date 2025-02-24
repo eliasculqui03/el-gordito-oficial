@@ -33,7 +33,13 @@ class InventarioResource extends Resource
                 Forms\Components\Select::make('existencia_id')
                     ->relationship('existencia', 'nombre')
                     ->unique(ignoreRecord: true)
-                    ->required(),
+                    ->validationMessages([
+                        'unique' => 'La existencia ya existe en inventario.'
+                    ])
+                    ->required()
+                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->nombre}")
+                    ->searchable()
+                    ->preload(),
                 Forms\Components\TextInput::make('stock')
                     ->required()
                     ->numeric(),
