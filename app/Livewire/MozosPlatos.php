@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\AsignacionPlato;
 use App\Models\Comanda;
+use App\Models\ComandaExistencia;
 use App\Models\ComandaPlato;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -99,28 +100,7 @@ class MozosPlatos extends Component
         }
     }
 
-    private function tieneAccesoZona($zonaId)
-    {
-        $zonasIds = $this->getZonasAsignadasIds();
 
-        // Si el usuario no tiene zonas asignadas, tiene acceso a todas (es admin)
-        if (empty($zonasIds)) {
-            return true;
-        }
-
-        return in_array($zonaId, $zonasIds);
-    }
-    private function tieneAccesoArea($areaId)
-    {
-        $areasIds = $this->getAreasAsignadasIds();
-
-        // Si el usuario no tiene áreas asignadas, tiene acceso a todas (es admin)
-        if (empty($areasIds)) {
-            return true;
-        }
-
-        return in_array($areaId, $areasIds);
-    }
 
     public function asignarPlato($comandaPlatoId)
     {
@@ -264,8 +244,19 @@ class MozosPlatos extends Component
             ->whereNotIn('estado', ['Completado', 'Cancelado'])
             ->count();
 
-        // Si todos los platos están completados o cancelados, marcar la comanda como Completada
-        if ($platosNoCompletados === 0) {
+        // Contar las existencias que no están completadas ni canceladas
+        $existenciasNoCompletadas = ComandaExistencia::where('comanda_id', $comandaId)
+            ->whereNotIn('estado', ['Completado', 'Cancelado'])
+            ->count();
+
+        // Verificar si hay platos o existencias en la comanda
+        $tieneComandaPlatos = ComandaPlato::where('comanda_id', $comandaId)->exists();
+        $tieneComandaExistencias = ComandaExistencia::where('comanda_id', $comandaId)->exists();
+
+        // Si la comanda tiene platos y/o existencias, y todos están en estado completado o cancelado
+        if (($tieneComandaPlatos || $tieneComandaExistencias) &&
+            ($platosNoCompletados === 0 && $existenciasNoCompletadas === 0)
+        ) {
             $comanda->update(['estado' => 'Completada']);
         }
     }

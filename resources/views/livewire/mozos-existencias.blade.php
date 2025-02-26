@@ -1,9 +1,9 @@
 <div>
     @vite('resources/css/app.css')
 
-    <div class="min-h-screen p-6 bg-gray-50" wire:poll.{{ $refreshInterval }}ms>
+    <div class="min-h-screen p-6 bg-gray-50" wire:poll.3000ms>
         <div class="mx-auto max-w-7xl">
-            {{-- <!-- Encabezado Principal -->
+            <!-- Encabezado Principal -->
             <div class="mb-8 text-center">
                 <h1 class="text-3xl font-bold text-gray-800">Gestión de Existencias</h1>
                 <p class="mt-2 text-gray-600">
@@ -59,7 +59,7 @@
                         @endif
                     </p>
                 </div>
-            </div> --}}
+            </div>
 
             <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
                 <!-- Sección: Existencias Listas -->
@@ -148,7 +148,7 @@
                                                         Asignar
                                                     </button>
                                                     <button
-                                                        wire:click="confirmarCancelacionn({{ $existenciaLista->id }})"
+                                                        wire:click="confirmarCancelacion({{ $existenciaLista->id }})"
                                                         class="inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white transition-colors duration-150 bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                                                         <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg"
                                                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -295,7 +295,7 @@
         </div>
 
         <!-- Modal de confirmación para cancelar existencia -->
-        @if ($mostrarConfirmacionn)
+        @if ($mostrarConfirmacion)
             <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
                 aria-modal="true">
                 <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">

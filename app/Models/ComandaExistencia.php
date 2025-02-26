@@ -33,4 +33,9 @@ class ComandaExistencia extends Model
     {
         return $this->hasMany(SalidaAlmacen::class);
     }
+
+    public function asignacionExistencias(): HasMany
+    {
+        return $this->hasMany(AsignacionExistencia::class);
+    }
 }

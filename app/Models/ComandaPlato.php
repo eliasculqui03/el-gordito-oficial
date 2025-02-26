@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ComandaPlato extends Model
 {
@@ -26,5 +27,10 @@ class ComandaPlato extends Model
     public function plato(): BelongsTo
     {
         return $this->belongsTo(Plato::class);
+    }
+
+    public function asignacionPlatos(): HasMany
+    {
+        return $this->hasMany(AsignacionPlato::class);
     }
 }
