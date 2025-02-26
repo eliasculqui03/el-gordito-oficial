@@ -15,6 +15,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class IngresoAlmacenResource extends Resource
 {
@@ -125,8 +126,7 @@ class IngresoAlmacenResource extends Resource
                 Tables\Columns\TextColumn::make('detalleOrdenCompra.id')
                     ->numeric()
                     ->label('ID de compra')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->sortable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Usuario')
                     ->searchable(),
@@ -157,6 +157,11 @@ class IngresoAlmacenResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()
+                ]),
             ]);
     }
 

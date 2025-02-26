@@ -104,4 +104,9 @@ class User extends Authenticatable implements HasAvatar
     {
         return $this->hasMany(SalidaAlmacen::class);
     }
+
+    public function asignacionExistencias(): HasMany
+    {
+        return $this->hasMany(AsignacionExistencias::class);
+    }
 }
