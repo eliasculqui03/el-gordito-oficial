@@ -8,6 +8,7 @@ use App\Models\Cliente;
 
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
@@ -35,46 +36,26 @@ class ClienteResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('numero_documento')
                     ->required()
-                    ->maxLength(8)
+                    ->maxLength(11) // Cambiado a 11 para soportar RUC
+                    ->hint('8 dígitos para DNI, 11 dígitos para RUC')
                     ->suffixAction(
-                        Forms\Components\Actions\Action::make('buscarDni')
+                        Forms\Components\Actions\Action::make('buscarDocumento')
                             ->icon('heroicon-o-magnifying-glass')
                             ->action(function (Forms\Set $set, $state) {
                                 if (strlen($state) === 8) {
-                                    $token = 'apis-token-12378.4HGOhTQkQu5n4kj0Zl1qX1Un87malHiI';
-                                    $client = new Client(['base_uri' => 'https://api.apis.net.pe', 'verify' => false]);
-
-                                    $parameters = [
-                                        'http_errors' => false,
-                                        'connect_timeout' => 5,
-                                        'headers' => [
-                                            'Authorization' => 'Bearer ' . $token,
-                                            'Referer' => 'https://apis.net.pe/api-consulta-dni',
-                                            'User-Agent' => 'laravel/guzzle',
-                                            'Accept' => 'application/json',
-                                        ],
-                                        'query' => ['numero' => $state]
-                                    ];
-
-                                    try {
-                                        // Realizar la solicitud
-                                        $res = $client->request('GET', '/v2/reniec/dni', $parameters);
-                                        $response = json_decode($res->getBody()->getContents(), true);
-
-                                        // Verificar y establecer datos en el formulario
-                                        if (isset($response['numeroDocumento'])) {
-                                            $set('nombre', $response['nombres'] . ' ' . $response['apellidoPaterno'] . ' ' . $response['apellidoMaterno']);
-                                        } else {
-                                            $set('nombre', 'No encontrado');
-                                            $set('appaterno', 'No encontrado');
-                                            $set('apmaterno', 'No encontrado');
-                                        }
-                                    } catch (\Exception $e) {
-                                        // Manejar errores de la solicitud
-                                        $set('nombre', 'Error al conectar');
-                                    }
+                                    // Búsqueda por DNI
+                                    self::buscarPorDNI($set, $state);
+                                } elseif (strlen($state) === 11) {
+                                    // Búsqueda por RUC
+                                    self::buscarPorRUC($set, $state);
                                 } else {
-                                    // Mostrar un mensaje de error si el número de documento no es válido
+                                    // Mensaje de error por longitud inválida
+                                    Notification::make()
+                                        ->title('Formato incorrecto')
+                                        ->body('Debe ingresar 8 dígitos para DNI o 11 para RUC')
+                                        ->danger()
+                                        ->send();
+
                                     $set('nombre', 'Número de documento inválido');
                                 }
                             })
@@ -159,5 +140,129 @@ class ClienteResource extends Resource
             'create' => Pages\CreateCliente::route('/create'),
             'edit' => Pages\EditCliente::route('/{record}/edit'),
         ];
+    }
+
+
+    /**
+     * Realiza la búsqueda de persona por DNI
+     */
+    protected static function buscarPorDNI(Forms\Set $set, $state)
+    {
+        $token = config('services.servicio_reniec.key');
+        $client = new Client(['base_uri' => 'https://api.apis.net.pe', 'verify' => false]);
+
+        $parameters = [
+            'http_errors' => false,
+            'connect_timeout' => 5,
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token,
+                'Referer' => 'https://apis.net.pe/api-consulta-dni',
+                'User-Agent' => 'laravel/guzzle',
+                'Accept' => 'application/json',
+            ],
+            'query' => ['numero' => $state]
+        ];
+
+        try {
+            // Realizar la solicitud
+            $res = $client->request('GET', '/v2/reniec/dni', $parameters);
+            $response = json_decode($res->getBody()->getContents(), true);
+
+            // Verificar y establecer datos en el formulario
+            if (isset($response['numeroDocumento'])) {
+                $set('nombre', $response['nombres'] . ' ' . $response['apellidoPaterno'] . ' ' . $response['apellidoMaterno']);
+
+                // Notificación de éxito
+                Notification::make()
+                    ->title('DNI encontrado')
+                    ->body('Se encontraron los datos correctamente')
+                    ->success()
+                    ->send();
+            } else {
+                $set('nombre', 'No encontrado');
+
+                // Notificación de advertencia
+                Notification::make()
+                    ->title('DNI no encontrado')
+                    ->body('No se encontraron datos para este número de DNI')
+                    ->warning()
+                    ->send();
+            }
+        } catch (\Exception $e) {
+            // Manejar errores de la solicitud
+            $set('nombre', 'Error al conectar');
+
+            // Notificación de error
+            Notification::make()
+                ->title('Error de conexión')
+                ->body('No se pudo conectar con el servicio: ' . $e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    /**
+     * Realiza la búsqueda de empresa por RUC
+     */
+    protected static function buscarPorRUC(Forms\Set $set, $state)
+    {
+        $token = config('services.servicio_sunat.key');
+        $client = new Client(['base_uri' => 'https://api.apis.net.pe', 'verify' => false]);
+
+        $parameters = [
+            'http_errors' => false,
+            'connect_timeout' => 5,
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token,
+                'Referer' => 'http://apis.net.pe/api-ruc',
+                'User-Agent' => 'laravel/guzzle',
+                'Accept' => 'application/json',
+            ],
+            'query' => ['numero' => $state]
+        ];
+
+        try {
+            // Realizar la solicitud
+            $res = $client->request('GET', '/v2/sunat/ruc', $parameters);
+            $response = json_decode($res->getBody()->getContents(), true);
+
+            // Verificar y establecer datos en el formulario
+            if (isset($response['numeroDocumento'])) {
+                // Para empresas, usar razón social
+                $nombreEmpresa = $response['nombre'] ?? ($response['razonSocial'] ?? 'No disponible');
+                $set('nombre', $nombreEmpresa);
+
+                // Si existe el campo dirección, también lo completamos
+                if (isset($response['direccion'])) {
+                    $set('direccion', $response['direccion']);
+                }
+
+                // Notificación de éxito
+                Notification::make()
+                    ->title('RUC encontrado')
+                    ->body('Se encontraron los datos correctamente')
+                    ->success()
+                    ->send();
+            } else {
+                $set('nombre', 'No encontrado');
+
+                // Notificación de advertencia
+                Notification::make()
+                    ->title('RUC no encontrado')
+                    ->body('No se encontraron datos para este número de RUC')
+                    ->warning()
+                    ->send();
+            }
+        } catch (\Exception $e) {
+            // Manejar errores de la solicitud
+            $set('nombre', 'Error al conectar');
+
+            // Notificación de error
+            Notification::make()
+                ->title('Error de conexión')
+                ->body('No se pudo conectar con el servicio: ' . $e->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 }

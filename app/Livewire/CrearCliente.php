@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Cliente;
 use App\Models\TipoDocumento;
 use Filament\Notifications\Notification;
+use GuzzleHttp\Client;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -16,10 +17,15 @@ class CrearCliente extends Component
     public $nombre, $tipo_documento_id, $numero_documento, $edad, $telefono, $email, $direccion;
 
     protected $rules = [
-        'nombre' => 'required',
         'tipo_documento_id' => 'required',
-        'numero_documento' => 'required',
+        'numero_documento' => 'required|min:8',
 
+    ];
+
+    protected $messages = [
+        'tipo_documento_id.required' => 'Selecione un tipo de documento',
+        'numero_documento.required' => 'El número de documento es obligatorio.',
+        'numero_documento.digits' => 'El número de documento debe tener al menos 8 dígitos.',
     ];
 
     public function openModal()
@@ -55,10 +61,10 @@ class CrearCliente extends Component
                 'nombre' => $this->nombre,
                 'tipo_documento_id' => $this->tipo_documento_id,
                 'numero_documento' => $this->numero_documento,
-                'edad' => $this->edad,
-                'telefono' => $this->telefono,
-                'email' => $this->email,
-                'direccion' => $this->direccion,
+                'edad' => $this->edad ?: null,
+                'telefono' => $this->telefono ?: null,
+                'email' => $this->email ?: null,
+                'direccion' => $this->direccion ?: null,
             ]);
 
             Notification::make()
@@ -93,28 +99,127 @@ class CrearCliente extends Component
     #[On('numeroDocumentoActualizado')]
     public function actualizarNumeroDocumento($numero)
     {
-
-
         $this->numero_documento = $numero;
     }
 
 
-    public function searchDocument()
-    {
-        if (!empty($this->numero_documento)) {
-            $cliente = Cliente::where('numero_documento', $this->numero_documento)->first();
-            if ($cliente) {
-                Notification::make()
-                    ->title('Cliente encontrado')
-                    ->warning()
-                    ->send();
-            }
-        }
-    }
+
     public function render()
     {
         return view('livewire.crear-cliente', [
             'tipos_documentos' => TipoDocumento::where('estado', 1)->get()
         ]);
+    }
+
+
+    //Busqueda de documento
+
+
+    public function buscarDocumento()
+    {
+        $this->validate();
+
+        $longitud = strlen($this->numero_documento);
+
+        if ($longitud === 8) {
+            // Búsqueda por DNI
+            $this->buscarPorDNI();
+        } else {
+            // Búsqueda por RUC
+            $this->buscarPorRUC();
+        }
+    }
+
+    private function buscarPorDNI()
+    {
+        try {
+            $token = config('services.servicio_reniec.key');
+            $client = new Client(['base_uri' => 'https://api.apis.net.pe', 'verify' => false]);
+
+            $parameters = [
+                'http_errors' => false,
+                'connect_timeout' => 5,
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                    'Referer' => 'https://apis.net.pe/api-consulta-dni',
+                    'User-Agent' => 'laravel/guzzle',
+                    'Accept' => 'application/json',
+                ],
+                'query' => ['numero' => $this->numero_documento]
+            ];
+
+            // Realizar la solicitud
+            $res = $client->request('GET', '/v2/reniec/dni', $parameters);
+            $response = json_decode($res->getBody()->getContents(), true);
+
+            // Verificar y establecer datos en el formulario
+            if (isset($response['numeroDocumento'])) {
+                $this->nombre = $response['nombres'] . ' ' . $response['apellidoPaterno'] . ' ' . $response['apellidoMaterno'];
+                Notification::make()
+                    ->title('DNI encontrado')
+                    ->body('Se encontraron los datos del DNI correctamente')
+                    ->success()
+                    ->send();
+            } else {
+                Notification::make()
+                    ->title('DNI no encontrado')
+                    ->body('No se encontraron datos para este número de DNI')
+                    ->warning()
+                    ->send();
+            }
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Error de conexión')
+                ->body('No se pudo conectar con el servicio de RENIEC: ' . $e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    private function buscarPorRUC()
+    {
+        try {
+            $token = config('services.servicio_sunat.key');
+            $client = new Client(['base_uri' => 'https://api.apis.net.pe', 'verify' => false]);
+
+            $parameters = [
+                'http_errors' => false,
+                'connect_timeout' => 5,
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                    'Referer' => 'http://apis.net.pe/api-ruc',
+                    'User-Agent' => 'laravel/guzzle',
+                    'Accept' => 'application/json',
+                ],
+                'query' => ['numero' => $this->numero_documento]
+            ];
+
+            // Realizar la solicitud
+            $res = $client->request('GET', '/v2/sunat/ruc', $parameters);
+            $response = json_decode($res->getBody()->getContents(), true);
+
+            // Verificar y establecer datos en el formulario
+            if (isset($response['numeroDocumento'])) {
+                $this->nombre = $response['nombre'] ?? ($response['razonSocial'] ?? 'No disponible');
+
+                Notification::make()
+                    ->title('RUC encontrado')
+                    ->body('Se encontraron los datos del RUC correctamente')
+                    ->success()
+                    ->send();
+            } else {
+                Notification::make()
+                    ->title('RUC no encontrado')
+                    ->body('No se encontraron datos para este número de RUC')
+                    ->warning()
+                    ->send();
+            }
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Error de conexión')
+                ->body('No se pudo conectar con el servicio de SUNAT: ' . $e->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 }

@@ -51,7 +51,7 @@
                                 <input type="text" id="numero_documento" wire:model="numero_documento"
                                     wire:loading.attr="disabled"
                                     class="w-full border-gray-300 rounded-l-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:border-primary-500 focus:ring-primary-500">
-                                <button type="button" wire:click="searchDocument"
+                                <button type="button" wire:click="buscarDocumento"
                                     class="flex items-center justify-center px-4 text-gray-500 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-500">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -68,7 +68,7 @@
                         <div>
                             <label for="nombre"
                                 class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">Nombre</label>
-                            <input type="text" id="nombre" wire:model="nombre"
+                            <input type="text" id="nombre" wire:model="nombre" required
                                 class="w-full border-gray-300 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:border-primary-500 focus:ring-primary-500">
                             @error('nombre')
                                 <span class="text-sm text-danger-600 dark:text-danger-400">{{ $message }}</span>
