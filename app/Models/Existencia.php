@@ -53,7 +53,7 @@ class Existencia extends Model
         return $this->hasMany(IngresoAlmacen::class);
     }
 
-    public function inventario(): HasMany
+    public function inventarios(): HasMany
     {
         return $this->hasMany(Inventario::class);
     }

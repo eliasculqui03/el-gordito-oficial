@@ -18,9 +18,12 @@ use App\Models\Zona;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class CrearComanda extends Component
 {
+
+    use WithPagination;
 
     public $categoria_plato_id = '';
     public $platos = [];
@@ -40,6 +43,11 @@ class CrearComanda extends Component
         $this->cargarPlatos();
         $this->cargarExistencias();
         $this->zonas = Zona::where('estado', true)->with('mesas')->get();
+
+        $firstTipo = TipoExistencia::where('estado', 1)->first();
+        if ($firstTipo) {
+            $this->tipo_existencia_id = $firstTipo->id;
+        }
     }
 
     public function updatedCategoriaplatoId()

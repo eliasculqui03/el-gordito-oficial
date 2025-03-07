@@ -1,5 +1,5 @@
 <div>
-    @vite('resources/css/app.css')
+
     <div class="min-h-screen p-4 ">
         <!-- Barra superior -->
         <div class="p-4 mb-4 bg-white border shadow-sm dark:bg-gray-800 rounded-xl dark:border-gray-700 ">
@@ -87,7 +87,6 @@
                         <!-- Menú de tipos y categorías (arriba) -->
                         <div class="flex gap-4">
                             <!-- Tipos de Existencia -->
-                            <!-- Tipos de Existencia -->
                             <div class="w-1/2">
                                 <h4 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Tipos</h4>
                                 <div class="flex flex-wrap gap-2">
@@ -105,11 +104,7 @@
                             <div class="w-1/2">
                                 <h4 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Categorías</h4>
                                 <div class="flex flex-wrap gap-2">
-                                    <button wire:click="$set('categoria_existencia_id', '')"
-                                        class="px-4 py-2 text-sm/6 transition-colors rounded-lg
-                        {{ !$categoria_existencia_id ? 'bg-primary-100 text-primary-700 dark:bg-primary-700 dark:text-primary-100' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
-                                        TODOS
-                                    </button>
+
                                     @foreach ($categorias_existencias as $categoria)
                                         <button wire:click="$set('categoria_existencia_id', '{{ $categoria->id }}')"
                                             class="px-4 py-2 text-sm/6 transition-colors rounded-lg
@@ -129,7 +124,10 @@
                                         class="p-3 text-left transition-colors rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600">
                                         <p class="font-medium text-sm/6 dark:text-gray-200">{{ $existencia->nombre }}
                                         </p>
-                                        <p class="mb-1 text-xs text-gray-500 dark:text-gray-400"><?php echo $existencia->unidadMedida->nombre; ?></p>
+                                        <p class="mb-1 text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $existencia->inventarios->sum('stock') }}
+                                            {{ $existencia->unidadMedida->nombre }}
+                                        </p>
                                         <p class="text-gray-600 text-sm/6 dark:text-gray-400">
                                             S/ {{ number_format($existencia->precio_venta, 2) }}
                                         </p>
