@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TipoComprobante extends Model
 {
@@ -15,6 +17,11 @@ class TipoComprobante extends Model
         'codigo',
         'descripcion',
         'estado'
-       
+
     ];
+
+    public function ordenCompras(): HasMany
+    {
+        return $this->hasMany(OrdenCompra::class);
+    }
 }

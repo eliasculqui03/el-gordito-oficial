@@ -33,7 +33,8 @@ class TipoDocumentoResource extends Resource
     {
         return $form
             ->schema([
-
+                TextInput::make('tipo')
+                    ->required(),
                 TextInput::make('descripcion_larga')
                     ->required(),
                 TextInput::make('descripcion_corta')
@@ -49,12 +50,12 @@ class TipoDocumentoResource extends Resource
         return $table
             ->columns([
                 //
+                TextColumn::make('tipo')
+                    ->searchable(),
                 TextColumn::make('descripcion_larga')
                     ->sortable()
                     ->searchable(),
-
                 TextColumn::make('descripcion_corta')
-
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\IconColumn::make('estado')

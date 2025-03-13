@@ -12,6 +12,7 @@ class TipoDocumento extends Model
     use HasFactory;
 
     protected $fillable = [
+        'tipo',
         'descripcion_larga',
         'descripcion_corta',
         'estado',

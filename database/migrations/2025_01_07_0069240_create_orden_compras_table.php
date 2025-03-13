@@ -20,9 +20,14 @@ return new class extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
             $table->string('metodo_pago');
-            $table->string('factura');
+            $table->unsignedBigInteger('tipo_comprobante_id');
+            $table->foreign('tipo_comprobante_id')
+                ->references('id')
+                ->on('tipo_comprobantes')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->string('foto')->nullable();
-            $table->double('igv', 5, 2); // Almacenado como porcentaje (ej. 18.00 representa 18%)
+            $table->boolean('igv')->default(true);
             $table->double('total', 10, 2);
             $table->timestamps();
         });

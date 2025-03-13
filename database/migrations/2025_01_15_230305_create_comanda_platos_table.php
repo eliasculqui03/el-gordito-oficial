@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('comanda_platos', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('comanda_id'); // Clave foránea hacia 'comandas'
-            $table->unsignedBigInteger('plato_id'); // Clave foránea hacia 'platos'
-            $table->integer('cantidad'); // Cantidad del plato solicitado
-            $table->double('subtotal', 10, 2); // Subtotal de la cantidad * precio_unitario
-            $table->enum('estado', ['Pendiente', 'Procesando', 'Listo', 'Entregando', 'Completado', 'Cancelado'])->default('Pendiente'); // Estado del registro
-            $table->timestamps(); // Campos 'created_at' y 'updated_at'
+            $table->unsignedBigInteger('comanda_id');
+            $table->unsignedBigInteger('plato_id');
+            $table->integer('cantidad');
+            $table->double('subtotal', 10, 2);
+            $table->enum('estado', ['Pendiente', 'Procesando', 'Listo', 'Entregando', 'Completado', 'Cancelado'])->default('Pendiente');
+            $table->timestamps();
 
-            // Definir claves foráneas
             $table->foreign('comanda_id')->references('id')->on('comandas')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('plato_id')->references('id')->on('platos')->onDelete('cascade')->onUpdate('cascade');
         });

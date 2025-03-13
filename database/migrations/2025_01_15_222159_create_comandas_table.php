@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('comandas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('cliente_id')->nullable(); // Clave foránea hacia la tabla 'clientes'
-            $table->unsignedBigInteger('zona_id'); // Clave foránea hacia la tabla 'zonas'
-            $table->unsignedBigInteger('mesa_id'); // Clave foránea hacia la tabla 'mesas'
-            $table->enum('estado', ['Abierta', 'Procesando', 'Completada', 'Cancelada'])->default('Abierta'); // Estados de la comanda
-            $table->timestamps(); // Incluye created_at y updated_at
+            $table->unsignedBigInteger('cliente_id')->nullable();
+            $table->unsignedBigInteger('zona_id');
+            $table->unsignedBigInteger('mesa_id');
+            $table->enum('estado', ['Abierta', 'Procesando', 'Completada', 'Cancelada'])->default('Abierta');
+            $table->enum('estado_pago', ['Pendiente', 'Pagada'])->default('Pendiente');
+            $table->timestamps();
 
-            // Definir claves foráneas
             $table->foreign('cliente_id')->references('id')->on('clientes')->nullOnDelete()->onUpdate('cascade');
             $table->foreign('zona_id')->references('id')->on('zonas')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('mesa_id')->references('id')->on('mesas')->onDelete('cascade')->onUpdate('cascade');

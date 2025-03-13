@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('tipo_documentos', function (Blueprint $table) {
             $table->id();
+            $table->string('tipo');
             $table->string('descripcion_larga');
             $table->string('descripcion_corta');
             $table->boolean('estado')->default(true);

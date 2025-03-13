@@ -5,12 +5,14 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TipoComprobanteResource\Pages;
 use App\Filament\Resources\TipoComprobanteResource\RelationManagers;
 use App\Models\TipoComprobante;
+use Filament\Actions\ActionGroup;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup as ActionsActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,9 +34,10 @@ class TipoComprobanteResource extends Resource
             ->schema([
                 //
                 TextInput::make('codigo')
-                    ->label('Código sunat')
+                    ->label('Código SUNAT')
                     ->required(),
                 TextInput::make('descripcion')
+                    ->label('Descripción')
                     ->required(),
                 Toggle::make('estado')
                     ->label('Activo')
@@ -50,12 +53,11 @@ class TipoComprobanteResource extends Resource
                 //
 
                 TextColumn::make('codigo')
-                    ->sortable()
                     ->searchable()
-                    ->label('Codigo sunat'),
-
+                    ->label('Codigo SUNAT'),
                 TextColumn::make('descripcion')
-                    ->label('Descripción'),
+                    ->label('Descripción')
+                    ->searchable(),
                 Tables\Columns\IconColumn::make('estado')
                     ->label('Estado')
                     ->boolean(),
@@ -64,9 +66,11 @@ class TipoComprobanteResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ActionsActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ]);
     }
 

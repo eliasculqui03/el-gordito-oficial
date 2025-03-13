@@ -10,9 +10,11 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -25,6 +27,16 @@ class OrdenCompraResource extends Resource
     protected static ?string $model = OrdenCompra::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-currency-dollar';
+
+    // Función para calcular el total teniendo en cuenta el IGV
+    private static function calcularTotal(array $detalles, bool $incluyeIgv): float
+    {
+        $subtotal = array_reduce($detalles, function ($carry, $item) {
+            return $carry + (float)($item['subtotal'] ?? 0);
+        }, 0);
+
+        return $incluyeIgv ? round($subtotal * 1.18, 2) : round($subtotal, 2);
+    }
 
     public static function form(Form $form): Form
     {
@@ -64,19 +76,21 @@ class OrdenCompraResource extends Resource
                                 'Yape' => 'Yape',
                             ])
                             ->required(),
-                        Forms\Components\Select::make('factura')
-                            ->options([
-                                'Boleta' => 'Boleta',
-                                'Factura' => 'Factura',
-                            ])
+                        Forms\Components\Select::make('tipo_comprobante_id')
+                            ->relationship('tipoComprobante', 'descripcion')
                             ->required(),
-                        Forms\Components\TextInput::make('igv')
-                            ->required()
-                            ->numeric()
-                            ->disabled()
-                            ->dehydrated()
-                            ->default(18)
-                            ->prefix('%'),
+                        Forms\Components\Toggle::make('igv')
+                            ->label('Incluir IGV 18% (sino esta incuido)')
+                            ->default(false)
+                            ->live()
+                            ->afterStateUpdated(function (bool $state, Forms\Set $set, Forms\Get $get) {
+                                // Recalcular el total cuando cambia el estado del IGV
+                                $detalles = $get('detalleOrdenCompra');
+                                if (is_array($detalles)) {
+                                    $total = self::calcularTotal($detalles, $state);
+                                    $set('total', $total);
+                                }
+                            }),
                     ])->columnSpan(1)
                     ->columns(2),
 
@@ -102,7 +116,7 @@ class OrdenCompraResource extends Resource
                                         'id',
                                         fn($query) => $query->where('estado', 'Aprobada')->with('existencia')
                                     )
-                                    ->getOptionLabelFromRecordUsing(fn($record) => "ID {$record->id} - {$record->existencia->nombre}")
+                                    ->getOptionLabelFromRecordUsing(fn($record) => "ID {$record->id} - {$record->existencia->nombre} - {$record->existencia->unidadMedida->nombre}")
                                     ->live()
                                     ->afterStateUpdated(function ($state, callable $set, Forms\Get $get) {
                                         if ($state) {
@@ -119,12 +133,13 @@ class OrdenCompraResource extends Resource
                                             $set('cantidad', 1);
                                             $set('subtotal', 0);
                                         }
+
+                                        // Recalcular el total considerando el IGV
                                         $detalles = $get('../../detalleOrdenCompra');
+                                        $incluyeIgv = $get('../../igv');
                                         if (is_array($detalles)) {
-                                            $total = array_reduce($detalles, function ($carry, $item) {
-                                                return $carry + (float)($item['subtotal'] ?? 0);
-                                            }, 0);
-                                            $set('../../total', round($total, 2));
+                                            $total = self::calcularTotal($detalles, $incluyeIgv);
+                                            $set('../../total', $total);
                                         }
                                     })
                                     ->distinct()
@@ -139,7 +154,6 @@ class OrdenCompraResource extends Resource
                                     ->preload()
                                     ->required()
                                     ->live()
-                                    //
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                                         if ($state && !$get('solicitud_compra_id')) {
                                             $existencia = \App\Models\Existencia::find($state);
@@ -148,13 +162,12 @@ class OrdenCompraResource extends Resource
                                                 $subtotal = $existencia->precio_compra * $cantidad;
                                                 $set('subtotal', round($subtotal, 2));
 
-                                                // Calcular el total
+                                                // Recalcular el total considerando el IGV
                                                 $detalles = $get('../../detalleOrdenCompra');
+                                                $incluyeIgv = $get('../../igv');
                                                 if (is_array($detalles)) {
-                                                    $total = array_reduce($detalles, function ($carry, $item) {
-                                                        return $carry + (float)($item['subtotal'] ?? 0);
-                                                    }, 0);
-                                                    $set('../../total', round($total, 2));
+                                                    $total = self::calcularTotal($detalles, $incluyeIgv);
+                                                    $set('../../total', $total);
                                                 }
                                             }
                                         }
@@ -164,7 +177,7 @@ class OrdenCompraResource extends Resource
                                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                                     ->columnSpan(1)
                                     ->disabled(fn(Forms\Get $get): bool => filled($get('solicitud_compra_id')))
-                                    ->dehydrated(fn(Forms\Get $get): bool => !filled($get('solicitud_compra_id'))),
+                                    ->dehydrated(fn(Forms\Get $get): bool => filled($get('solicitud_compra_id'))),
 
                                 Forms\Components\TextInput::make('cantidad')
                                     ->required()
@@ -179,19 +192,18 @@ class OrdenCompraResource extends Resource
                                                 $subtotal = $existencia->precio_compra * $state;
                                                 $set('subtotal', round($subtotal, 2));
 
-                                                // Calcular el total
+                                                // Recalcular el total considerando el IGV
                                                 $detalles = $get('../../detalleOrdenCompra');
+                                                $incluyeIgv = $get('../../igv');
                                                 if (is_array($detalles)) {
-                                                    $total = array_reduce($detalles, function ($carry, $item) {
-                                                        return $carry + (float)($item['subtotal'] ?? 0);
-                                                    }, 0);
-                                                    $set('../../total', round($total, 2));
+                                                    $total = self::calcularTotal($detalles, $incluyeIgv);
+                                                    $set('../../total', $total);
                                                 }
                                             }
                                         }
                                     })
                                     ->disabled(fn(Forms\Get $get): bool => filled($get('solicitud_compra_id')))
-                                    ->dehydrated(fn(Forms\Get $get): bool => !filled($get('solicitud_compra_id')))
+                                    ->dehydrated(fn(Forms\Get $get): bool => filled($get('solicitud_compra_id')))
                                     ->columnSpan(1),
 
                                 Forms\Components\TextInput::make('subtotal')
@@ -202,13 +214,12 @@ class OrdenCompraResource extends Resource
                                     ->prefix('S/.')
                                     ->live()
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        // Calcular el total cuando cambia cualquier subtotal
+                                        // Recalcular el total considerando el IGV
                                         $detalles = $get('../../detalleOrdenCompra');
+                                        $incluyeIgv = $get('../../igv');
                                         if (is_array($detalles)) {
-                                            $total = array_reduce($detalles, function ($carry, $item) {
-                                                return $carry + (float)($item['subtotal'] ?? 0);
-                                            }, 0);
-                                            $set('../../total', round($total, 2));
+                                            $total = self::calcularTotal($detalles, $incluyeIgv);
+                                            $set('../../total', $total);
                                         }
                                     })
                                     ->columnSpan(1),
@@ -216,14 +227,13 @@ class OrdenCompraResource extends Resource
                             ->columns(1)
                             ->columnSpan('full')
                             ->grid(3)
-
                             ->live()
-                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                // Recalcular el total considerando el IGV
+                                $incluyeIgv = $get('igv');
                                 if (is_array($state)) {
-                                    $total = array_reduce($state, function ($carry, $item) {
-                                        return $carry + (float)($item['subtotal'] ?? 0);
-                                    }, 0);
-                                    $set('total', round($total, 2));
+                                    $total = self::calcularTotal($state, $incluyeIgv);
+                                    $set('total', $total);
                                 }
                             }),
                     ]),
@@ -239,13 +249,8 @@ class OrdenCompraResource extends Resource
                             ->numeric()
                             ->live(),
                     ])->columns(4)
-
-
-
             ]);
     }
-
-
 
     public static function table(Table $table): Table
     {
@@ -257,14 +262,17 @@ class OrdenCompraResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('metodo_pago')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('factura')
+                Tables\Columns\TextColumn::make('tipoComprobante.descripcion')
+                    ->label('Comprobante')
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('foto')
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('igv')
-                    ->numeric()
-                    ->suffix('%'),
+                    ->label('IGV')
+                    ->formatStateUsing(fn(bool $state): string => $state ? 'Se inluyo' : 'Incluido')
+                    ->badge()
+                    ->color(fn(bool $state): string => $state ? 'success' : 'info'),
                 Tables\Columns\TextColumn::make('total')
                     ->numeric()
                     ->formatStateUsing(function ($state) {
@@ -275,17 +283,48 @@ class OrdenCompraResource extends Resource
                     ->badge()
                     ->color('success'),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('F. de compra')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('F. de actualización')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordUrl(null)
             ->filters([
-                //
+                SelectFilter::make('igv')
+                    ->label('IGV')
+                    ->options([
+                        '1' => 'Se inlcuyo',
+                        '0' => 'Incluido',
+                    ]),
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('fecha_exacta')
+                            ->label('Fecha exacta')
+                            ->placeholder('Seleccione una fecha')
+                            ->closeOnDateSelection(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['fecha_exacta'],
+                                fn(Builder $query, $date): Builder => $query
+                                    ->whereDate('created_at', $date)
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        if ($data['fecha_exacta'] ?? null) {
+                            $indicators['fecha_exacta'] = 'Órdenes del: ' . \Carbon\Carbon::parse($data['fecha_exacta'])->format('d/m/Y');
+                        }
+
+                        return $indicators;
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

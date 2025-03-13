@@ -37,7 +37,7 @@ class ZonaResource extends Resource
                     ->default(null),
                 CheckboxList::make('cajas')
                     ->relationship('cajas', 'nombre', function ($query) {
-                        $query->where('estado', true); // Filtra las mesas cuyo estado es true
+                        $query->where('estado', true);
                     })
                     ->searchable()
                     ->columns(3),

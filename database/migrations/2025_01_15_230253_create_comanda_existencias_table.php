@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('comanda_existencias', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('comanda_id'); // Clave foránea para 'comandas'
-            $table->unsignedBigInteger('existencia_id'); // Clave foránea para 'existencias'
-            $table->integer('cantidad'); // Cantidad del producto
-            $table->double('subtotal', 10, 2); // Subtotal con 2 decimales
-            $table->enum('estado', ['Pendiente', 'Procesando', 'Listo', 'Entregando', 'Completado', 'Cancelado'])->default('Pendiente'); // Estado con valores definidos
-            $table->timestamps(); // 'created_at' y 'updated_at'
+            $table->unsignedBigInteger('comanda_id');
+            $table->unsignedBigInteger('existencia_id');
+            $table->integer('cantidad');
+            $table->double('subtotal', 10, 2);
+            $table->enum('estado', ['Pendiente', 'Procesando', 'Listo', 'Entregando', 'Completado', 'Cancelado'])->default('Pendiente');
+            $table->timestamps();
 
-            // Definir claves foráneas
             $table->foreign('comanda_id')->references('id')->on('comandas')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('existencia_id')->references('id')->on('existencias')->onDelete('cascade')->onUpdate('cascade');
         });

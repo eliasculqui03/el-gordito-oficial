@@ -14,7 +14,7 @@ class OrdenCompra extends Model
     protected $fillable = [
         'user_id',
         'metodo_pago',
-        'factura',
+        'tipo_comprobante_id',
         'foto',
         'igv',
         'total',
@@ -28,5 +28,10 @@ class OrdenCompra extends Model
     public function detalleOrdenCompra(): HasMany
     {
         return $this->hasMany(DetalleOrdenCompra::class);
+    }
+
+    public function tipoComprobante(): BelongsTo
+    {
+        return $this->belongsTo(TipoComprobante::class);
     }
 }

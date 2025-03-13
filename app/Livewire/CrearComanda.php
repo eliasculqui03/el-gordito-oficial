@@ -38,6 +38,8 @@ class CrearComanda extends Component
     public $itemsExistencias = [];
     public $total = 0;
 
+    public $tipoVenta = 'normal';
+
     public function mount()
     {
         $this->cargarPlatos();
