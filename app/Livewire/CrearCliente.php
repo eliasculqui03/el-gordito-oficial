@@ -176,46 +176,102 @@ class CrearCliente extends Component
         }
     }
 
-    private function buscarPorRUC()
+    // private function buscarPorRUC()
+    // {
+    //     try {
+    //         $token = config('services.servicio_sunat.key');
+    //         $client = new Client(['base_uri' => 'https://api.apis.net.pe', 'verify' => false]);
+
+    //         $parameters = [
+    //             'http_errors' => false,
+    //             'connect_timeout' => 5,
+    //             'headers' => [
+    //                 'Authorization' => 'Bearer ' . $token,
+    //                 'Referer' => 'http://apis.net.pe/api-ruc',
+    //                 'User-Agent' => 'laravel/guzzle',
+    //                 'Accept' => 'application/json',
+    //             ],
+    //             'query' => ['numero' => $this->numero_documento]
+    //         ];
+
+    //         // Realizar la solicitud
+    //         $res = $client->request('GET', '/v2/sunat/ruc', $parameters);
+    //         $response = json_decode($res->getBody()->getContents(), true);
+
+    //         // Verificar y establecer datos en el formulario
+    //         if (isset($response['numeroDocumento'])) {
+    //             $this->nombre = $response['nombre'] ?? ($response['razonSocial'] ?? 'No disponible');
+
+    //             Notification::make()
+    //                 ->title('RUC encontrado')
+    //                 ->body('Se encontraron los datos del RUC correctamente')
+    //                 ->success()
+    //                 ->send();
+    //         } else {
+    //             Notification::make()
+    //                 ->title('RUC no encontrado')
+    //                 ->body('No se encontraron datos para este número de RUC')
+    //                 ->warning()
+    //                 ->send();
+    //         }
+    //     } catch (\Exception $e) {
+    //         Notification::make()
+    //             ->title('Error de conexión')
+    //             ->body('No se pudo conectar con el servicio de SUNAT: ' . $e->getMessage())
+    //             ->danger()
+    //             ->send();
+    //     }
+    // }
+
+
+    public function buscarPorRUC()
     {
         try {
             $token = config('services.servicio_sunat.key');
-            $client = new Client(['base_uri' => 'https://api.apis.net.pe', 'verify' => false]);
+            $number = $this->numero_documento;
+
+            // Usar GuzzleHttp exactamente como en tu código
+            $client = new \GuzzleHttp\Client(['base_uri' => 'https://api.apis.net.pe', 'verify' => false]);
 
             $parameters = [
                 'http_errors' => false,
                 'connect_timeout' => 5,
                 'headers' => [
                     'Authorization' => 'Bearer ' . $token,
-                    'Referer' => 'http://apis.net.pe/api-ruc',
+                    'Referer' => 'https://apis.net.pe/api-consulta-ruc',
                     'User-Agent' => 'laravel/guzzle',
                     'Accept' => 'application/json',
                 ],
-                'query' => ['numero' => $this->numero_documento]
+                'query' => ['numero' => $number]
             ];
 
-            // Realizar la solicitud
             $res = $client->request('GET', '/v2/sunat/ruc', $parameters);
             $response = json_decode($res->getBody()->getContents(), true);
 
-            // Verificar y establecer datos en el formulario
+            // Opcional: Registrar la respuesta completa para depuración
+            // \Log::info('Respuesta API SUNAT', $response);
+
+            // Verificar y establecer la razón social
             if (isset($response['numeroDocumento'])) {
                 $this->nombre = $response['nombre'] ?? ($response['razonSocial'] ?? 'No disponible');
 
-                Notification::make()
+                // Notificación de éxito usando Filament
+                \Filament\Notifications\Notification::make()
                     ->title('RUC encontrado')
-                    ->body('Se encontraron los datos del RUC correctamente')
+                    ->body('Se encontró la razón social correctamente')
                     ->success()
                     ->send();
             } else {
-                Notification::make()
+                // Si no se encontró información
+                \Filament\Notifications\Notification::make()
                     ->title('RUC no encontrado')
                     ->body('No se encontraron datos para este número de RUC')
                     ->warning()
                     ->send();
             }
         } catch (\Exception $e) {
-            Notification::make()
+            // Manejar cualquier error con notificación de Filament
+            \Filament\Notifications\Notification::make()
                 ->title('Error de conexión')
                 ->body('No se pudo conectar con el servicio de SUNAT: ' . $e->getMessage())
                 ->danger()

@@ -1,39 +1,28 @@
 <div>
     @vite('resources/css/app.css')
-    <div class="grid grid-cols-12 gap-4">
-        <!-- Panel izquierdo (Comandas) -->
-        <div class="col-span-9">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
+        <!-- Panel izquierdo (Comandas) - Ocupa todo el ancho en móvil, 9/12 en desktop -->
+        <div class="order-2 col-span-1 md:col-span-12 lg:col-span-9 lg:order-1">
             <div class="min-h-screen pt-2" wire:poll.{{ $refreshInterval }}ms>
                 <!-- Área Tabs -->
-                <div class="sticky top-0 z-10 mb-4 bg-gray-50 dark:bg-gray-900">
+                <div class="sticky top-0 z-10 p-2 mb-4 rounded-lg bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-sm">
                     @if (count($areas) > 1)
-                        <div class="sm:hidden">
-                            <select id="area-select" wire:model="selectedArea"
-                                class="block w-full border-gray-300 rounded-lg shadow-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">
-                                @foreach ($areas as $area)
-                                    <option value="{{ $area->id }}">{{ $area->nombre }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="hidden sm:block">
-                            <nav class="flex justify-center py-2 space-x-2" aria-label="Áreas">
-                                @foreach ($areas as $area)
-                                    <button wire:click="selectArea({{ $area->id }})"
-                                        class="{{ $selectedArea == $area->id
-                                            ? 'bg-white shadow text-primary-600 dark:bg-gray-800 dark:text-primary-400'
-                                            : 'text-gray-500 hover:text-gray-700 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/50' }}
-                                    px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150">
-                                        {{ $area->nombre }}
-                                    </button>
-                                @endforeach
-                            </nav>
-                        </div>
+                        <nav class="flex flex-wrap justify-center gap-2 py-2" aria-label="Áreas">
+                            @foreach ($areas as $area)
+                                <button wire:click="selectArea({{ $area->id }})"
+                                    class="{{ $selectedArea == $area->id
+                                        ? 'bg-white shadow text-primary-600 dark:bg-gray-800 dark:text-primary-400'
+                                        : 'text-gray-500 hover:text-gray-700 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/50' }}
+                    px-3 py-2 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition-all duration-150 flex-grow sm:flex-grow-0">
+                                    {{ $area->nombre }}
+                                </button>
+                            @endforeach
+                        </nav>
                     @endif
                 </div>
 
-                <!-- Grid de Comandas -->
-                <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                <!-- Grid de Comandas - Adaptativo a diferentes tamaños de pantalla -->
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
                     @forelse($comandas as $comanda)
                         @php
                             $tiempoTranscurrido = now()->diffInMinutes($comanda->created_at);
@@ -55,9 +44,9 @@
                                     </span>
                                     <span
                                         class="px-2 py-0.5 text-xs font-medium rounded-full
-                                        {{ $tiempoTranscurrido >= 6
-                                            ? 'bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300'
-                                            : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}">
+                                    {{ $tiempoTranscurrido >= 6
+                                        ? 'bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300'
+                                        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}">
                                         {{ $tiempoTranscurrido }} min
                                     </span>
                                 </div>
@@ -80,7 +69,7 @@
                                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                             </svg>
                                         </span>
-                                        <span class="font-medium text-gray-700 dark:text-gray-300">
+                                        <span class="font-medium text-gray-700 truncate dark:text-gray-300">
                                             {{ $comanda->cliente->nombre }}
                                         </span>
                                     </div>
@@ -92,7 +81,7 @@
                                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                             </svg>
                                         </span>
-                                        <span class="text-gray-600 dark:text-gray-400">
+                                        <span class="text-gray-600 truncate dark:text-gray-400">
                                             {{ $comanda->zona->nombre }} • Mesa {{ $comanda->mesa->numero }}
                                         </span>
                                     </div>
@@ -103,29 +92,36 @@
                             <div class="px-3 py-2 space-y-1">
                                 @foreach ($comanda->comandaExistencias->where('existencia.area_existencia_id', $selectedArea) as $comandaExistencia)
                                     <div
-                                        class="flex items-center justify-between p-2 transition-colors rounded-lg bg-gray-50/50 dark:bg-gray-700/50">
-                                        <span class="text-sm font-medium text-gray-900 dark:text-white">
-                                            {{ $comandaExistencia->existencia->nombre }}
-                                        </span>
-                                        <div class="flex items-center gap-2">
+                                        class="flex flex-wrap items-center justify-between p-2 transition-colors rounded-lg bg-gray-50/50 dark:bg-gray-700/50">
+                                        <div class="w-full mb-1 sm:w-auto sm:mb-0">
+                                            <div class="flex flex-col">
+                                                <span class="text-sm font-medium text-gray-900 dark:text-white">
+                                                    {{ $comandaExistencia->existencia->nombre }}
+                                                </span>
+                                                <span class="text-xs text-gray-500 dark:text-gray-400">
+                                                    {{ $comandaExistencia->existencia->unidadMedida->nombre }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center w-full gap-2 sm:w-auto">
                                             <span
                                                 class="px-2 py-1 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg dark:bg-gray-600 dark:text-white">
                                                 x{{ $comandaExistencia->cantidad }}
                                             </span>
                                             <span
                                                 class="px-2 py-1 text-xs font-medium rounded-lg
-                                                {{ $comandaExistencia->estado === 'Listo'
-                                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
-                                                    : ($comandaExistencia->estado === 'Procesando'
-                                                        ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400'
-                                                        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300') }}">
+                    {{ $comandaExistencia->estado === 'Listo'
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
+                        : ($comandaExistencia->estado === 'Procesando'
+                            ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400'
+                            : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300') }}">
                                                 {{ $comandaExistencia->estado }}
                                             </span>
                                         </div>
                                     </div>
                                 @endforeach
                             </div>
-
                             <!-- Footer -->
                             @if ($comanda->comandaExistencias->where('existencia.area_existencia_id', $selectedArea)->every(fn($item) => $item->estado === 'Pendiente'))
                                 <div class="flex justify-end p-3 border-t dark:border-gray-700">
@@ -158,33 +154,33 @@
                 </div>
             </div>
         </div>
-
-        <!-- Panel derecho -->
-        <div class="col-span-3">
-            <div class="sticky p-4 overflow-y-auto bg-white border shadow-sm top-2 dark:bg-gray-800 dark:border-gray-700 rounded-xl"
+        <!-- Panel derecho - Aparece arriba en móvil, a la derecha en desktop -->
+        <div class="order-1 col-span-1 md:col-span-12 lg:col-span-3 lg:order-2">
+            <div class="sticky p-4 mb-4 overflow-y-auto bg-white border shadow-sm top-2 dark:bg-gray-800 dark:border-gray-700 rounded-xl lg:mb-0"
                 style="max-height: calc(100vh - 2rem)">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        Lista de Preparación
+                        Lista de existencias
                     </h2>
                     <span
                         class="px-2.5 py-1 text-xs font-medium bg-primary-100 text-primary-700 rounded-lg dark:bg-primary-900/50 dark:text-primary-400">
-                        {{ count($existenciasAProcesar ?? []) }} productos
+                        {{ count($existenciasAProcesar ?? []) }} existencias
                     </span>
                 </div>
                 <div class="space-y-2">
                     @forelse ($existenciasAProcesar ?? [] as $existencia)
                         <div
-                            class="flex items-center justify-between p-3 transition-colors rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-700/50 dark:hover:bg-gray-700">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+                            class="flex flex-col justify-between p-3 transition-colors rounded-lg sm:flex-row sm:items-center bg-gray-50 hover:bg-gray-100 dark:bg-gray-700/50 dark:hover:bg-gray-700">
+                            <div class="flex-1 min-w-0 mb-2 sm:mb-0">
+                                <p class="text-sm font-medium text-gray-900 break-words dark:text-white sm:truncate">
                                     {{ $existencia['nombre'] }}
                                 </p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">
                                     {{ $existencia['unidad'] ?? '' }}
                                 </p>
                             </div>
-                            <div class="flex items-center gap-2 ml-4">
+                            <div
+                                class="flex items-center justify-between w-full gap-2 sm:w-auto sm:ml-4 sm:justify-end">
                                 <span
                                     class="px-2.5 py-1 text-sm font-medium bg-primary-100 text-primary-700 rounded-lg dark:bg-primary-900/50 dark:text-primary-400">
                                     x{{ $existencia['total'] }}
@@ -198,7 +194,7 @@
                     @empty
                         <div class="p-4 text-center rounded-lg bg-gray-50 dark:bg-gray-700/50">
                             <span class="text-sm text-gray-500 dark:text-gray-400">
-                                No hay productos en preparación
+                                No hay existencias
                             </span>
                         </div>
                     @endforelse
