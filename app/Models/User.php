@@ -56,9 +56,9 @@ class User extends Authenticatable implements HasAvatar
     {
         return $this->belongsTo(Empleado::class);
     }
-    public function caja(): HasMany
+    public function cajas(): BelongsToMany
     {
-        return $this->hasMany(Caja::class);
+        return $this->belongsToMany(Caja::class);
     }
 
     public function areas(): BelongsToMany
@@ -108,5 +108,10 @@ class User extends Authenticatable implements HasAvatar
     public function asignacionExistencias(): HasMany
     {
         return $this->hasMany(AsignacionExistencia::class);
+    }
+
+    public function ventas(): HasMany
+    {
+        return $this->hasMany(Venta::class);
     }
 }

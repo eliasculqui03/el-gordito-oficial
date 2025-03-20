@@ -30,4 +30,9 @@ class Cliente extends Model
     {
         return $this->belongsTo(TipoDocumento::class);
     }
+
+    public function ventas(): HasMany
+    {
+        return $this->hasMany(Venta::class);
+    }
 }

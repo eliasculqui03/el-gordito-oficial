@@ -72,4 +72,9 @@ class Existencia extends Model
     {
         return $this->hasMany(SalidaAlmacen::class);
     }
+
+    public function ventaExistencias(): HasMany
+    {
+        return $this->hasMany(VentaExistencia::class);
+    }
 }

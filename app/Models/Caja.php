@@ -23,9 +23,9 @@ class Caja extends Model
         return $this->belongsTo(Sucursal::class);
     }
 
-    public function user(): BelongsTo
+    public function users(): BelongsToMany
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsToMany(User::class);
     }
 
     public function zonas(): BelongsToMany

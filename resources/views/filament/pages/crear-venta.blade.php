@@ -1,3 +1,4 @@
 <x-filament-panels::page>
-    {{ $this->table }}
+
+    <livewire:crear-venta>
 </x-filament-panels::page>

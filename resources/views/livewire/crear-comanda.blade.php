@@ -7,7 +7,7 @@
                 <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
                     <div class="flex w-full">
                         <input wire:model="numero_documento" id="numero_documento" type="text"
-                            placeholder="Ingrese N° de documento"
+                            wire:keydown.enter="buscar" placeholder="Ingrese N° de documento"
                             class="w-full px-4 py-2 border border-gray-300 sm:w-64 text-sm/6 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                         <button wire:click="buscar"
                             class="flex items-center px-4 py-2 text-white bg-blue-600 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-1 dark:bg-blue-500 dark:hover:bg-blue-600">
@@ -50,14 +50,14 @@
                     <!-- Menú de categorías (superior) -->
                     <div class="flex flex-wrap gap-3 mb-6">
                         <button wire:click="$set('categoria_plato_id', '')"
-                            class="px-5 py-2.5 text-sm/6 font-medium transition-all duration-200 rounded-lg
-            {{ !$categoria_plato_id ? 'bg-primary-500 text-white shadow-md hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700' : 'text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600' }}">
+                            class="px-4 py-2 text-sm/6 font-medium transition-all duration-200 rounded-lg
+            {{ !$categoria_plato_id ? 'bg-primary-600 text-white shadow-md hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-700' : 'text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600' }}">
                             TODOS
                         </button>
                         @foreach ($categorias_platos as $categoria)
                             <button wire:click="$set('categoria_plato_id', '{{ $categoria->id }}')"
-                                class="px-5 py-2.5 text-sm/6 font-medium transition-all duration-200 rounded-lg
-                {{ $categoria_plato_id == $categoria->id ? 'bg-primary-500 text-white shadow-md hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700' : 'text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600' }}">
+                                class="px-4 py-2 text-sm/6 font-medium transition-all duration-200 rounded-lg
+                {{ $categoria_plato_id == $categoria->id ? 'bg-primary-600 text-white shadow-md hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-700' : 'text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600' }}">
                                 {{ $categoria->nombre }}
                             </button>
                         @endforeach
@@ -92,7 +92,7 @@
                                     @foreach ($tipos_existencia as $tipo)
                                         <button wire:click="$set('tipo_existencia_id', '{{ $tipo->id }}')"
                                             class="px-5 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg
-                    {{ $tipo_existencia_id == $tipo->id ? 'bg-primary-500 text-white shadow-md hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700' : 'text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600' }}">
+                    {{ $tipo_existencia_id == $tipo->id ? 'bg-primary-600 text-white shadow-md hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-700' : 'text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600' }}">
                                             {{ $tipo->nombre }}
                                         </button>
                                     @endforeach
@@ -105,8 +105,8 @@
                                 <div class="flex flex-wrap gap-3">
                                     @foreach ($categorias_existencias as $categoria)
                                         <button wire:click="$set('categoria_existencia_id', '{{ $categoria->id }}')"
-                                            class="px-5 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg
-                    {{ $categoria_existencia_id == $categoria->id ? 'bg-primary-500 text-white shadow-md hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700' : 'text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600' }}">
+                                            class="px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg
+                    {{ $categoria_existencia_id == $categoria->id ? 'bg-primary-600 text-white shadow-md hover:bg-primary-700 dark:bg-primary-600 dark:hover:bg-primary-700' : 'text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600' }}">
                                             {{ $categoria->nombre }}
                                         </button>
                                     @endforeach

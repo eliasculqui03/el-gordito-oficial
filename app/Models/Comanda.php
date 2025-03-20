@@ -16,6 +16,7 @@ class Comanda extends Model
         'zona_id',
         'mesa_id',
         'estado',
+        'estado_pago',
     ];
     public function cliente(): BelongsTo
     {
@@ -40,5 +41,10 @@ class Comanda extends Model
     public function ComandaPlatos(): HasMany
     {
         return $this->hasMany(ComandaPlato::class);
+    }
+
+    public function ventas(): HasMany
+    {
+        return $this->hasMany(Venta::class);
     }
 }

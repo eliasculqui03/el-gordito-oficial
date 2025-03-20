@@ -34,4 +34,9 @@ class Plato extends Model
     {
         return $this->belongsTo(CategoriaPlato::class);
     }
+
+    public function ventaPlatos(): HasMany
+    {
+        return $this->hasMany(VentaPlato::class);
+    }
 }

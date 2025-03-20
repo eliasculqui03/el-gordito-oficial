@@ -34,10 +34,14 @@ class CajaResource extends Resource
                 Forms\Components\Select::make('sucursal_id')
                     ->relationship('sucursal', 'nombre')
                     ->required(),
-                Forms\Components\Select::make('user_id')
-                    ->label('Usuario')
-                    ->relationship('user', 'name')
-                    ->required(),
+
+                Forms\Components\Select::make('users')
+                    ->label('Cajeros')
+                    ->multiple()
+                    ->relationship('users', 'name')
+                    ->preload()
+                    ->searchable(),
+
                 CheckboxList::make('zonas')
                     ->relationship('zonas',  'nombre',  function ($query) {
                         $query->where('estado', true); // Filtra las mesas cuyo estado es true
@@ -58,9 +62,9 @@ class CajaResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('sucursal.nombre')
                     ->numeric(),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Usuario')
-                    ->numeric(),
+                Tables\Columns\TextColumn::make('users.name')
+                    ->label('Cajeros')
+                    ->badge(),
                 Tables\Columns\IconColumn::make('estado')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -74,11 +78,7 @@ class CajaResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                Tables\Filters\SelectFilter::make('user_id')
-                    ->label('Usuario')
-                    ->relationship('user', 'name'),
-            ])
+            ->filters([])
             ->actions([
                 ActionGroup::make([
                     Tables\Actions\ViewAction::make(),

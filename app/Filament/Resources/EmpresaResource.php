@@ -57,7 +57,7 @@ class EmpresaResource extends Resource
                                             ->maxLength(255)
                                             ->default(null),
                                         Forms\Components\TextInput::make('numero_decreto')
-                                            ->label('Número de decreto')
+                                            ->label('N.° de decreto')
                                             ->maxLength(255)
                                             ->default(null),
                                         Forms\Components\FileUpload::make('logo')
@@ -77,12 +77,13 @@ class EmpresaResource extends Resource
 
                                     ->schema([
                                         Forms\Components\TextInput::make('email')
-                                            ->label('Correo electrónico')
+                                            ->label('Correo ')
+                                            ->placeholder('example@email.com')
                                             ->email()
                                             ->maxLength(255)
                                             ->default(null),
                                         Forms\Components\TextInput::make('telefono')
-                                            ->label('Numero de teléfono')
+                                            ->label('N.° de teléfono')
                                             ->tel()
                                             ->maxLength(255)
                                             ->default(null),
@@ -133,7 +134,7 @@ class EmpresaResource extends Resource
                                             ->maxLength(255)
                                             ->default(null),
                                         Forms\Components\TextInput::make('dni_gerente')
-                                            ->label('DNI')
+                                            ->label('N.° de documento')
                                             ->maxLength(255)
                                             ->default(null),
                                         Forms\Components\TextInput::make('telefono_gerente')
@@ -170,7 +171,8 @@ class EmpresaResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tipo_actividad')
                     ->label('Tipo de actividad')
-                    ->searchable(),
+                    ->searchable()
+                    ->limit(20),
                 Tables\Columns\TextColumn::make('ruc')
                     ->label('RUC')
                     ->searchable(),
@@ -184,12 +186,12 @@ class EmpresaResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->label('Fecha de creación')
+                    ->label('F. de creación')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->label('Fecha de actualización')
+                    ->label('F. de actualización')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordUrl(null)
