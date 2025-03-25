@@ -18,6 +18,8 @@ class CrearComanda extends Page
     use HasPageShield;
     public $mesaSeleccionada = null;
 
+    protected static ?string $navigationGroup = 'Ventas';
+    //protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-plus';
 

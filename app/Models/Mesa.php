@@ -16,6 +16,7 @@ class Mesa extends Model
         'zona_id',
         'numero',
         'estado',
+        'capacidad'
     ];
 
 

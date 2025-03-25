@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Cliente;
 
 use App\Models\Cliente;
 use App\Models\TipoDocumento;
@@ -102,19 +102,20 @@ class CrearCliente extends Component
         $this->numero_documento = $numero;
     }
 
-
+    #[On('numeroDocumentoBuscar')]
+    public function actualizarNumeroDocumentoVentaDirecta($numero)
+    {
+        $this->numero_documento = $numero;
+    }
 
     public function render()
     {
-        return view('livewire.crear-cliente', [
+        return view('livewire.cliente.crear-cliente', [
             'tipos_documentos' => TipoDocumento::where('estado', 1)->get()
         ]);
     }
 
-
     //Busqueda de documento
-
-
     public function buscarDocumento()
     {
         $this->validate();

@@ -21,7 +21,7 @@
                         </button>
                     </div>
                     <div class="flex justify-center w-full sm:w-auto sm:justify-start">
-                        <livewire:crear-cliente>
+                        <livewire:cliente.crear-cliente>
 
                     </div>
                 </div>

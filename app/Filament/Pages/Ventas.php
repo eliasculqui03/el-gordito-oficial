@@ -17,11 +17,13 @@ class Ventas extends Page implements HasTable
 
     protected static string $view = 'filament.pages.ventas';
 
+    protected static ?string $navigationGroup = 'Ventas';
+    //protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
     protected static ?string $navigationLabel = 'Gestión de Ventas';
     protected static ?string $title = 'Gestión de Ventas';
     protected static ?string $slug = 'ventas';
-    protected static ?string $navigationGroup = 'Operaciones';
     protected static ?int $navigationSort = 3;
 
     public function table(Table $table): Table

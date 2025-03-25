@@ -1,5 +1,3 @@
 <x-filament-panels::page>
-    {{ $this->table }}
-
-    <livewire:ventas>
+    <livewire:venta-directa>
 </x-filament-panels::page>

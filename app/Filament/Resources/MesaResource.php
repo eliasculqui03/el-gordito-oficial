@@ -31,6 +31,11 @@ class MesaResource extends Resource
                     ->numeric()
                     ->minValue(1)
                     ->unique(ignoreRecord: true),
+                Forms\Components\TextInput::make('capacidad')
+                    ->placeholder('Numero de personas')
+                    ->required()
+                    ->numeric()
+                    ->minValue(4),
                 Forms\Components\Select::make('zona_id')
                     ->label('Zonas')
                     ->required()
@@ -50,7 +55,14 @@ class MesaResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('numero')
+                    ->searchable()
                     ->numeric(),
+                Tables\Columns\TextColumn::make('capacidad')
+                    ->numeric()
+                    ->description('personas')
+                    ->toggleable()
+
+                    ->alignment('center'),
                 Tables\Columns\TextColumn::make('zona.nombre')
                     ->label('Zona'),
                 Tables\Columns\TextColumn::make('estado')

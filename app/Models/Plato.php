@@ -39,4 +39,9 @@ class Plato extends Model
     {
         return $this->hasMany(VentaPlato::class);
     }
+
+    public function disponibilidadPlato(): HasMany
+    {
+        return $this->hasMany(Plato::class);
+    }
 }
