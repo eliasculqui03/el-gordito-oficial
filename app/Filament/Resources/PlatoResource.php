@@ -43,6 +43,11 @@ class PlatoResource extends Resource
                     ->minValue(0)
                     ->numeric()
                     ->prefix('S/.'),
+                Forms\Components\TextInput::make('precio_llevar')
+                    ->required()
+                    ->minValue(0)
+                    ->numeric()
+                    ->prefix('S/.'),
                 Forms\Components\Select::make('area_id')
                     ->relationship('area', 'nombre', function ($query) {
                         $query->where('estado', true); // Filtra las cajas activas
@@ -66,6 +71,12 @@ class PlatoResource extends Resource
                     ->label('Categoría')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('precio')
+                    ->numeric()
+                    ->formatStateUsing(function ($state) {
+                        return 'S/. ' . number_format($state, 2);
+                    })
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('precio_llevar')
                     ->numeric()
                     ->formatStateUsing(function ($state) {
                         return 'S/. ' . number_format($state, 2);

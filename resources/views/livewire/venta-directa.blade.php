@@ -40,7 +40,7 @@
                                 class="text-xs font-medium text-gray-700 sm:text-sm dark:text-gray-300">ADMINISTRADOR</span>
                         </div>
 
-                        <!-- Caja actual - versión dinámica -->
+                        <!-- Caja actual - versión dinámica con soporte para tema claro y oscuro -->
                         <div class="flex">
                             @if ($userType == 'single')
                                 <!-- Usuario con una sola caja -->
@@ -56,19 +56,25 @@
                                 </div>
                             @else
                                 <!-- Usuario con múltiples cajas o admin -->
-                                <div class="flex items-center">
+                                <div class="relative flex items-center">
                                     <select id="caja-selector" wire:model.live="selectedCajaId"
-                                        class="px-2 py-1 sm:px-3 text-xs sm:text-sm min-w-[140px] sm:min-w-[180px] font-medium text-green-700 bg-green-100 border-none rounded-full dark:bg-green-900/30 dark:text-green-300 focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400">
+                                        class="appearance-none px-2 py-1 sm:px-3 pr-8 text-xs sm:text-sm min-w-[140px] sm:min-w-[180px] font-medium
+                text-green-700 bg-green-100 border-none rounded-full
+                dark:bg-green-900/30 dark:text-green-300
+                focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400">
                                         @foreach ($cajas as $caja)
-                                            <option value="{{ $caja->id }}">{{ $caja->nombre }}</option>
+                                            <option value="{{ $caja->id }}"
+                                                class="text-gray-900 bg-white dark:bg-gray-800 dark:text-gray-100">
+                                                {{ $caja->nombre }}</option>
                                         @endforeach
                                     </select>
+
                                 </div>
                             @endif
                         </div>
 
                         <!-- Número de pedido - Dinámico -->
-                        <div
+                        <div wire:poll.1s
                             class="px-2 py-1 text-center border border-indigo-500 rounded-lg sm:border-2 dark:border-indigo-400">
                             <p class="text-xs font-bold text-gray-700 dark:text-gray-300">PEDIDO</p>
                             <p class="text-sm font-bold text-indigo-500 sm:text-base dark:text-indigo-400">N°.
@@ -124,7 +130,7 @@
                             </label>
                             <div
                                 class="px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200">
-                                24/03/2025
+                                {{ now()->format('d/m/Y') }}
                             </div>
                         </div>
 
@@ -319,55 +325,36 @@
                         <div class="flex flex-wrap gap-2 mb-3">
                             <!-- Botones mejorados con nuevos iconos y estilos -->
                             <div class="flex flex-wrap gap-3">
-
                                 <!-- Botones con estilo de enfoque consistente -->
                                 <div class="flex flex-wrap gap-3">
                                     <!-- Botones con nuevos iconos -->
                                     <div class="flex flex-wrap gap-3">
                                         <!-- Botón de Agregar Existencia (nuevo icono de inventario) -->
-                                        <button
-                                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-green-600 rounded-md hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2"
-                                                viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" />
-                                                <path fill-rule="evenodd"
-                                                    d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
-                                            Agregar Existencia
-                                        </button>
+
+                                        @livewire('venta-directa.existencia-component')
 
                                         <!-- Botón de Agregar Platos (nuevo icono de bandeja de comida) -->
-                                        <button
-                                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-indigo-600 rounded-md hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2"
-                                                viewBox="0 0 20 20" fill="currentColor">
-                                                <path
-                                                    d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z" />
-                                            </svg>
-                                            Agregar Platos
-                                        </button>
 
-
+                                        @livewire('venta-directa.plato-component')
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Tabla de productos -->
-                        <div class="overflow-x-auto border border-gray-200 rounded-lg dark:border-gray-700">
+                        <!-- Tabla combinada de platos y existencias -->
+                        <div class="mb-4 overflow-x-auto border border-gray-200 rounded-lg dark:border-gray-700">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-700">
                                     <tr>
                                         <th
                                             class="px-4 py-2 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                                            Item</th>
+                                            Descripción</th>
                                         <th
                                             class="px-4 py-2 text-xs font-medium text-center text-gray-500 uppercase dark:text-gray-400">
-                                            Unidad</th>
+                                            Tipo</th>
                                         <th
                                             class="px-4 py-2 text-xs font-medium text-center text-gray-500 uppercase dark:text-gray-400">
-                                            Precio</th>
+                                            Precio Unitario</th>
                                         <th
                                             class="px-4 py-2 text-xs font-medium text-center text-gray-500 uppercase dark:text-gray-400">
                                             Cantidad</th>
@@ -380,103 +367,179 @@
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                                    <!-- Ejemplo 1 -->
-                                    <tr>
-                                        <td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">Lomo Saltado
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">
-                                            PLATO</td>
-                                        <td class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">S/.
-                                            25.90</td>
-                                        <td class="px-4 py-3 text-center">
-                                            <div class="flex items-center justify-center">
-                                                <button
-                                                    class="p-1 text-gray-500 bg-gray-200 rounded dark:bg-gray-700 dark:text-gray-300">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
-                                                        viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fill-rule="evenodd"
-                                                            d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                </button>
+                                    <!-- Primero mostramos los platos -->
+                                    @forelse($platosComanda as $index => $plato)
+                                        <tr class="bg-indigo-50/30 dark:bg-indigo-900/10">
+                                            <td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
+                                                {{ $plato['nombre'] }}
+                                                <p class="text-xs text-gray-500">{{ $plato['categoria'] }}</p>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">
                                                 <span
-                                                    class="mx-2 text-sm font-medium text-gray-800 dark:text-gray-200">2</span>
-                                                <button
-                                                    class="p-1 text-white bg-indigo-500 rounded dark:bg-indigo-600">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
-                                                        viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fill-rule="evenodd"
-                                                            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td
-                                            class="px-4 py-3 text-sm font-medium text-center text-gray-800 dark:text-gray-200">
-                                            S/. 51.80</td>
-                                        <td class="px-4 py-3 text-center">
-                                            <button
-                                                class="p-1 text-white bg-red-500 rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
-                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd"
-                                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <!-- Ejemplo 2 -->
-                                    <tr>
-                                        <td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">Chicha Morada
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">
-                                            JARRA</td>
-                                        <td class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">S/.
-                                            8.00</td>
-                                        <td class="px-4 py-3 text-center">
-                                            <div class="flex items-center justify-center">
-                                                <button
-                                                    class="p-1 text-gray-500 bg-gray-200 rounded dark:bg-gray-700 dark:text-gray-300">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
-                                                        viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fill-rule="evenodd"
-                                                            d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                </button>
-                                                <span
-                                                    class="mx-2 text-sm font-medium text-gray-800 dark:text-gray-200">3</span>
-                                                <button
-                                                    class="p-1 text-white bg-indigo-500 rounded dark:bg-indigo-600">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
-                                                        viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fill-rule="evenodd"
-                                                            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td
-                                            class="px-4 py-3 text-sm font-medium text-center text-gray-800 dark:text-gray-200">
-                                            S/. 24.00</td>
-                                        <td class="px-4 py-3 text-center">
-                                            <button
-                                                class="p-1 text-white bg-red-500 rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
-                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd"
-                                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
-                                        </td>
-                                    </tr>
+                                                    class="{{ $plato['es_llevar'] ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' }} px-2 py-1 text-xs font-semibold rounded-full">
+                                                    PLATO - {{ $plato['es_llevar'] ? 'LLEVAR' : 'MESA' }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">
+                                                S/. {{ number_format($plato['precio_unitario'], 2) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-center">
+                                                <div class="flex items-center justify-center">
+                                                    <button wire:click="decrementarCantidadPlato({{ $index }})"
+                                                        class="p-1 text-gray-500 bg-gray-200 rounded dark:bg-gray-700 dark:text-gray-300">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                                                            viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd"
+                                                                d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                    <span
+                                                        class="mx-2 text-sm font-medium text-gray-800 dark:text-gray-200">{{ $plato['cantidad'] }}</span>
+                                                    <button wire:click="incrementarCantidadPlato({{ $index }})"
+                                                        class="p-1 text-white bg-indigo-500 rounded dark:bg-indigo-600">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                                                            viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd"
+                                                                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-4 py-3 text-sm font-medium text-center text-gray-800 dark:text-gray-200">
+                                                S/. {{ number_format($plato['subtotal'], 2) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-center">
+                                                <div class="flex items-center justify-center space-x-2">
+                                                    <button wire:click="toggleLlevarPlato({{ $index }})"
+                                                        class="p-1 text-orange-500 bg-orange-100 rounded hover:bg-orange-200 dark:bg-orange-900/20 dark:hover:bg-orange-800/30 dark:text-orange-400"
+                                                        title="Cambiar entre mesa/llevar">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                                                            viewBox="0 0 20 20" fill="currentColor">
+                                                            <path
+                                                                d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8z" />
+                                                            <path
+                                                                d="M12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z" />
+                                                        </svg>
+                                                    </button>
+                                                    <button wire:click="removerPlato({{ $index }})"
+                                                        class="p-1 text-white bg-red-500 rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
+                                                        title="Eliminar">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                                                            viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd"
+                                                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <!-- No hay platos -->
+                                    @endforelse
+
+                                    <!-- Luego mostramos las existencias -->
+                                    @forelse($existenciasComanda as $index => $existencia)
+                                        <tr class="bg-green-50/30 dark:bg-green-900/10">
+                                            <td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
+                                                {{ $existencia['nombre'] }}
+                                                <p class="text-xs text-gray-500">{{ $existencia['categoria'] }}</p>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">
+                                                @if ($existencia['es_producto'])
+                                                    <span
+                                                        class="{{ $existencia['es_helado'] ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' }} px-2 py-1 text-xs font-semibold rounded-full">
+                                                        PRODUCTO - {{ $existencia['es_helado'] ? 'HELADO' : 'NORMAL' }}
+                                                    </span>
+                                                @else
+                                                    <span
+                                                        class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-200">
+                                                        INSUMO
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">
+                                                S/. {{ number_format($existencia['precio_unitario'], 2) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-center">
+                                                <div class="flex items-center justify-center">
+                                                    <button
+                                                        wire:click="decrementarCantidadExistencia({{ $index }})"
+                                                        class="p-1 text-gray-500 bg-gray-200 rounded dark:bg-gray-700 dark:text-gray-300">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                                                            viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd"
+                                                                d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                    <span
+                                                        class="mx-2 text-sm font-medium text-gray-800 dark:text-gray-200">{{ $existencia['cantidad'] }}</span>
+                                                    <button
+                                                        wire:click="incrementarCantidadExistencia({{ $index }})"
+                                                        class="p-1 text-white bg-green-500 rounded dark:bg-green-600">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                                                            viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd"
+                                                                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-4 py-3 text-sm font-medium text-center text-gray-800 dark:text-gray-200">
+                                                S/. {{ number_format($existencia['subtotal'], 2) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-center">
+                                                <div class="flex items-center justify-center space-x-2">
+                                                    @if ($existencia['es_producto'])
+                                                        <button
+                                                            wire:click="toggleHeladoExistencia({{ $index }})"
+                                                            class="p-1 text-blue-500 bg-blue-100 rounded hover:bg-blue-200 dark:bg-blue-900/20 dark:hover:bg-blue-800/30 dark:text-blue-400"
+                                                            title="Cambiar entre normal/helado">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                                                                viewBox="0 0 20 20" fill="currentColor">
+                                                                <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
+                                                                <path
+                                                                    d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm12 6h2a1 1 0 110 2h-2v-2z" />
+                                                            </svg>
+                                                        </button>
+                                                    @endif
+                                                    <button wire:click="removerExistencia({{ $index }})"
+                                                        class="p-1 text-white bg-red-500 rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
+                                                        title="Eliminar">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                                                            viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd"
+                                                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <!-- No hay existencias -->
+                                    @endforelse
+
+                                    <!-- Mensaje cuando no hay items -->
+                                    @if (count($platosComanda) == 0 && count($existenciasComanda) == 0)
+                                        <tr>
+                                            <td colspan="6"
+                                                class="px-4 py-3 text-sm text-center text-gray-500 dark:text-gray-400">
+                                                No hay platos ni existencias seleccionadas. Use los botones "Agregar
+                                                Platos" o "Agregar Existencia" para añadir ítems a la comanda.
+                                            </td>
+                                        </tr>
+                                    @endif
                                 </tbody>
                             </table>
                         </div>
+
                     </div>
 
                     <!-- Quinta fila: Resumen de Totales y botones de acción -->
@@ -532,7 +595,7 @@
                             <!-- Nuevos botones de acción -->
                             <div class="grid grid-cols-3 gap-2">
                                 <!-- Botón para solo guardar pedido -->
-                                <button
+                                <button wire:click="guardarComanda"
                                     class="flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" viewBox="0 0 20 20"
                                         fill="currentColor">
@@ -563,32 +626,31 @@
                                 <h3 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Resumen de
                                     Totales</h3>
                                 <div class="space-y-2">
+                                    <!-- Sección de platos y existencias combinados -->
                                     <div class="flex justify-between">
                                         <span class="text-sm text-gray-600 dark:text-gray-400">Subtotal:</span>
                                         <span class="text-sm font-medium text-gray-800 dark:text-gray-200">S/.
-                                            75.80</span>
+                                            {{ number_format($subtotalGeneral, 2) }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-sm text-gray-600 dark:text-gray-400">IGV (18%):</span>
                                         <span class="text-sm font-medium text-gray-800 dark:text-gray-200">S/.
-                                            13.64</span>
+                                            {{ number_format($igvGeneral, 2) }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-sm text-gray-600 dark:text-gray-400">Descuento:</span>
                                         <span class="text-sm font-medium text-gray-800 dark:text-gray-200">S/.
-                                            0.00</span>
+                                            {{ number_format($descuentoGeneral, 2) }}</span>
                                     </div>
                                     <div class="pt-2 mt-2 border-t border-gray-200 dark:border-gray-600">
                                         <div class="flex justify-between">
                                             <span
                                                 class="text-base font-bold text-gray-800 dark:text-gray-200">TOTAL:</span>
                                             <span class="text-base font-bold text-indigo-600 dark:text-indigo-400">S/.
-                                                89.44</span>
+                                                {{ number_format($totalGeneral, 2) }}</span>
                                         </div>
                                     </div>
                                 </div>
-
-
                             </div>
                         </div>
                     </div>

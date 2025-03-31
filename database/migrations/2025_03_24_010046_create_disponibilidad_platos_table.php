@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('disponibilidad_platos', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('plato_id');
+            $table->unsignedBigInteger('plato_id')->unique();
             $table->integer('cantidad');
+            $table->boolean('disponibilidad')->default(true);
             $table->timestamps();
 
             $table->foreign('plato_id')->references('id')->on('platos')->cascadeOnDelete()->cascadeOnUpdate();

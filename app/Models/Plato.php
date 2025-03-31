@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Plato extends Model
 {
@@ -15,6 +16,7 @@ class Plato extends Model
         'nombre',
         'categoria_plato_id',
         'precio',
+        'precio_llevar',
         'area_id',
         'descripcion',
         'estado',
@@ -40,8 +42,8 @@ class Plato extends Model
         return $this->hasMany(VentaPlato::class);
     }
 
-    public function disponibilidadPlato(): HasMany
+    public function disponibilidadPlato(): HasOne
     {
-        return $this->hasMany(Plato::class);
+        return $this->hasOne(DisponibilidadPlato::class);
     }
 }

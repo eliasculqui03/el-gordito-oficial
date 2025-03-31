@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ExistenciaResource\Pages;
-use App\Filament\Resources\ExistenciaResource\RelationManagers;
 use App\Models\CategoriaExistencia;
 use App\Models\Existencia;
 use Filament\Forms;
@@ -13,8 +12,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ExistenciaResource extends Resource
@@ -34,7 +31,8 @@ class ExistenciaResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('nombre')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->autocomplete(false),
                         Forms\Components\Select::make('tipo_existencia_id')
                             ->label('Tipo de existencia')
                             ->relationship('tipoExistencia', 'nombre')

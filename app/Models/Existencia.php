@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Existencia extends Model
 {
@@ -53,9 +54,9 @@ class Existencia extends Model
         return $this->hasMany(IngresoAlmacen::class);
     }
 
-    public function inventarios(): HasMany
+    public function inventario(): HasOne
     {
-        return $this->hasMany(Inventario::class);
+        return $this->hasOne(Inventario::class);
     }
 
     public function comandas(): HasMany

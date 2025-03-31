@@ -13,6 +13,7 @@ class DisponibilidadPlato extends Model
     protected $fillable = [
         'plato_id',
         'cantidad',
+        'disponibilidad',
     ];
 
 

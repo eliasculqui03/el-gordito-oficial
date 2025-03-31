@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('existencia_id');
             $table->integer('cantidad');
             $table->double('subtotal', 10, 2);
+            $table->boolean('helado')->default(false);
             $table->enum('estado', ['Pendiente', 'Procesando', 'Listo', 'Entregando', 'Completado', 'Cancelado'])->default('Pendiente');
             $table->timestamps();
 

@@ -16,6 +16,7 @@ class ComandaPlato extends Model
         'plato_id',
         'cantidad',
         'subtotal',
+        'llevar',
         'estado',
     ];
 

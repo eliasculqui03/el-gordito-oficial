@@ -16,6 +16,7 @@ class ComandaExistencia extends Model
         'existencia_id',
         'cantidad',
         'subtotal',
+        'helado',
         'estado',
     ];
 
