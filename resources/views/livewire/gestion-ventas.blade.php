@@ -331,17 +331,38 @@
                                     <div class="flex flex-wrap gap-3">
                                         <!-- Botón de Agregar Existencia (nuevo icono de inventario) -->
 
-                                        @livewire('venta-directa.existencia-component')
+                                        <button wire:click="abrirModalExistencia"
+                                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-green-600 rounded-md hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2"
+                                                viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" />
+                                                <path fill-rule="evenodd"
+                                                    d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            Agregar Existencia
+                                        </button>
+
+
 
                                         <!-- Botón de Agregar Platos (nuevo icono de bandeja de comida) -->
 
-                                        @livewire('venta-directa.plato-component')
+                                        <button wire:click="abrirModalPlato"
+                                            class="flex items-center justify-center px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-indigo-600 rounded-md hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2"
+                                                viewBox="0 0 20 20" fill="currentColor">
+                                                <path
+                                                    d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z" />
+                                            </svg>
+                                            Agregar Platos
+                                        </button>
+
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Tabla combinada de platos y existencias -->
+                        <!-- Tabla combinada de platos y existencias con estilos Tailwind completos -->
                         <div class="mb-4 overflow-x-auto border border-gray-200 rounded-lg dark:border-gray-700">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-700">
@@ -372,12 +393,12 @@
                                         <tr class="bg-indigo-50/30 dark:bg-indigo-900/10">
                                             <td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
                                                 {{ $plato['nombre'] }}
-                                                <p class="text-xs text-gray-500">{{ $plato['categoria'] }}</p>
+                                                <p class="text-xs text-gray-500">{{ $plato['unidad_medida'] }}</p>
                                             </td>
                                             <td class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">
                                                 <span
                                                     class="{{ $plato['es_llevar'] ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' }} px-2 py-1 text-xs font-semibold rounded-full">
-                                                    PLATO - {{ $plato['es_llevar'] ? 'LLEVAR' : 'MESA' }}
+                                                    {{ $plato['es_llevar'] ? 'LLEVAR' : 'MESA' }}
                                                 </span>
                                             </td>
                                             <td class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">
@@ -446,13 +467,14 @@
                                         <tr class="bg-green-50/30 dark:bg-green-900/10">
                                             <td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
                                                 {{ $existencia['nombre'] }}
-                                                <p class="text-xs text-gray-500">{{ $existencia['categoria'] }}</p>
+                                                <p class="text-xs text-gray-500">{{ $existencia['unidad_medida'] }}
+                                                </p>
                                             </td>
                                             <td class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">
                                                 @if ($existencia['es_producto'])
                                                     <span
                                                         class="{{ $existencia['es_helado'] ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' }} px-2 py-1 text-xs font-semibold rounded-full">
-                                                        PRODUCTO - {{ $existencia['es_helado'] ? 'HELADO' : 'NORMAL' }}
+                                                        {{ $existencia['es_helado'] ? 'HELADO' : 'NORMAL' }}
                                                     </span>
                                                 @else
                                                     <span
@@ -621,6 +643,7 @@
 
                         <div class="order-1 md:order-2">
                             <!-- Resumen de totales -->
+                            <!-- Esta sección reemplaza el comentario del resumen de totales en el código original -->
                             <div
                                 class="p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700/30 dark:border-gray-700">
                                 <h3 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Resumen de
@@ -659,140 +682,370 @@
         </div>
     </div>
 
+
+
+
+
+
+
+    <!-- Modal de Existencias -->
+    @if ($mostrarModalExistencia)
+        <div wire:poll.2s
+            class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900 bg-opacity-60">
+            <div class="relative w-full max-w-5xl mx-auto bg-white rounded-lg shadow-xl dark:bg-gray-800">
+                <!-- Encabezado del modal con gradiente -->
+                <div
+                    class="px-6 py-4 border-b border-gray-200 rounded-t-lg bg-gradient-to-r from-green-500 to-teal-600 dark:from-green-800 dark:to-teal-900 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-semibold text-white">
+                            Seleccionar Existencia
+                        </h3>
+                        <button
+                            class="p-1 text-white rounded-full hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                            wire:click="cerrarModalExistencia">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="px-6 py-4">
+                    <!-- Separador con título de sección -->
+                    <div class="flex items-center mb-4">
+                        <div class="flex-grow h-px bg-gray-200 dark:bg-gray-700">
+                        </div>
+                        <h4 class="px-3 text-sm font-medium text-gray-500 uppercase dark:text-gray-400">
+                            Tipos de
+                            Existencia</h4>
+                        <div class="flex-grow h-px bg-gray-200 dark:bg-gray-700">
+                        </div>
+                    </div>
+
+                    <!-- Botones de tipos de existencia -->
+                    <div class="flex flex-wrap gap-2 mb-6 overflow-x-auto">
+                        @foreach ($tipos_existencia as $tipo)
+                            <button
+                                class="px-4 py-2 text-sm font-medium transition-colors duration-200 border rounded-md {{ $selectedTipoExistencia == $tipo->id ? 'bg-green-600 text-white border-green-700 shadow-sm dark:bg-green-700 dark:border-green-800' : 'text-green-700 bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-green-300 dark:border-gray-700 dark:hover:bg-gray-700' }}"
+                                wire:click="selectTipoExistencia('{{ $tipo->id }}')">
+                                {{ $tipo->nombre }}
+                            </button>
+                        @endforeach
+                    </div>
+
+                    <!-- Separador con título de sección -->
+                    <div class="flex items-center mb-4">
+                        <div class="flex-grow h-px bg-gray-200 dark:bg-gray-700">
+                        </div>
+                        <h4 class="px-3 text-sm font-medium text-gray-500 uppercase dark:text-gray-400">
+                            Categorías</h4>
+                        <div class="flex-grow h-px bg-gray-200 dark:bg-gray-700">
+                        </div>
+                    </div>
+
+                    <!-- Botones de categorías -->
+                    <div class="flex flex-wrap gap-2 mb-6 overflow-x-auto">
+                        <button
+                            class="px-4 py-2 text-sm font-medium transition-colors duration-200 border rounded-md {{ $selectedCategoriaExistencia == '' ? 'bg-green-600 text-white border-green-700 shadow-sm dark:bg-green-700 dark:border-green-800' : 'text-green-700 bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-green-300 dark:border-gray-700 dark:hover:bg-gray-700' }}"
+                            wire:click="selectCategoriaExistencia('')">
+                            Todas
+                        </button>
+                        @foreach ($categorias_existencia as $categoria)
+                            <button
+                                class="px-4 py-2 text-sm font-medium transition-colors duration-200 border rounded-md {{ $selectedCategoriaExistencia == $categoria->id ? 'bg-green-600 text-white border-green-700 shadow-sm dark:bg-green-700 dark:border-green-800' : 'text-green-700 bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-green-300 dark:border-gray-700 dark:hover:bg-gray-700' }}"
+                                wire:click="selectCategoriaExistencia('{{ $categoria->id }}')">
+                                {{ $categoria->nombre }}
+                            </button>
+                        @endforeach
+                    </div>
+
+                    <!-- Grid de Existencias -->
+                    <div class="overflow-y-auto" style="max-height: 400px;">
+                        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                            @forelse($existencias as $existencia)
+                                <div
+                                    class="relative transition-all duration-200 bg-white border border-gray-200 rounded-lg shadow-sm {{ $existencia->inventario && $existencia->inventario->stock > 0 ? 'hover:border-green-500 hover:shadow' : 'opacity-70' }} dark:bg-gray-800 dark:border-gray-700 dark:hover:border-green-500">
+                                    <div class="p-2.5">
+                                        <div class="flex flex-col h-full">
+                                            <div>
+                                                <h5
+                                                    class="text-sm font-medium text-gray-800 truncate dark:text-gray-200">
+                                                    {{ $existencia->nombre }}
+                                                </h5>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                    {{ $existencia->unidadMedida->nombre }}
+                                                </p>
+                                            </div>
+                                            <div class="mt-1.5">
+                                                <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                                    S/.
+                                                    {{ number_format($existencia->precio_venta, 2) }}
+                                                </span>
+                                            </div>
+                                            <!-- Estado de disponibilidad -->
+                                            <div class="mt-1.5 mb-1">
+                                                @if ($existencia->inventario && $existencia->inventario->stock > 0)
+                                                    <div class="flex items-center text-green-600 dark:text-green-400">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
+                                                            viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd"
+                                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                        <span class="text-xs font-medium">Disponible
+                                                            ({{ $existencia->inventario->stock }})
+                                                        </span>
+                                                    </div>
+                                                @else
+                                                    <div class="flex items-center text-red-600 dark:text-red-400">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
+                                                            viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd"
+                                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                        <span class="text-xs font-medium">Agotado</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            <div class="grid grid-cols-1 gap-1 mt-auto">
+                                                @if ($existencia->inventario && $existencia->inventario->stock > 0)
+                                                    @if ($existencia->tipo_existencia_id == $tipoProductosId)
+                                                        <div class="grid grid-cols-2 gap-1">
+                                                            <button
+                                                                wire:click="agregarExistencia({{ $existencia->id }}, false)"
+                                                                class="px-2 py-1 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-700 dark:hover:bg-green-800">
+                                                                Normal
+                                                            </button>
+                                                            <button
+                                                                wire:click="agregarExistencia({{ $existencia->id }}, true)"
+                                                                class="px-2 py-1 text-xs font-medium text-white bg-indigo-600 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-700 dark:hover:bg-indigo-800">
+                                                                Helado
+                                                            </button>
+                                                        </div>
+                                                    @else
+                                                        <button
+                                                            wire:click="agregarExistencia({{ $existencia->id }}, false)"
+                                                            class="px-2 py-1 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-700 dark:hover:bg-green-800">
+                                                            Agregar
+                                                        </button>
+                                                    @endif
+                                                @else
+                                                    <button disabled
+                                                        class="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-200 rounded cursor-not-allowed dark:bg-gray-700 dark:text-gray-400">
+                                                        No disponible
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="col-span-5 p-6 text-center">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                        </svg>
+                                        <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                                            No hay existencias disponibles con los
+                                            filtros seleccionados.
+                                        </p>
+                                    </div>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="flex items-center justify-end px-6 py-3 border-t border-gray-200 rounded-b-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+                    <div class="mr-auto text-xs text-gray-500 dark:text-gray-400">
+                        <span class="inline-flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="w-4 h-4 mr-1 text-green-500 dark:text-green-400 animate-spin"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Actualizando stock en tiempo real
+                        </span>
+                    </div>
+                    <button wire:click="cerrarModalExistencia"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
+
+
+
+    <!-- Modal de Platos -->
+    @if ($mostrarModalPlato)
+        <div wire:poll.2s
+            class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900 bg-opacity-60">
+            <div class="relative w-full max-w-5xl mx-auto bg-white rounded-lg shadow-xl dark:bg-gray-800">
+                <!-- Encabezado del modal con gradiente -->
+                <div
+                    class="px-6 py-4 border-b border-gray-200 rounded-t-lg bg-gradient-to-r from-indigo-500 to-purple-600 dark:from-indigo-800 dark:to-purple-900 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-semibold text-white">
+                            Seleccionar Plato
+                        </h3>
+                        <button
+                            class="p-1 text-white rounded-full hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                            wire:click="cerrarModalPlato">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="px-6 py-4">
+                    <!-- Separador con título de sección -->
+                    <div class="flex items-center mb-4">
+                        <div class="flex-grow h-px bg-gray-200 dark:bg-gray-700"></div>
+                        <h4 class="px-3 text-sm font-medium text-gray-500 uppercase dark:text-gray-400">Categorías
+                            de Platos</h4>
+                        <div class="flex-grow h-px bg-gray-200 dark:bg-gray-700"></div>
+                    </div>
+
+                    <!-- Botones de categorías de platos -->
+                    <div class="flex flex-wrap gap-2 mb-6 overflow-x-auto">
+                        <button
+                            class="px-4 py-2 text-sm font-medium transition-colors duration-200 border rounded-md {{ $selectedCategoriaPlato == '' ? 'bg-indigo-600 text-white border-indigo-700 shadow-sm dark:bg-indigo-700 dark:border-indigo-800' : 'text-indigo-700 bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-indigo-300 dark:border-gray-700 dark:hover:bg-gray-700' }}"
+                            wire:click="selectCategoriaPlato('')">
+                            Todas
+                        </button>
+                        @foreach ($categorias_plato as $categoria)
+                            <button
+                                class="px-4 py-2 text-sm font-medium transition-colors duration-200 border rounded-md {{ $selectedCategoriaPlato == $categoria->id ? 'bg-indigo-600 text-white border-indigo-700 shadow-sm dark:bg-indigo-700 dark:border-indigo-800' : 'text-indigo-700 bg-white border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-indigo-300 dark:border-gray-700 dark:hover:bg-gray-700' }}"
+                                wire:click="selectCategoriaPlato('{{ $categoria->id }}')">
+                                {{ $categoria->nombre }}
+                            </button>
+                        @endforeach
+                    </div>
+
+                    <!-- Grid de Platos disponibles -->
+                    <div class="overflow-y-auto" style="max-height: 400px;">
+                        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                            @forelse($platos as $plato)
+                                <div
+                                    class="relative transition-all duration-200 bg-white border border-gray-200 rounded-lg shadow-sm {{ $plato->disponibilidadPlato && $plato->disponibilidadPlato->disponibilidad == 1 ? 'hover:border-indigo-500 hover:shadow' : 'opacity-70' }} dark:bg-gray-800 dark:border-gray-700 dark:hover:border-indigo-500">
+                                    <div class="p-2.5">
+                                        <div class="flex flex-col h-full">
+                                            <div>
+                                                <h5
+                                                    class="text-sm font-medium text-gray-800 truncate dark:text-gray-200">
+                                                    {{ $plato->nombre }}
+                                                </h5>
+                                            </div>
+                                            <div class="mt-1.5 flex justify-between items-center">
+                                                <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                                    S/. {{ number_format($plato->precio, 2) }}
+                                                </span>
+                                                @if ($plato->precio_llevar > 0 && $plato->precio_llevar != $plato->precio)
+                                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                                        Llevar: S/. {{ number_format($plato->precio_llevar, 2) }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <!-- Estado de disponibilidad -->
+                                            <div class="mt-1.5 mb-1">
+                                                @if ($plato->disponibilidadPlato && $plato->disponibilidadPlato->disponibilidad == 1)
+                                                    <div class="flex items-center text-green-600 dark:text-green-400">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
+                                                            viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd"
+                                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                        <span class="text-xs font-medium">Disponible
+                                                            ({{ $plato->disponibilidadPlato->cantidad }})
+                                                        </span>
+                                                    </div>
+                                                @else
+                                                    <div class="flex items-center text-red-600 dark:text-red-400">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
+                                                            viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd"
+                                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                        <span class="text-xs font-medium">Agotado</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-1 mt-auto">
+                                                @if ($plato->disponibilidadPlato && $plato->disponibilidadPlato->disponibilidad == 1)
+                                                    <button wire:click="agregarPlato({{ $plato->id }}, false)"
+                                                        class="px-2 py-1 text-xs font-medium text-white bg-indigo-600 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-700 dark:hover:bg-indigo-800">
+                                                        Mesa
+                                                    </button>
+                                                    <button wire:click="agregarPlato({{ $plato->id }}, true)"
+                                                        class="px-2 py-1 text-xs font-medium text-white rounded bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 dark:bg-amber-600 dark:hover:bg-amber-700">
+                                                        Llevar
+                                                    </button>
+                                                @else
+                                                    <button disabled
+                                                        class="col-span-2 px-2 py-1 text-xs font-medium text-gray-500 bg-gray-200 rounded cursor-not-allowed dark:bg-gray-700 dark:text-gray-400">
+                                                        No disponible
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="col-span-5 p-6 text-center">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                                            No hay platos disponibles con los filtros seleccionados.
+                                        </p>
+                                    </div>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="flex items-center justify-end px-6 py-3 border-t border-gray-200 rounded-b-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+                    <div class="mr-auto text-xs text-gray-500 dark:text-gray-400">
+                        <span class="inline-flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="w-4 h-4 mr-1 text-indigo-500 dark:text-indigo-400 animate-spin"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Actualizando disponibilidad en tiempo real
+                        </span>
+                    </div>
+                    <button wire:click="cerrarModalPlato"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
 </div>
-
-
-
-
-
-{{--
-
-
-    <!-- Estado de caja y acceso rápido -->
-    <div
-        class="overflow-hidden transition-colors duration-200 bg-white rounded-lg shadow dark:bg-gray-800 dark:shadow-gray-700/30">
-        <div class="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700">
-            <div class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2 text-indigo-500 dark:text-indigo-400"
-                    viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
-                        clip-rule="evenodd" />
-                </svg>
-                <h2 class="text-base font-semibold text-gray-700 dark:text-gray-200">ESTADO DE CAJA
-                </h2>
-            </div>
-            <div class="text-sm font-medium text-indigo-600 dark:text-indigo-400">CAJA 1</div>
-        </div>
-
-        <div class="p-3">
-            <div class="grid grid-cols-2 gap-2 mb-3">
-                <div class="p-2 rounded-md bg-gray-50 dark:bg-gray-700/50">
-                    <div class="text-xs text-gray-500 dark:text-gray-400">Apertura</div>
-                    <div class="font-medium text-gray-800 dark:text-gray-200">S/. 500.00</div>
-                </div>
-                <div class="p-2 rounded-md bg-gray-50 dark:bg-gray-700/50">
-                    <div class="text-xs text-gray-500 dark:text-gray-400">Ventas</div>
-                    <div class="font-medium text-green-600 dark:text-green-400">S/. 1,250.80</div>
-                </div>
-                <div class="p-2 rounded-md bg-gray-50 dark:bg-gray-700/50">
-                    <div class="text-xs text-gray-500 dark:text-gray-400">Efectivo</div>
-                    <div class="font-medium text-gray-800 dark:text-gray-200">S/. 850.50</div>
-                </div>
-                <div class="p-2 rounded-md bg-gray-50 dark:bg-gray-700/50">
-                    <div class="text-xs text-gray-500 dark:text-gray-400">Tarjeta</div>
-                    <div class="font-medium text-gray-800 dark:text-gray-200">S/. 400.30</div>
-                </div>
-            </div>
-            <!-- Barra superior de acciones rápidas -->
-            <div
-                class="p-2 transition-colors duration-200 bg-white rounded-lg shadow dark:bg-gray-800 dark:shadow-gray-700/30">
-                <div class="grid grid-cols-5 gap-2">
-                    <button
-                        class="flex flex-col items-center justify-center p-2 text-green-700 transition-colors duration-200 rounded-lg bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-800/30 dark:text-green-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-1" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <span class="text-xs font-medium">Cobrar</span>
-                    </button>
-
-                    <button
-                        class="flex flex-col items-center justify-center p-2 text-blue-700 transition-colors duration-200 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-800/30 dark:text-blue-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-1" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <span class="text-xs font-medium">Nueva</span>
-                    </button>
-
-                    <button
-                        class="flex flex-col items-center justify-center p-2 text-purple-700 transition-colors duration-200 rounded-lg bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-800/30 dark:text-purple-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-1" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                        </svg>
-                        <span class="text-xs font-medium">Transferir</span>
-                    </button>
-
-                    <button
-                        class="flex flex-col items-center justify-center p-2 text-orange-700 transition-colors duration-200 rounded-lg bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 dark:hover:bg-orange-800/30 dark:text-orange-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-1" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        <span class="text-xs font-medium">Ver</span>
-                    </button>
-
-                    <button
-                        class="flex flex-col items-center justify-center p-2 text-red-700 transition-colors duration-200 rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-800/30 dark:text-red-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-1" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        <span class="text-xs font-medium">Cancelar</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Acciones rápidas -->
-            <div class="grid grid-cols-3 gap-2">
-                <button
-                    class="flex flex-col items-center px-3 py-2 text-xs text-gray-700 transition-colors duration-200 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-400 dark:focus:ring-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mb-1" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Historial
-                </button>
-                <button
-                    class="flex flex-col items-center px-3 py-2 text-xs text-gray-700 transition-colors duration-200 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-400 dark:focus:ring-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mb-1" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    Imprimir
-                </button>
-                <button
-                    class="flex flex-col items-center px-3 py-2 text-xs text-gray-700 transition-colors duration-200 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-400 dark:focus:ring-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mb-1" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    Config
-                </button>
-            </div>
-        </div>
-    </div> --}}

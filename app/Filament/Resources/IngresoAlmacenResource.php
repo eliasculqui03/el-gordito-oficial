@@ -102,7 +102,7 @@ class IngresoAlmacenResource extends Resource
 
                             ->disabled(fn($get) => $get('existencia_id_disabled'))
                             ->dehydrated(true)
-                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->nombre}")
+                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->descripcion}")
                             ->searchable()
                             ->preload()
                             ->columnSpan(2),

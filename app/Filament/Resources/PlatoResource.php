@@ -48,6 +48,12 @@ class PlatoResource extends Resource
                     ->minValue(0)
                     ->numeric()
                     ->prefix('S/.'),
+                Forms\Components\Select::make('unidad_medida_id')
+                    ->label('Unidad de medida')
+                    ->required()
+                    ->relationship('unidadMedida', 'descripcion')
+                    ->searchable()
+                    ->preload(),
                 Forms\Components\Select::make('area_id')
                     ->relationship('area', 'nombre', function ($query) {
                         $query->where('estado', true); // Filtra las cajas activas
@@ -82,6 +88,8 @@ class PlatoResource extends Resource
                         return 'S/. ' . number_format($state, 2);
                     })
                     ->sortable(),
+                Tables\Columns\TextColumn::make('unidadMedida.descripcion')
+                    ->label('U. de medida'),
                 Tables\Columns\TextColumn::make('area.nombre')
                     ->label('Área'),
                 Tables\Columns\IconColumn::make('estado')

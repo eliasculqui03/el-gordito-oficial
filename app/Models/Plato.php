@@ -15,6 +15,7 @@ class Plato extends Model
     protected $fillable = [
         'nombre',
         'categoria_plato_id',
+        'unidad_medida_id',
         'precio',
         'precio_llevar',
         'area_id',
@@ -45,5 +46,10 @@ class Plato extends Model
     public function disponibilidadPlato(): HasOne
     {
         return $this->hasOne(DisponibilidadPlato::class);
+    }
+
+    public function unidadMedida(): BelongsTo
+    {
+        return $this->belongsTo(UnidadMedida::class);
     }
 }

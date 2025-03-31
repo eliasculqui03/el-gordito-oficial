@@ -171,7 +171,7 @@ class SalidaAlmacenResource extends Resource
                                     ->preload()
                                     ->disabled(fn(Forms\Get $get): bool => filled($get('comanda_existencia_id')))
                                     ->dehydrated()
-                                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->nombre}")
+                                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->descripcion}")
                                     ->required()
                                     ->live()
                                     ->afterStateUpdated(function ($state, callable $set, Forms\Components\Select $component) {

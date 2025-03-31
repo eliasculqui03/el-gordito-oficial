@@ -4,9 +4,9 @@ namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
 
-class VentaDirecta extends Page
+class GestionVentas extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string $view = 'filament.pages.venta-directa';
+    protected static string $view = 'filament.pages.gestion-ventas';
 }

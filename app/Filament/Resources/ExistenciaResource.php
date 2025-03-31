@@ -58,7 +58,9 @@ class ExistenciaResource extends Resource
                             ->disabled(fn(callable $get) => !$get('tipo_existencia_id')), // Deshabilita si no hay tipo seleccionado
                         Forms\Components\Select::make('unidad_medida_id')
                             ->label('Unidad de medida')
-                            ->relationship('unidadMedida', 'nombre')
+                            ->relationship('unidadMedida', 'descripcion')
+                            ->searchable()
+                            ->preload()
                             ->required(),
                         Forms\Components\Select::make('area_existencia_id')
                             ->label('Área')
@@ -101,7 +103,7 @@ class ExistenciaResource extends Resource
                 Tables\Columns\TextColumn::make('categoriaExistencia.nombre')
                     ->label('Categoria')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('unidadMedida.nombre')
+                Tables\Columns\TextColumn::make('unidadMedida.simbolo')
                     ->label('U. de medida'),
                 Tables\Columns\TextColumn::make('precio_compra')
                     ->numeric()

@@ -88,7 +88,7 @@ class SolicitudCompraResource extends Resource
                             ->relationship('existencia', 'nombre', function ($query) {
                                 return $query->where('estado', true);
                             })
-                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->nombre}")
+                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->descripcion}")
                             ->required()
                             ->live()
                             ->afterStateUpdated(function ($state, callable $set, $get) { // añadido $get aquí

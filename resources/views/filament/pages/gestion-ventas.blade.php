@@ -1,3 +1,4 @@
 <x-filament-panels::page>
-    <livewire:venta-directa>
+
+    @livewire('gestion-ventas')
 </x-filament-panels::page>

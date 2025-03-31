@@ -37,7 +37,7 @@ class InventarioResource extends Resource
                         'unique' => 'La existencia ya existe en inventario.'
                     ])
                     ->required()
-                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->nombre}")
+                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->descripcion}")
                     ->searchable()
                     ->preload(),
                 Forms\Components\TextInput::make('stock')

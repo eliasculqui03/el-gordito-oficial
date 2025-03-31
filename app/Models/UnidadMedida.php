@@ -10,10 +10,15 @@ class UnidadMedida extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre', 'simbolo', 'estado'];
+    protected $fillable = ['codigo', 'descripcion', 'simbolo', 'estado'];
 
     public function existencias(): HasMany
     {
         return $this->hasMany(Existencia::class);
+    }
+
+    public function platos(): HasMany
+    {
+        return $this->hasMany(Plato::class);
     }
 }
