@@ -7,11 +7,14 @@ use App\Models\CategoriaExistencia;
 use App\Models\CategoriaPlato;
 use App\Models\Cliente;
 use App\Models\Comanda;
+use App\Models\ComandaExistencia;
+use App\Models\ComandaPlato;
 use App\Models\Existencia;
 use App\Models\Plato;
 use App\Models\TipoExistencia;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -639,46 +642,56 @@ class GestionVentas extends Component
             return;
         }
 
-        // Validar cliente (opcional, según requerimientos)
-        /*
-    if (!$this->id_cliente) {
-        Notification::make()
-            ->title('Error al guardar')
-            ->body('Debe seleccionar un cliente para la comanda.')
-            ->danger()
-            ->send();
-        return;
-    }
-    */
+        // Validar que si hay platos para mesa, debe tener mesa asignada
+        $tienePlatosParaMesa = collect($this->platosComanda)->where('es_llevar', false)->count() > 0;
+
+        if ($tienePlatosParaMesa && (empty($this->id_mesa) || empty($this->id_zona))) {
+            Notification::make()
+                ->title('Error de validación')
+                ->body('Debe seleccionar una mesa y zona para los platos servidos en mesa.')
+                ->danger()
+                ->send();
+            return;
+        }
+
+        // Validar cliente (obligatorio)
+        if (!$this->id_cliente) {
+            Notification::make()
+                ->title('Error de validación')
+                ->body('Debe seleccionar un cliente para la comanda.')
+                ->danger()
+                ->send();
+            return;
+        }
 
         try {
-            // Crear la comanda
+            // Crear la comanda utilizando el modelo Comanda
             $comanda = new Comanda();
             $comanda->cliente_id = $this->id_cliente;
             $comanda->zona_id = $this->id_zona ?: null;
             $comanda->mesa_id = $this->id_mesa ?: null;
-            $comanda->estado = 'Abierto';
-            $comanda->estado_pago = 'Pendiente';
             $comanda->save();
 
-            // Guardar los platos
+            // Guardar los platos utilizando el modelo ComandaPlato
             foreach ($this->platosComanda as $plato) {
-                $comanda->platos()->attach($plato['id'], [
-                    'cantidad' => $plato['cantidad'],
-                    'subtotal' => $plato['subtotal'],
-                    'llevar' => $plato['es_llevar'],
-                    'estado' => 'Pendiente'
-                ]);
+                $comandaPlato = new ComandaPlato();
+                $comandaPlato->comanda_id = $comanda->id;
+                $comandaPlato->plato_id = $plato['id'];
+                $comandaPlato->cantidad = $plato['cantidad'];
+                $comandaPlato->subtotal = $plato['subtotal'];
+                $comandaPlato->llevar = $plato['es_llevar'];
+                $comandaPlato->save();
             }
 
-            // Guardar las existencias
+            // Guardar las existencias utilizando el modelo ComandaExistencia
             foreach ($this->existenciasComanda as $existencia) {
-                $comanda->existencias()->attach($existencia['id'], [
-                    'cantidad' => $existencia['cantidad'],
-                    'subtotal' => $existencia['subtotal'],
-                    'helado' => $existencia['es_helado'],
-                    'estado' => 'Pendiente'
-                ]);
+                $comandaExistencia = new ComandaExistencia();
+                $comandaExistencia->comanda_id = $comanda->id;
+                $comandaExistencia->existencia_id = $existencia['id'];
+                $comandaExistencia->cantidad = $existencia['cantidad'];
+                $comandaExistencia->subtotal = $existencia['subtotal'];
+                $comandaExistencia->helado = $existencia['es_helado'];
+                $comandaExistencia->save();
             }
 
             // Limpiar los arrays después de guardar
@@ -691,14 +704,15 @@ class GestionVentas extends Component
             $this->limpiarMesaZona();
 
             // Calcular nuevo número de pedido
-            $this->calcularNumeroPedido();
 
 
             Notification::make()
                 ->title('Comanda guardada')
-                ->body('La comanda ha sido guardada exitosamente.')
+                ->body('La comanda ha sido guardada exitosamente con número: ' . $this->numeroPedido)
                 ->success()
                 ->send();
+
+            $this->calcularNumeroPedido();
         } catch (\Exception $e) {
             Notification::make()
                 ->title('Error al guardar')

@@ -25,7 +25,7 @@ module.exports = {
                 warning: colors.yellow,
             },
             fontFamily: {
-                sans: ['Red Hat Display', ...defaultTheme.fontFamily.sans],
+                sans: ['Roboto Flex', ...defaultTheme.fontFamily.sans],
             },
         },
     },

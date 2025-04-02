@@ -36,7 +36,7 @@ class AdminPanelProvider extends PanelProvider
 
         //$empresa = Empresa::first();
         return $panel
-            ->font('Red Hat Display')
+            ->font('Roboto Flex')
             ->default()
             ->id('admin')
             ->path('/')
@@ -84,7 +84,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ])->plugins([
+            ])
+            ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 FilamentShieldPlugin::make()
                     ->gridColumns([
