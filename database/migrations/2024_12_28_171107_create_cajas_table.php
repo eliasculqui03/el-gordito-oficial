@@ -16,7 +16,9 @@ return new class extends Migration
             $table->string('nombre');
             $table->unsignedBigInteger('sucursal_id');
             $table->foreign('sucursal_id')->references('id')->on('sucursals');
-            $table->boolean('estado');
+            $table->double('saldo_inicial')->default(0);
+            $table->double('saldo_final')->default(0);
+            $table->enum('estado', ['Abierta', 'Cerrada', 'Deshabilitada'])->default('Cerrada');
             $table->timestamps();
         });
     }

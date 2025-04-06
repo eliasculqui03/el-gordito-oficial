@@ -4,9 +4,9 @@ namespace App\Filament\Resources\CajaResource\Pages;
 
 use App\Filament\Resources\CajaResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Resources\Pages\ListRecords;
 
-class ManageCajas extends ManageRecords
+class ListCajas extends ListRecords
 {
     protected static string $resource = CajaResource::class;
 

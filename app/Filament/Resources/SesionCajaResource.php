@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CajaResource\Pages;
-use App\Filament\Resources\CajaResource\RelationManagers;
-use App\Models\Caja;
+use App\Filament\Resources\SesionCajaResource\Pages;
+use App\Filament\Resources\SesionCajaResource\RelationManagers;
+use App\Models\SesionCaja;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,9 +13,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class CajaResource extends Resource
+class SesionCajaResource extends Resource
 {
-    protected static ?string $model = Caja::class;
+    protected static ?string $model = SesionCaja::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -23,21 +23,25 @@ class CajaResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nombre')
+                Forms\Components\Select::make('user_id')
+                    ->relationship('user', 'name')
+                    ->required(),
+                Forms\Components\Select::make('caja_id')
+                    ->relationship('caja', 'id')
+                    ->required(),
+                Forms\Components\TextInput::make('fecha_apertura')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Select::make('sucursal_id')
-                    ->relationship('sucursal', 'id')
-                    ->required(),
+                Forms\Components\TextInput::make('fecha_cierra')
+                    ->maxLength(255)
+                    ->default(null),
                 Forms\Components\TextInput::make('saldo_inicial')
                     ->required()
+                    ->numeric(),
+                Forms\Components\TextInput::make('saldo_cierre')
                     ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('saldo_final')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('estado')
+                    ->default(null),
+                Forms\Components\Toggle::make('estado')
                     ->required(),
             ]);
     }
@@ -46,18 +50,24 @@ class CajaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('nombre')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('sucursal.id')
+                Tables\Columns\TextColumn::make('user.name')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('caja.id')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('fecha_apertura')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('fecha_cierra')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('saldo_inicial')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('saldo_final')
+                Tables\Columns\TextColumn::make('saldo_cierre')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('estado'),
+                Tables\Columns\IconColumn::make('estado')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -90,9 +100,9 @@ class CajaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCajas::route('/'),
-            'create' => Pages\CreateCaja::route('/create'),
-            'edit' => Pages\EditCaja::route('/{record}/edit'),
+            'index' => Pages\ListSesionCajas::route('/'),
+            'create' => Pages\CreateSesionCaja::route('/create'),
+            'edit' => Pages\EditSesionCaja::route('/{record}/edit'),
         ];
     }
 }

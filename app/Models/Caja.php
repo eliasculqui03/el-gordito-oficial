@@ -15,6 +15,8 @@ class Caja extends Model
         'nombre',
         'sucursal_id',
         'user_id',
+        'saldo_inicial',
+        'saldo_final',
         'estado',
     ];
 
@@ -31,5 +33,10 @@ class Caja extends Model
     public function zonas(): BelongsToMany
     {
         return $this->belongsToMany(Zona::class);
+    }
+
+    public function sesionCajas(): HasMany
+    {
+        return $this->hasMany(SesionCaja::class);
     }
 }
