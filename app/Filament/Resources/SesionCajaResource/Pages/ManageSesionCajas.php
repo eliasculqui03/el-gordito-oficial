@@ -4,16 +4,16 @@ namespace App\Filament\Resources\SesionCajaResource\Pages;
 
 use App\Filament\Resources\SesionCajaResource;
 use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Resources\Pages\ManageRecords;
 
-class EditSesionCaja extends EditRecord
+class ManageSesionCajas extends ManageRecords
 {
     protected static string $resource = SesionCajaResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\CreateAction::make(),
         ];
     }
 }

@@ -10,14 +10,13 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+
 
 class MesaResource extends Resource
 {
     protected static ?string $model = Mesa::class;
 
-    protected static ?string $navigationGroup = 'Empresa';
+    protected static ?string $navigationGroup = 'Mesas';
     //protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationIcon = 'heroicon-o-squares-plus';

@@ -2,27 +2,25 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ZonaResource\Pages;
-use App\Filament\Resources\ZonaResource\RelationManagers;
-use App\Models\Zona;
+use App\Filament\Resources\MedioPagoResource\Pages;
+use App\Filament\Resources\MedioPagoResource\RelationManagers;
+use App\Models\MedioPago;
 use Filament\Forms;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class ZonaResource extends Resource
+class MedioPagoResource extends Resource
 {
-    protected static ?string $model = Zona::class;
+    protected static ?string $model = MedioPago::class;
 
-    protected static ?string $navigationGroup = 'Mesas';
+    protected static ?string $navigationGroup = 'Configuración';
     //protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationIcon = 'heroicon-o-view-columns';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
@@ -30,26 +28,12 @@ class ZonaResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('nombre')
                     ->required()
-                    ->maxLength(255)
-                    ->unique(ignoreRecord: true),
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('descripcion')
-                    ->label('Descripción')
+                    ->maxLength(255)
                     ->default(null),
-                CheckboxList::make('cajas')
-                    ->relationship('cajas', 'nombre', function ($query) {
-                        $query->where('estado', true);
-                    })
-                    ->searchable()
-                    ->columns(3),
-                Forms\Components\Select::make('users')
-                    ->label('Mozos')
-                    ->multiple()
-                    ->relationship('users', 'name')
-                    ->preload()
-                    ->searchable(),
                 Forms\Components\Toggle::make('estado')
-                    ->required()
-                    ->default(true),
+                    ->required(),
             ]);
     }
 
@@ -59,9 +43,8 @@ class ZonaResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('users.name')
-                    ->label('Mozos')
-                    ->badge(),
+                Tables\Columns\TextColumn::make('descripcion')
+                    ->searchable(),
                 Tables\Columns\IconColumn::make('estado')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -77,7 +60,6 @@ class ZonaResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -91,7 +73,7 @@ class ZonaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageZonas::route('/'),
+            'index' => Pages\ManageMedioPagos::route('/'),
         ];
     }
 }

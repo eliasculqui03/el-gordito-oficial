@@ -39,4 +39,9 @@ class Caja extends Model
     {
         return $this->hasMany(SesionCaja::class);
     }
+
+    public function movimientoCajas(): HasMany
+    {
+        return $this->hasMany(MovimientoCaja::class);
+    }
 }

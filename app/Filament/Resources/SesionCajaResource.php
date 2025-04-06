@@ -9,40 +9,51 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+
 
 class SesionCajaResource extends Resource
 {
     protected static ?string $model = SesionCaja::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Caja';
+    //protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationIcon = 'heroicon-o-arrow-right-start-on-rectangle';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
+                    ->label('Usuarios')
                     ->relationship('user', 'name')
-                    ->required(),
-                Forms\Components\Select::make('caja_id')
-                    ->relationship('caja', 'id')
-                    ->required(),
-                Forms\Components\TextInput::make('fecha_apertura')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('fecha_cierra')
-                    ->maxLength(255)
+                    ->searchable()
+                    ->preload(),
+                Forms\Components\Select::make('caja_id')
+                    ->relationship('caja', 'nombre')
+                    ->required(),
+                Forms\Components\DateTimePicker::make('fecha_apertura')
+                    ->required(),
+                Forms\Components\DateTimePicker::make('fecha_cierra')
                     ->default(null),
                 Forms\Components\TextInput::make('saldo_inicial')
+                    ->prefix('S/.')
+                    ->default(0)
                     ->required()
                     ->numeric(),
                 Forms\Components\TextInput::make('saldo_cierre')
+                    ->prefix('S/.')
                     ->numeric()
-                    ->default(null),
+                    ->default(0)
+                    ->disabled()
+                    ->dehydrated(),
                 Forms\Components\Toggle::make('estado')
-                    ->required(),
+                    ->default(true),
             ]);
     }
 
@@ -52,20 +63,20 @@ class SesionCajaResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
                     ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('caja.id')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Usuario'),
+                Tables\Columns\TextColumn::make('caja.nombre'),
                 Tables\Columns\TextColumn::make('fecha_apertura')
-                    ->searchable(),
+                    ->dateTime(),
                 Tables\Columns\TextColumn::make('fecha_cierra')
-                    ->searchable(),
+                    ->dateTime(),
                 Tables\Columns\TextColumn::make('saldo_inicial')
-                    ->numeric()
-                    ->sortable(),
+                    ->numeric()->formatStateUsing(function ($state) {
+                        return 'S/. ' . number_format($state, 2);
+                    }),
                 Tables\Columns\TextColumn::make('saldo_cierre')
-                    ->numeric()
-                    ->sortable(),
+                    ->numeric()->formatStateUsing(function ($state) {
+                        return 'S/. ' . number_format($state, 2);
+                    }),
                 Tables\Columns\IconColumn::make('estado')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -78,31 +89,41 @@ class SesionCajaResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('user_id')
+                    ->label('Usuario')
+                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->preload(),
+                Filter::make('fecha_apertura')
+                    ->form([
+                        Forms\Components\DatePicker::make('desde')
+                            ->label('Desde'),
+                        Forms\Components\DatePicker::make('hasta')
+                            ->label('Hasta'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['desde'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('fecha_apertura', '>=', $date),
+                            )
+                            ->when(
+                                $data['hasta'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('fecha_apertura', '<=', $date),
+                            );
+                    }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
-    }
+                Tables\Actions\ViewAction::make(),
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
+            ])
+            ->bulkActions([]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSesionCajas::route('/'),
-            'create' => Pages\CreateSesionCaja::route('/create'),
-            'edit' => Pages\EditSesionCaja::route('/{record}/edit'),
+            'index' => Pages\ManageSesionCajas::route('/'),
         ];
     }
 }
