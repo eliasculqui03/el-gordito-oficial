@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class Caja extends Model
 {
+    use HasApiTokens, HasFactory, Notifiable;
     use HasFactory;
     protected $fillable = [
         'nombre',
@@ -27,7 +30,7 @@ class Caja extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'caja_user');
     }
 
     public function zonas(): BelongsToMany

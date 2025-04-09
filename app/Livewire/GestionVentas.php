@@ -21,47 +21,39 @@ use Livewire\Component;
 class GestionVentas extends Component
 {
 
-    public $userType;
-    public $selectedCajaId;
-    public $cajas;
+    public $cajaId;
+
     public $caja;
 
 
-    public function mount()
+    public function mount($cajaId = null)
     {
+        $this->cajaId = $cajaId;
         $this->cargarCaja();
         $this->calcularNumeroPedido();
     }
 
 
-    public function cargarCaja()
+    #[On('caja-seleccionada')]
+    public function actualizarCajaId($cajaId)
     {
-        $user = Auth::user();
-        $userCajas = $user->cajas;
+        $this->cajaId = $cajaId;
+        $this->cargarCaja();
+    }
 
-        // Si el usuario no tiene cajas, se considera administrador
-        if ($userCajas->count() == 0) {
-            $this->userType = 'admin';
-            $this->cajas = Caja::all();
-            $this->selectedCajaId = session('selected_caja_id') ?? ($this->cajas->first()->id ?? null);
-        } elseif ($userCajas->count() > 1) {
-            $this->userType = 'multiple';
-            $this->cajas = $userCajas;
-            $this->selectedCajaId = session('selected_caja_id') ?? ($this->cajas->first()->id ?? null);
-        } elseif ($userCajas->count() == 1) {
-            $this->userType = 'single';
-            $this->caja = $userCajas->first();
-            $this->selectedCajaId = $this->caja->id;
+    protected function cargarCaja()
+    {
+        if ($this->cajaId) {
+            $this->caja = Caja::find($this->cajaId);
         }
     }
 
-    public function updatedSelectedCajaId($value)
+
+    public function cerrarCaja()
     {
-        session(['selected_caja_id' => $value]);
-
-        $this->dispatch('cajaChanged', value: $value);
+        // Encuentra el componente hijo por su ID y ejecuta su método
+        $this->dispatch('cerrarCaja')->to('selector-caja');
     }
-
 
     public $numeroPedido;
 
@@ -99,6 +91,7 @@ class GestionVentas extends Component
         // Encuentra el componente hijo por su ID y ejecuta su método
         $this->dispatch('limpiarMesaZona')->to('cliente.mesa-component');
     }
+
 
 
     public $numero_documento_buscar = '';

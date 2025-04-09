@@ -1,4 +1,4 @@
 <x-filament-panels::page>
 
-    @livewire('gestion-ventas')
+    <livewire:selector-caja />
 </x-filament-panels::page>

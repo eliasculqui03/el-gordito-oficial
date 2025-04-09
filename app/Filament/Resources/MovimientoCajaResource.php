@@ -6,6 +6,8 @@ use App\Filament\Resources\MovimientoCajaResource\Pages;
 use App\Filament\Resources\MovimientoCajaResource\RelationManagers;
 use App\Models\MovimientoCaja;
 use Filament\Forms;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -26,21 +28,50 @@ class MovimientoCajaResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required(),
+                Forms\Components\Group::make()
+                    ->schema(fn(string $operation) => match ($operation) {
+                        'view' => [
+                            Placeholder::make('usuario')
+                                ->content(function ($record) {
+                                    // Busca el usuario por el user_id del registro
+                                    $user = \App\Models\User::find($record->user_id);
+                                    return $user ? $user->name : 'Usuario no encontrado';
+                                })
+                                ->label('Usuario'),
+                        ],
+                        default => [
+                            Hidden::make('user_id')
+                                ->default(auth()->id())
+                                ->dehydrated(true)
+                                ->afterStateHydrated(function (Hidden $component) {
+                                    $component->state(auth()->id());
+                                }),
+                            Placeholder::make('usuario')
+                                ->content(auth()->user()->name)
+                                ->label('Usuario'),
+                        ],
+                    })
+                    ->columnSpan('full'),
                 Forms\Components\Select::make('caja_id')
-                    ->relationship('caja', 'id')
+                    ->relationship('caja', 'nombre', function ($query) {
+                        $query->where('estado', 'Abierta');
+                    })
                     ->required(),
-                Forms\Components\TextInput::make('tipo_transaccion')
-                    ->required(),
+                Forms\Components\Select::make('tipo_transaccion')
+                    ->options([
+                        'Ingreso' => 'Ingreso',
+                        'Egreso' => 'Egreso',
+                    ]),
                 Forms\Components\Select::make('medio_pago_id')
-                    ->relationship('medioPago', 'id')
+                    ->relationship('medioPago', 'nombre', function ($query) {
+                        $query->where('estado', true);
+                    })
                     ->required(),
                 Forms\Components\TextInput::make('monto')
+                    ->prefix('S/.')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('descripcion')
+                Forms\Components\Textarea::make('descripcion')
                     ->maxLength(255)
                     ->default(null),
             ]);
@@ -53,13 +84,10 @@ class MovimientoCajaResource extends Resource
                 Tables\Columns\TextColumn::make('user.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('caja.id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('caja.nombre'),
                 Tables\Columns\TextColumn::make('tipo_transaccion'),
-                Tables\Columns\TextColumn::make('medioPago.id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('medioPago.nombre')
+                    ->badge(),
                 Tables\Columns\TextColumn::make('monto')
                     ->numeric()
                     ->sortable(),
@@ -78,14 +106,10 @@ class MovimientoCajaResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make(),
+
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getPages(): array

@@ -58,7 +58,7 @@ class User extends Authenticatable implements HasAvatar
     }
     public function cajas(): BelongsToMany
     {
-        return $this->belongsToMany(Caja::class);
+        return $this->belongsToMany(Caja::class, 'caja_user');
     }
 
     public function areas(): BelongsToMany
