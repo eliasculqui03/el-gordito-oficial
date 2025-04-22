@@ -14,11 +14,14 @@ return new class extends Migration
         Schema::create('movimiento_cajas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('caja_id')->constrained('cajas');
+            $table->foreignId('sesion_caja_id')->constrained('sesion_cajas');
             $table->enum('tipo_transaccion', ['Ingreso', 'Egreso']);
-            $table->foreignId('medio_pago_id')->constrained('medio_pagos');
+            $table->enum('motivo', ['Venta', 'Transferencia', 'Ajuste']);
             $table->decimal('monto', 10, 2);
             $table->string('descripcion', 255)->nullable();
+
+            $table->unsignedBigInteger('caja_id')->nullable();
+            $table->foreign('caja_id')->references('id')->on('cajas');
             $table->timestamps();
         });
     }

@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Pages\Page;
+use Filament\Support\Enums\MaxWidth;
 
 class ComandasPlatos extends Page
 {
@@ -15,4 +16,9 @@ class ComandasPlatos extends Page
     protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
 
     protected static string $view = 'filament.pages.comandas-platos';
+
+    public function getMaxContentWidth(): MaxWidth
+    {
+        return MaxWidth::MaxContent;
+    }
 }

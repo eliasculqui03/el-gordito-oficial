@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Venta;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Pages\Page;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
@@ -10,10 +11,11 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Testing\Fluent\Concerns\Has;
 
 class Ventas extends Page implements HasTable
 {
-    use InteractsWithTable;
+    use InteractsWithTable, HasPageShield;
 
     protected static string $view = 'filament.pages.ventas';
 

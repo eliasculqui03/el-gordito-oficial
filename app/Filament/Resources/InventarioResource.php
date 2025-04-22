@@ -126,6 +126,7 @@ class InventarioResource extends Resource
                 ])
 
             ])
+            ->defaultSort('updated_at', 'desc')
             ->bulkActions([]);
     }
 

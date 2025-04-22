@@ -152,6 +152,7 @@ class SolicitudCompraResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+
             ->query(SolicitudCompra::query()->latest())
             ->columns([
                 Tables\Columns\TextColumn::make('id')
@@ -248,7 +249,8 @@ class SolicitudCompraResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
 
                 ]),
-            ]);
+            ])
+        ;
     }
 
     public static function getRelations(): array

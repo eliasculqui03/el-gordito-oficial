@@ -10,7 +10,9 @@ use App\Models\Comanda;
 use App\Models\ComandaExistencia;
 use App\Models\ComandaPlato;
 use App\Models\Existencia;
+use App\Models\MovimientoCaja;
 use App\Models\Plato;
+use App\Models\SesionCaja;
 use App\Models\TipoExistencia;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +27,7 @@ class GestionVentas extends Component
 
     public $caja;
 
+    public $sesionCajaId = null;
 
     public function mount($cajaId = null)
     {
@@ -45,14 +48,133 @@ class GestionVentas extends Component
     {
         if ($this->cajaId) {
             $this->caja = Caja::find($this->cajaId);
+
+            // Buscar la sesión de caja activa para esta caja
+            $sesionCaja = SesionCaja::where('caja_id', $this->cajaId)
+                ->where('estado', true)
+                ->latest()  // Para obtener la más reciente en caso de que haya más de una
+                ->first();
+
+            if ($sesionCaja) {
+                $this->sesionCajaId = $sesionCaja->id;
+
+                // Guardar en la sesión para que esté disponible en otras partes
+            } else {
+                // Si no hay sesión activa, podríamos lanzar un error o simplemente dejarlo como null
+                $this->sesionCajaId = null;
+                // Opcional: Mostrar una notificación de que no hay sesión activa
+
+                Notification::make()
+                    ->title('No hay sesión activa')
+                    ->body('No se encontró una sesión activa para esta caja.')
+                    ->warning()
+                    ->send();
+            }
         }
     }
 
 
     public function cerrarCaja()
     {
-        // Encuentra el componente hijo por su ID y ejecuta su método
-        $this->dispatch('cerrarCaja')->to('selector-caja');
+        // Buscar la sesión activa
+        $sesionCaja = SesionCaja::where('caja_id', $this->cajaId)
+            ->where('estado', true)
+            ->latest()
+            ->first();
+
+        if (!$sesionCaja) {
+            // No hay sesión activa, mostrar error con Filament
+            Notification::make()
+                ->title('No se encontró sesión activa')
+                ->body('No hay una sesión de caja activa. Por favor, abra la caja primero.')
+                ->danger()
+                ->duration(5000)
+                ->send();
+            return;
+        }
+
+        $this->sesionCajaId = $sesionCaja->id;
+
+        // Buscar todos los movimientos asociados a esta sesión
+        $movimientos = MovimientoCaja::where('sesion_caja_id', $this->sesionCajaId)->get();
+
+        // Calcular totales por tipo de transacción y motivo
+        $totalIngresos = $movimientos->where('tipo_transaccion', 'Ingreso')->sum('monto');
+        $totalEgresos = $movimientos->where('tipo_transaccion', 'Egreso')->sum('monto');
+
+        // Calcular ingresos por motivo
+        $ingresosPorVenta = $movimientos->where('tipo_transaccion', 'Ingreso')
+            ->where('motivo', 'Venta')
+            ->sum('monto');
+
+        $ingresosPorTransferencia = $movimientos->where('tipo_transaccion', 'Ingreso')
+            ->where('motivo', 'Transferencia')
+            ->sum('monto');
+
+        $ingresosPorAjuste = $movimientos->where('tipo_transaccion', 'Ingreso')
+            ->where('motivo', 'Ajuste')
+            ->sum('monto');
+
+        // Calcular egresos por motivo
+        $egresosPorTransferencia = $movimientos->where('tipo_transaccion', 'Egreso')
+            ->where('motivo', 'Transferencia')
+            ->sum('monto');
+
+        $egresosPorAjuste = $movimientos->where('tipo_transaccion', 'Egreso')
+            ->where('motivo', 'Ajuste')
+            ->sum('monto');
+
+        // Calcular saldo final = saldo inicial + ingresos - egresos
+        $saldoInicial = $sesionCaja->saldo_inicial;
+        $saldoFinal = $saldoInicial + $totalIngresos - $totalEgresos;
+
+        try {
+            // Iniciar transacción para garantizar que todas las operaciones se completen
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
+            // 1. Actualizar el saldo final en la sesión de caja
+            $sesionCaja->saldo_cierre = $saldoFinal;
+            $sesionCaja->fecha_cierra = \Carbon\Carbon::now()->format('Y-m-d H:i:s');
+            $sesionCaja->estado = false;
+            $sesionCaja->save();
+
+            // 2. Actualizar el saldo actual en la tabla de cajas
+            $caja = Caja::find($this->cajaId);
+            if ($caja) {
+                $caja->saldo_actual = $saldoFinal;
+                $caja->estado = 'Cerrada';
+                $caja->save();
+            }
+
+            // Confirmar transacción
+            DB::commit();
+
+            // Mostrar resumen antes de cerrar la caja
+            Notification::make()
+                ->title('Resumen de Caja')
+                ->body("Saldo Inicial: S/. " . number_format($saldoInicial, 2) . "\n" .
+                    "Total Ingresos: S/. " . number_format($totalIngresos, 2) . "\n" .
+                    "Total Egresos: S/. " . number_format($totalEgresos, 2) . "\n" .
+                    "Saldo Final: S/. " . number_format($saldoFinal, 2))
+                ->success()
+                ->duration(8000)
+                ->persistent()
+                ->send();
+
+            // Ejecuta el cierre de caja en el componente selector-caja
+            $this->dispatch('cerrarCaja')->to('selector-caja');
+        } catch (\Exception $e) {
+            // Si algo falla, revertir la transacción
+            DB::rollBack();
+
+            // Notificar el error
+            Notification::make()
+                ->title('Error al cerrar caja')
+                ->body('Ha ocurrido un error al cerrar la caja. Por favor, inténtelo de nuevo.' . $e->getMessage())
+                ->danger()
+                ->persistent()
+                ->send();
+        }
     }
 
     public $numeroPedido;
@@ -213,6 +335,8 @@ class GestionVentas extends Component
             'platos' => $platos
         ]);
     }
+
+
 
     //===================================EXISTENCIA================================
 
@@ -600,26 +724,26 @@ class GestionVentas extends Component
     private function calcularTotales()
     {
         // Calcular subtotales
-        $this->subtotalGeneral = 0;
+        $this->totalGeneral = 0;
 
         // Sumar subtotales de existencias
         foreach ($this->existenciasComanda as $existencia) {
-            $this->subtotalGeneral += $existencia['subtotal'];
+            $this->totalGeneral += $existencia['subtotal'];
         }
 
         // Sumar subtotales de platos
         foreach ($this->platosComanda as $plato) {
-            $this->subtotalGeneral += $plato['subtotal'];
+            $this->totalGeneral += $plato['subtotal'];
         }
 
         // Calcular IGV (18%)
-        $this->igvGeneral = $this->subtotalGeneral * 0.18;
+        $this->igvGeneral = $this->totalGeneral * 0.18;
 
         // Por ahora, el descuento está en 0
         $this->descuentoGeneral = 0;
 
         // Calcular total general
-        $this->totalGeneral = $this->subtotalGeneral + $this->igvGeneral - $this->descuentoGeneral;
+        $this->subtotalGeneral = $this->totalGeneral - $this->igvGeneral;
     }
 
     // Método para guardar la comanda en la base de datos
@@ -713,5 +837,70 @@ class GestionVentas extends Component
                 ->danger()
                 ->send();
         }
+    }
+
+
+    //================================VENTAS=====================================
+
+
+    public function movimientosCajas()
+    {
+
+        // Validar que exista una sesión de caja activa
+        if (!$this->sesionCajaId) {
+            // Intentar encontrar la sesión activa
+            $sesionCaja = \App\Models\SesionCaja::where('caja_id', $this->cajaId)
+                ->where('estado', true)
+                ->latest()
+                ->first();
+
+            if ($sesionCaja) {
+                $this->sesionCajaId = $sesionCaja->id;
+            } else {
+                // No hay sesión activa, mostrar error con Filament
+                Notification::make()
+                    ->title('Error al registrar movimiento')
+                    ->body('No hay una sesión de caja activa. Por favor, abra la caja primero.')
+                    ->danger()
+                    ->duration(5000)
+                    ->send();
+                return;
+            }
+        }
+
+        // Validar el monto con notificación Filament
+        if ($this->totalGeneral <= 0) {
+            Notification::make()
+                ->title('Monto inválido')
+                ->body('El monto debe ser mayor a cero.')
+                ->warning()
+                ->duration(4000)
+                ->send();
+            return;
+        }
+
+
+
+        // Crear el movimiento
+        MovimientoCaja::create([
+            'user_id' => \Illuminate\Support\Facades\Auth::id(),
+            'sesion_caja_id' => $this->sesionCajaId,
+            'tipo_transaccion' => 'Ingreso',
+            'motivo' => 'Venta',
+            'monto' => $this->totalGeneral,
+
+            'descripcion' => null,
+        ]);
+
+
+        $mensaje = 'Se ha  vendido S/. ' . number_format($this->totalGeneral, 2) . ' por concepto de ';
+
+        // Mostrar notificación de éxito
+        \Filament\Notifications\Notification::make()
+            ->title('Movimiento registrado')
+            ->body($mensaje)
+            ->success()
+            ->duration(4000)
+            ->send();
     }
 }

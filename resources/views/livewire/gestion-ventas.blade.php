@@ -1,7 +1,7 @@
 <div>
     @vite('resources/css/app.css')
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-        <div class="container px-4 py-6 mx-auto">
+        <div class="container ">
             <!-- Facturación con nueva estructura -->
             <div
                 class="overflow-hidden transition-colors duration-200 bg-white rounded-lg shadow dark:bg-gray-800 dark:shadow-gray-700/30">
@@ -615,7 +615,7 @@
                                     </button>
 
                                     <!-- Botón para guardar pedido y generar comprobante -->
-                                    <button
+                                    <button wire:click="movimientosCajas"
                                         class="flex items-center justify-center col-span-2 px-3 py-2 text-sm font-medium text-white transition-colors duration-200 bg-indigo-600 rounded-md hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
                                             viewBox="0 0 20 20" fill="currentColor">
@@ -687,7 +687,7 @@
                                                 <span class="text-sm font-bold text-gray-800 dark:text-gray-200">Saldo
                                                     Actual:</span>
                                                 <span class="text-sm font-bold text-blue-600 dark:text-blue-400">S/.
-                                                    {{ number_format(($caja->saldo_inicial ?? 0) + 500.0 - 120.0, 2) }}</span>
+                                                    {{ number_format(($caja->saldo_actual ?? 0) + 500.0 - 120.0, 2) }}</span>
                                             </div>
                                         </div>
                                     </div>

@@ -18,8 +18,7 @@ class Caja extends Model
         'nombre',
         'sucursal_id',
         'user_id',
-        'saldo_inicial',
-        'saldo_final',
+        'saldo_actual',
         'estado',
     ];
 

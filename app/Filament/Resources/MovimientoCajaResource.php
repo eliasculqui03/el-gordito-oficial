@@ -6,11 +6,10 @@ use App\Filament\Resources\MovimientoCajaResource\Pages;
 use App\Filament\Resources\MovimientoCajaResource\RelationManagers;
 use App\Models\MovimientoCaja;
 use Filament\Forms;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ExportBulkAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -28,52 +27,28 @@ class MovimientoCajaResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Group::make()
-                    ->schema(fn(string $operation) => match ($operation) {
-                        'view' => [
-                            Placeholder::make('usuario')
-                                ->content(function ($record) {
-                                    // Busca el usuario por el user_id del registro
-                                    $user = \App\Models\User::find($record->user_id);
-                                    return $user ? $user->name : 'Usuario no encontrado';
-                                })
-                                ->label('Usuario'),
-                        ],
-                        default => [
-                            Hidden::make('user_id')
-                                ->default(auth()->id())
-                                ->dehydrated(true)
-                                ->afterStateHydrated(function (Hidden $component) {
-                                    $component->state(auth()->id());
-                                }),
-                            Placeholder::make('usuario')
-                                ->content(auth()->user()->name)
-                                ->label('Usuario'),
-                        ],
-                    })
-                    ->columnSpan('full'),
-                Forms\Components\Select::make('caja_id')
-                    ->relationship('caja', 'nombre', function ($query) {
-                        $query->where('estado', 'Abierta');
-                    })
+                Forms\Components\Select::make('user_id')
+                    ->label('Usuario')
+                    ->relationship('user', 'name')
                     ->required(),
-                Forms\Components\Select::make('tipo_transaccion')
-                    ->options([
-                        'Ingreso' => 'Ingreso',
-                        'Egreso' => 'Egreso',
-                    ]),
-                Forms\Components\Select::make('medio_pago_id')
-                    ->relationship('medioPago', 'nombre', function ($query) {
-                        $query->where('estado', true);
-                    })
+                Forms\Components\Select::make('sesion_caja_id')
+                    ->label('Sesión')
+                    ->relationship('sesionCaja', 'id')
+                    ->required(),
+                Forms\Components\TextInput::make('tipo_transaccion')
+                    ->required(),
+                Forms\Components\TextInput::make('motivo')
                     ->required(),
                 Forms\Components\TextInput::make('monto')
-                    ->prefix('S/.')
                     ->required()
                     ->numeric(),
+                Forms\Components\Select::make('caja_id')
+                    ->relationship('caja', 'nombre')
+                    ->default(null),
                 Forms\Components\Textarea::make('descripcion')
                     ->maxLength(255)
-                    ->default(null),
+                    ->default(null)
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -82,40 +57,61 @@ class MovimientoCajaResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('caja.nombre'),
-                Tables\Columns\TextColumn::make('tipo_transaccion'),
-                Tables\Columns\TextColumn::make('medioPago.nombre')
-                    ->badge(),
+                    ->label('Usuario')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('sesionCaja.caja.nombre')
+                    ->label('Sesión')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('tipo_transaccion')
+                    ->badge()
+                    ->colors([
+                        'info' => 'Ingreso',
+                        'danger' => 'Egreso',
+
+                    ]),
+                Tables\Columns\TextColumn::make('motivo'),
                 Tables\Columns\TextColumn::make('monto')
                     ->numeric()
+                    ->formatStateUsing(function ($state) {
+                        return 'S/. ' . number_format($state, 2);
+                    })
                     ->sortable(),
-                Tables\Columns\TextColumn::make('descripcion')
-                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Fecha')
+                    ->dateTime(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
-                    ->sortable()
+                    ->label('Creación')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-
             ])
-            ->bulkActions([]);
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageMovimientoCajas::route('/'),
+            'index' => Pages\ListMovimientoCajas::route('/'),
+
         ];
     }
 }

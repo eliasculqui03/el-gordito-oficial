@@ -158,11 +158,7 @@ class IngresoAlmacenResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    ExportBulkAction::make()
-                ]),
-            ]);
+            ->bulkActions([])->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

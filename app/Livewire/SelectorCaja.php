@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Caja;
+use App\Models\SesionCaja;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -10,20 +11,23 @@ use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\On;
+use Carbon\Carbon;
 
 class SelectorCaja extends Component
 {
     public $cajaSeleccionada = null;
     public $mostrarGestionVentas = false;
-
+    public $sesionCajaId = null;
 
     public function mount()
     {
         // Verificar si ya hay una caja seleccionada en la sesión
         $cajaGuardada = Session::get('caja_seleccionada');
+        $sesionCajaGuardada = Session::get('sesion_caja_id');
 
         if ($cajaGuardada) {
             $this->cajaSeleccionada = $cajaGuardada;
+            $this->sesionCajaId = $sesionCajaGuardada;
             $this->mostrarGestionVentas = true;
         }
     }
@@ -33,45 +37,109 @@ class SelectorCaja extends Component
         $this->cajaSeleccionada = $cajaId;
         $this->mostrarGestionVentas = true;
 
-        // Guardar la selección en la sesión
-        Session::put('caja_seleccionada', $cajaId);
-
         // Obtener información de la caja para la notificación
         $caja = Caja::find($cajaId);
 
-        // Mostrar notificación con Filament
-        Notification::make()
-            ->title('Caja abierta correctamente')
-            ->body('Has iniciado sesión en la caja: ' . $caja->nombre)
-            ->success()
-            ->duration(4000) // 4 segundos
-            ->send();
+        // Registrar la apertura de sesión en la tabla sesion_cajas
+        try {
+            $sesionCaja = SesionCaja::create([
+                'user_id' => Auth::id(),
+                'caja_id' => $cajaId,
+                'fecha_apertura' => Carbon::now()->format('Y-m-d H:i:s'),
+                'saldo_inicial' => $caja->saldo_actual,
+                'estado' => true
+            ]);
 
-        $this->dispatch('caja-seleccionada', cajaId: $cajaId);
+            // Guardar el ID de la sesión en session
+            $this->sesionCajaId = $sesionCaja->id;
+            Session::put('sesion_caja_id', $sesionCaja->id);
+
+            // Actualizar el estado de la caja a 'Abierta'
+            $caja->update(['estado' => 'Abierta']);
+
+            // Guardar la selección en la sesión
+            Session::put('caja_seleccionada', $cajaId);
+
+            // Mostrar notificación con Filament
+            Notification::make()
+                ->title('Caja abierta correctamente')
+                ->body('Has iniciado sesión en la caja: ' . $caja->nombre)
+                ->success()
+                ->duration(4000) // 4 segundos
+                ->send();
+
+            $this->dispatch('caja-seleccionada', cajaId: $cajaId);
+        } catch (\Exception $e) {
+            // Registrar el error en el log
+            Log::error('Error al registrar apertura de caja: ' . $e->getMessage());
+
+            // Mostrar notificación de error
+            Notification::make()
+                ->title('Error al abrir caja')
+                ->body('No se pudo registrar la apertura de la caja. Por favor, inténtelo de nuevo.')
+                ->danger()
+                ->duration(4000)
+                ->send();
+        }
     }
 
     #[On('cerrarCaja')]
     public function cerrarCaja()
     {
-        // Obtener información de la caja antes de cerrarla
-        $caja = Caja::find($this->cajaSeleccionada);
-        $nombreCaja = $caja ? $caja->nombre : 'Desconocida';
+        try {
+            // Obtener información de la caja antes de cerrarla
+            $caja = Caja::find($this->cajaSeleccionada);
+            $nombreCaja = $caja ? $caja->nombre : 'Desconocida';
 
-        $this->cajaSeleccionada = null;
-        $this->mostrarGestionVentas = false;
+            // Obtener el saldo actual para el cierre
+            // Asumiendo que tienes un método o lógica para calcular el saldo actual
+            // Por ejemplo, podrías tener un método en el modelo Caja que calcule el saldo actual
+            $saldoActual = $caja->saldo_actual ?? $caja->saldo_inicial;
 
-        // Eliminar la caja de la sesión
-        Session::forget('caja_seleccionada');
+            // Cerrar la sesión en la tabla sesion_cajas
+            if ($this->sesionCajaId) {
+                $sesionCaja = SesionCaja::find($this->sesionCajaId);
+                if ($sesionCaja) {
+                    $sesionCaja->update([
+                        'fecha_cierra' => Carbon::now()->format('Y-m-d H:i:s'),
+                        'saldo_cierre' => $saldoActual,
+                        'estado' => false
+                    ]);
+                }
 
-        // Mostrar notificación de cierre
-        Notification::make()
-            ->title('Caja cerrada')
-            ->body('Has cerrado la sesión en la caja: ' . $nombreCaja)
-            ->warning()
-            ->duration(4000) // 4 segundos
-            ->send();
+                // Actualizar el estado de la caja a 'Cerrada'
+                $caja->update(['estado' => 'Cerrada']);
+            }
 
-        $this->dispatch('caja-cerrada');
+            $this->cajaSeleccionada = null;
+            $this->mostrarGestionVentas = false;
+            $this->sesionCajaId = null;
+
+            // Eliminar las variables de sesión
+            Session::forget('caja_seleccionada');
+            Session::forget('sesion_caja_id');
+
+            // Mostrar notificación de cierre
+            Notification::make()
+                ->title('Caja cerrada')
+                ->body('Has cerrado la sesión en la caja: ' . $nombreCaja)
+                ->warning()
+                ->duration(4000) // 4 segundos
+                ->send();
+
+            $this->dispatch('caja-cerrada');
+        } catch (\Exception $e) {
+            // Registrar el error en el log
+            Log::error('Error al cerrar caja: ' . $e->getMessage());
+
+            // Mostrar notificación de error
+            Notification::make()
+                ->title('Error al cerrar caja')
+                ->body('No se pudo registrar el cierre de la caja. Por favor, inténtelo de nuevo.')
+                ->danger()
+                ->duration(4000)
+                ->send();
+        }
     }
 
     private function getCajasAsignadasIds()

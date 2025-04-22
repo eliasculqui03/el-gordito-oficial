@@ -11,10 +11,11 @@ class MovimientoCaja extends Model
     use HasFactory;
 
     protected $fillable = [
-        'usuario_id',
+        'user_id',
         'caja_id',
+        'sesion_caja_id',
         'tipo_transaccion',
-        'medio_pago_id',
+        'motivo',
         'monto',
         'descripcion',
     ];
@@ -33,8 +34,8 @@ class MovimientoCaja extends Model
         return $this->belongsTo(Caja::class);
     }
 
-    public function medioPago(): BelongsTo
+    public function sesionCaja(): BelongsTo
     {
-        return $this->belongsTo(MedioPago::class);
+        return $this->belongsTo(SesionCaja::class);
     }
 }

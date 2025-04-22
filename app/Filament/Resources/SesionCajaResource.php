@@ -116,8 +116,11 @@ class SesionCajaResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
 
+
             ])
-            ->bulkActions([]);
+            ->bulkActions([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]);
     }
 
     public static function getPages(): array

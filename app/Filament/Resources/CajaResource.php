@@ -39,19 +39,13 @@ class CajaResource extends Resource
                     ->required(),
                 Grid::make()
                     ->schema([
-                        Forms\Components\TextInput::make('saldo_inicial')
+                        Forms\Components\TextInput::make('saldo_actual')
                             ->prefix('S/.')
                             ->required()
                             ->numeric()
                             ->minValue(0)
                             ->default(0),
-                        Forms\Components\TextInput::make('saldo_final')
-                            ->prefix('S/.')
-                            ->required()
-                            ->numeric()
-                            ->default(0)
-                            ->disabled()
-                            ->dehydrated(),
+
                         Forms\Components\Select::make('estado')
                             ->required()
                             ->options(
@@ -87,12 +81,7 @@ class CajaResource extends Resource
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('sucursal.nombre'),
-                Tables\Columns\TextColumn::make('saldo_inicial')
-                    ->numeric()
-                    ->formatStateUsing(function ($state) {
-                        return 'S/. ' . number_format($state, 2);
-                    }),
-                Tables\Columns\TextColumn::make('saldo_final')
+                Tables\Columns\TextColumn::make('saldo_actual')
                     ->numeric()
                     ->formatStateUsing(function ($state) {
                         return 'S/. ' . number_format($state, 2);

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\OrdenCompraResource\Pages;
 use App\Filament\Resources\OrdenCompraResource\RelationManagers;
 use App\Models\OrdenCompra;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
@@ -51,7 +52,7 @@ class OrdenCompraResource extends Resource
                                     Placeholder::make('usuario')
                                         ->content(function ($record) {
                                             // Busca el usuario por el user_id del registro
-                                            $user = \App\Models\User::find($record->user_id);
+                                            $user = User::find($record->user_id);
                                             return $user ? $user->name : 'Usuario no encontrado';
                                         })
                                         ->label('Usuario'),
@@ -116,7 +117,7 @@ class OrdenCompraResource extends Resource
                                         'id',
                                         fn($query) => $query->where('estado', 'Aprobada')->with('existencia')
                                     )
-                                    ->getOptionLabelFromRecordUsing(fn($record) => "ID {$record->id} - {$record->existencia->nombre} - {$record->existencia->unidadMedida->nombre}")
+                                    ->getOptionLabelFromRecordUsing(fn($record) => "ID {$record->id} - {$record->existencia->nombre} - {$record->existencia->unidadMedida->simbolo}")
                                     ->live()
                                     ->afterStateUpdated(function ($state, callable $set, Forms\Get $get) {
                                         if ($state) {
@@ -172,7 +173,7 @@ class OrdenCompraResource extends Resource
                                             }
                                         }
                                     })
-                                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->nombre}")
+                                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->nombre} - {$record->unidadMedida->simbolo}")
                                     ->distinct()
                                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                                     ->columnSpan(1)

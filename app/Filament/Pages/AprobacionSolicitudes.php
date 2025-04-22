@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Livewire\NotasModal;
 use App\Models\SolicitudCompra;
 use App\Models\NotaSolicitudCompra;
+use App\Models\Proveedor;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Pages\Page;
 use Filament\Tables;
@@ -29,10 +30,10 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
     public function table(Table $table): Table
     {
         $userEmail = auth()->user()->email;
-        $query = SolicitudCompra::query()->where('estado', 'Pendiente');
+        $query = SolicitudCompra::query()->where('estado', 'Pendiente')->orderBy('created_at', 'desc');;
 
         // Verificar si el usuario es un proveedor
-        $proveedor = \App\Models\Proveedor::where('email', $userEmail)->first();
+        $proveedor = Proveedor::where('email', $userEmail)->first();
 
         if ($proveedor) {
             // Si es proveedor, mostrar solo sus solicitudes
@@ -56,11 +57,12 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
                     ->searchable(),
                 Tables\Columns\TextColumn::make('fecha_entrega')
                     ->label('Fecha Entrega')
-                    ->dateTime()
-                    ->sortable(),
+                    ->dateTime(),
 
                 Tables\Columns\TextColumn::make('existencia.nombre')
                     ->label('Existencia'),
+                Tables\Columns\TextColumn::make('existencia.unidadMedida.simbolo')
+                    ->label('U. de medida'),
 
                 Tables\Columns\TextColumn::make('cantidad')
                     ->numeric()
@@ -72,8 +74,7 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
                     ->numeric()
                     ->formatStateUsing(function ($state) {
                         return 'S/. ' . number_format($state, 2);
-                    })
-                    ->sortable(),
+                    }),
 
                 // Tables\Columns\TextColumn::make('estado')
                 //     ->label('Estado')
@@ -87,7 +88,7 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
             ->actions([
                 Action::make('approve')
                     ->label('Aprobar')
-                    ->icon('heroicon-o-check')
+                    ->icon('heroicon-o-check-badge')
                     ->color('success')
                     ->form([
                         Textarea::make('nota')
@@ -110,7 +111,8 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
                             ->title('Solicitud Aprobada')
                             ->success()
                             ->send();
-                    }),
+                    })
+                    ->requiresConfirmation(),
                 //->visible(fn(SolicitudCompra $record): bool => $record->estado === 'Pendiente'),
 
                 Action::make('reject')
@@ -171,7 +173,7 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
                     ]))
                     ->modalWidth('lg')
             ])
-            ->defaultSort('created_at', 'desc')
+            //->defaultSort('created_at', 'desc')
             ->poll('5s');
     }
 }
