@@ -34,7 +34,8 @@ class PlatoResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('nombre')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->autocomplete(false),
                 Forms\Components\Select::make('categoria_plato_id')
                     ->required()
                     ->relationship('categoriaPlato', 'nombre'),
@@ -60,7 +61,8 @@ class PlatoResource extends Resource
                     })
                     ->required(),
                 Forms\Components\Textarea::make('descripcion')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->autocomplete(false),
                 Forms\Components\Toggle::make('estado')
                     ->default(true)
                     ->required(),

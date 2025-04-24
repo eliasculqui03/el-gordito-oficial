@@ -35,10 +35,12 @@ class TipoComprobanteResource extends Resource
                 //
                 TextInput::make('codigo')
                     ->label('Código SUNAT')
-                    ->required(),
+                    ->required()
+                    ->autocomplete(false),
                 TextInput::make('descripcion')
                     ->label('Descripción')
-                    ->required(),
+                    ->required()
+                    ->autocomplete(false),
                 Toggle::make('estado')
                     ->label('Activo')
                     ->default(true),
@@ -66,11 +68,7 @@ class TipoComprobanteResource extends Resource
                 //
             ])
             ->actions([
-                ActionsActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                ]),
+                Tables\Actions\EditAction::make(),
             ]);
     }
 

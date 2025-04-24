@@ -40,7 +40,7 @@ class EmpresaResource extends Resource
 
                                     ->schema([
                                         Forms\Components\TextInput::make('nombre')
-                                            ->label('Nombre de la empresa')
+                                            ->label('Razón social')
                                             ->required()
                                             ->maxLength(255),
                                         Forms\Components\TextInput::make('tipo_actividad')

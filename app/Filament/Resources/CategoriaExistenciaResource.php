@@ -41,10 +41,12 @@ class CategoriaExistenciaResource extends Resource
                     ->relationship('tipoExistencia', 'nombre'),
 
                 TextInput::make('nombre')
-                    ->required(),
+                    ->required()
+                    ->autocomplete(false),
                 TextInput::make('descripcion')
                     ->label('Descripción')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->autocomplete(false),
                 Toggle::make('estado')
                     ->label('Activo')
                     ->default(true),
@@ -58,6 +60,8 @@ class CategoriaExistenciaResource extends Resource
                 //
                 TextColumn::make('nombre')
                     ->searchable(),
+                TextColumn::make('tipoExistencia.nombre')
+                    ->searchable(),
                 IconColumn::make('estado')
                     ->label('Estado')
                     ->boolean(),
@@ -66,9 +70,8 @@ class CategoriaExistenciaResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ]);
     }
 

@@ -35,9 +35,11 @@ class TipoExistenciaResource extends Resource
         return $form
             ->schema([
                 TextInput::make('nombre')
-                    ->required(),
+                    ->required()
+                    ->autocomplete(false),
                 TextInput::make('descripcion')
-                    ->label('Descripción'),
+                    ->label('Descripción')
+                    ->autocomplete(false),
                 Toggle::make('estado')
                     ->label('Activo')
                     ->default(true),

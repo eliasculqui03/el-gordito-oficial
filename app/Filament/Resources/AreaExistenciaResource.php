@@ -28,7 +28,8 @@ class AreaExistenciaResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('nombre')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->autocomplete(false),
                 Forms\Components\Select::make('users')
                     ->label('Agregar usuarios')
                     ->relationship('users', 'name')
@@ -36,7 +37,8 @@ class AreaExistenciaResource extends Resource
                     ->preload()
                     ->searchable(),
                 Forms\Components\Textarea::make('descripcion')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->autocomplete(false),
                 Forms\Components\Toggle::make('estado')
                     ->required()
                     ->default(true),
@@ -67,14 +69,8 @@ class AreaExistenciaResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
     }
 

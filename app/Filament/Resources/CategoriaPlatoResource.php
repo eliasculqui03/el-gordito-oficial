@@ -32,10 +32,12 @@ class CategoriaPlatoResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('nombre')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->autocomplete(false),
                 Forms\Components\TextInput::make('descripcion')
                     ->label('Descripción')
-                    ->default(null),
+                    ->default(null)
+                    ->autocomplete(false),
                 Forms\Components\Toggle::make('estado')
                     ->default(true)
                     ->required(),
@@ -63,15 +65,10 @@ class CategoriaPlatoResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getPages(): array

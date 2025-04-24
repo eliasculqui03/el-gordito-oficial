@@ -11,7 +11,6 @@ use Livewire\Component;
 
 class MesaComponent extends Component
 {
-
     public $isOpen = false;
     public $zonas;
 
@@ -23,7 +22,6 @@ class MesaComponent extends Component
 
     public function mount()
     {
-
         $this->zonas = Zona::where('estado', true)->with('mesas')->get();
     }
 
@@ -35,18 +33,27 @@ class MesaComponent extends Component
     public function closeModalMesa()
     {
         $this->isOpen = false;
+        // No limpiamos la selección aquí para mantenerla cuando se cierra el modal
     }
 
     public function openModalMesa()
     {
         $this->isOpen = true;
+        // Si ya hay una zona seleccionada, mantenemos esa selección al abrir el modal
     }
 
     public function seleccionarZona($zonaId)
     {
         $this->zonaSeleccionada = $zonaId;
-        $this->mesaSeleccionada = '';
-        $this->mesaSeleccionadaId = null;
+        // No limpiamos la mesa seleccionada si cambiamos de zona
+        // Solo si la mesa actual no pertenece a la nueva zona
+        if ($this->mesaSeleccionadaId) {
+            $mesa = Mesa::find($this->mesaSeleccionadaId);
+            if ($mesa && $mesa->zona_id != $zonaId) {
+                $this->mesaSeleccionada = '';
+                $this->mesaSeleccionadaId = null;
+            }
+        }
     }
 
     public function seleccionarMesa($mesa)
@@ -70,24 +77,24 @@ class MesaComponent extends Component
             return;
         }
 
-
-        $mesaSeleccionadaId = $mesa['id'];
-        $mesaSeleccionada = $mesa['numero'];
-        $zonaSeleccionadaId = $this->zonaSeleccionada;
+        // Guardamos los valores seleccionados
+        $this->mesaSeleccionadaId = $mesa['id'];
+        $this->mesaSeleccionada = $mesa['numero'];
+        $this->zonaSeleccionadaId = $this->zonaSeleccionada;
 
         $zona = Zona::find($this->zonaSeleccionada);
-        $zonaNombre = $zona ? $zona->nombre : null;
+        $this->zonaNombre = $zona ? $zona->nombre : null;
 
+        // Enviamos los valores al componente padre
         $this->dispatch(
             'mesaZonaActualizada',
-            mesa: $mesaSeleccionadaId,
-            zona: $zonaSeleccionadaId,
-            numero: $mesaSeleccionada,
-            nombre: $zonaNombre,
-
+            mesa: $this->mesaSeleccionadaId,
+            zona: $this->zonaSeleccionadaId,
+            numero: $this->mesaSeleccionada,
+            nombre: $this->zonaNombre,
         );
 
-
+        // Cerramos el modal usando la función existente
         $this->closeModalMesa();
 
         Notification::make()
@@ -117,19 +124,12 @@ class MesaComponent extends Component
         $this->zonaSeleccionadaId = null;
         $this->zonaNombre = null;
 
-        $mesaSeleccionadaId = null;
-        $zonaSeleccionadaId = null;
-        $mesaSeleccionada = '';
-        $zonaNombre = '';
-
-
         $this->dispatch(
             'mesaZonaActualizada',
-            mesa: $mesaSeleccionadaId,
-            zona: $zonaSeleccionadaId,
-            numero: $mesaSeleccionada,
-            nombre: $zonaNombre,
-
+            mesa: null,
+            zona: null,
+            numero: '',
+            nombre: '',
         );
     }
 }

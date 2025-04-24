@@ -18,7 +18,7 @@
                                         Productos</h3>
 
                                     <!-- Número de pedido integrado -->
-                                    <div wire:poll.5s
+                                    <div wire:poll.visible
                                         class="px-3 py-2 text-center bg-white border-2 border-indigo-500 rounded-lg shadow-sm dark:bg-gray-800 dark:border-indigo-400">
                                         <div class="flex items-center">
                                             <span
@@ -56,220 +56,264 @@
                                     </button>
                                 </div>
 
-                                <!-- Tabla mejorada con redondeo y sombreado -->
+                                <!-- Tabla mejorada con responsividad -->
                                 <div
-                                    class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm dark:border-gray-700">
-                                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                        <thead class="bg-gray-50 dark:bg-gray-700">
-                                            <tr>
-                                                <th
-                                                    class="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">
-                                                    Descripción</th>
-                                                <th
-                                                    class="px-4 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400">
-                                                    Tipo</th>
-                                                <th
-                                                    class="px-4 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400">
-                                                    Precio Unitario</th>
-                                                <th
-                                                    class="px-4 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400">
-                                                    Cantidad</th>
-                                                <th
-                                                    class="px-4 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400">
-                                                    Subtotal</th>
-                                                <th
-                                                    class="px-4 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400">
-                                                    Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody
-                                            class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                                            <!-- Platos -->
-                                            @forelse($platosComanda as $index => $plato)
-                                                <tr
-                                                    class="transition-colors bg-indigo-50/30 hover:bg-indigo-50/50 dark:bg-indigo-900/10 dark:hover:bg-indigo-900/20">
-                                                    <td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
-                                                        {{ $plato['nombre'] }}
-                                                        <p class="text-xs text-gray-500">{{ $plato['unidad_medida'] }}
-                                                        </p>
-                                                    </td>
-                                                    <td
-                                                        class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">
-                                                        <span
-                                                            class="{{ $plato['es_llevar'] ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' }} px-2 py-1 text-xs font-semibold rounded-full">
-                                                            {{ $plato['es_llevar'] ? 'LLEVAR' : 'MESA' }}
-                                                        </span>
-                                                    </td>
-                                                    <td
-                                                        class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">
-                                                        S/. {{ number_format($plato['precio_unitario'], 2) }}
-                                                    </td>
-                                                    <td class="px-4 py-3 text-center">
-                                                        <div class="flex items-center justify-center">
-                                                            <button
-                                                                wire:click="decrementarCantidadPlato({{ $index }})"
-                                                                class="p-1 text-gray-500 transition bg-gray-200 rounded hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
-                                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fill-rule="evenodd"
-                                                                        d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                                                                        clip-rule="evenodd" />
-                                                                </svg>
-                                                            </button>
-                                                            <span
-                                                                class="mx-2 text-sm font-medium text-gray-800 dark:text-gray-200">{{ $plato['cantidad'] }}</span>
-                                                            <button
-                                                                wire:click="incrementarCantidadPlato({{ $index }})"
-                                                                class="p-1 text-white transition bg-indigo-500 rounded hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
-                                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fill-rule="evenodd"
-                                                                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                                                                        clip-rule="evenodd" />
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                    <td
-                                                        class="px-4 py-3 text-sm font-medium text-center text-gray-800 dark:text-gray-200">
-                                                        S/. {{ number_format($plato['subtotal'], 2) }}
-                                                    </td>
-                                                    <td class="px-4 py-3 text-center">
-                                                        <div class="flex items-center justify-center space-x-2">
-                                                            <button wire:click="toggleLlevarPlato({{ $index }})"
-                                                                class="p-1 text-orange-500 transition bg-orange-100 rounded hover:bg-orange-200 dark:bg-orange-900/20 dark:hover:bg-orange-800/30 dark:text-orange-400"
-                                                                title="Cambiar entre mesa/llevar">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
-                                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path
-                                                                        d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8z" />
-                                                                    <path
-                                                                        d="M12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z" />
-                                                                </svg>
-                                                            </button>
-                                                            <button wire:click="removerPlato({{ $index }})"
-                                                                class="p-1 text-white transition bg-red-500 rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
-                                                                title="Eliminar">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
-                                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fill-rule="evenodd"
-                                                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                                        clip-rule="evenodd" />
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                    </td>
+                                    class="overflow-hidden border border-gray-200 rounded-lg shadow-sm dark:border-gray-700">
+                                    <div class="overflow-x-auto min-h-[350px]">
+                                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                                <tr>
+                                                    <th
+                                                        class="px-3 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400 sm:px-4">
+                                                        Descripción</th>
+                                                    <th
+                                                        class="hidden px-3 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400 sm:px-4 sm:table-cell">
+                                                        Tipo</th>
+                                                    <th
+                                                        class="hidden px-3 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400 sm:px-4 sm:table-cell">
+                                                        Precio</th>
+                                                    <th
+                                                        class="px-3 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400 sm:px-4">
+                                                        Cant.</th>
+                                                    <th
+                                                        class="px-3 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400 sm:px-4">
+                                                        Subtotal</th>
+                                                    <th
+                                                        class="px-3 py-3 text-xs font-medium tracking-wider text-center text-gray-500 uppercase dark:text-gray-400 sm:px-4">
+                                                        Acciones</th>
                                                 </tr>
-                                            @empty
-                                                <!-- No hay platos -->
-                                            @endforelse
-
-                                            <!-- Existencias -->
-                                            @forelse($existenciasComanda as $index => $existencia)
-                                                <tr
-                                                    class="transition-colors bg-green-50/30 hover:bg-green-50/50 dark:bg-green-900/10 dark:hover:bg-green-900/20">
-                                                    <td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
-                                                        {{ $existencia['nombre'] }}
-                                                        <p class="text-xs text-gray-500">
-                                                            {{ $existencia['unidad_medida'] }}</p>
-                                                    </td>
-                                                    <td
-                                                        class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">
-                                                        @if ($existencia['es_producto'])
+                                            </thead>
+                                            <tbody
+                                                class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                                                <!-- Platos -->
+                                                @forelse($platosComanda as $index => $plato)
+                                                    <tr
+                                                        class="transition-colors bg-indigo-50/30 hover:bg-indigo-50/50 dark:bg-indigo-900/10 dark:hover:bg-indigo-900/20">
+                                                        <td
+                                                            class="px-3 py-3 text-sm text-gray-800 dark:text-gray-200 sm:px-4">
+                                                            {{ $plato['nombre'] }}
+                                                            <p class="text-xs text-gray-500">
+                                                                {{ $plato['unidad_medida'] }}</p>
+                                                            <!-- Información adicional para móviles -->
+                                                            <div
+                                                                class="flex flex-wrap items-center gap-2 mt-1 sm:hidden">
+                                                                <span
+                                                                    class="{{ $plato['es_llevar'] ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' }} px-2 py-0.5 text-xs font-semibold rounded-full">
+                                                                    {{ $plato['es_llevar'] ? 'LLEVAR' : 'MESA' }}
+                                                                </span>
+                                                                <span class="text-xs text-gray-600 dark:text-gray-400">
+                                                                    S/.
+                                                                    {{ number_format($plato['precio_unitario'], 2) }}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td
+                                                            class="hidden px-3 py-3 text-sm text-center text-gray-800 dark:text-gray-200 sm:px-4 sm:table-cell">
                                                             <span
-                                                                class="{{ $existencia['es_helado'] ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' }} px-2 py-1 text-xs font-semibold rounded-full">
-                                                                {{ $existencia['es_helado'] ? 'HELADO' : 'NORMAL' }}
+                                                                class="{{ $plato['es_llevar'] ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' }} px-2 py-1 text-xs font-semibold rounded-full">
+                                                                {{ $plato['es_llevar'] ? 'LLEVAR' : 'MESA' }}
                                                             </span>
-                                                        @else
-                                                            <span
-                                                                class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-200">
-                                                                INSUMO
-                                                            </span>
-                                                        @endif
-                                                    </td>
-                                                    <td
-                                                        class="px-4 py-3 text-sm text-center text-gray-800 dark:text-gray-200">
-                                                        S/. {{ number_format($existencia['precio_unitario'], 2) }}
-                                                    </td>
-                                                    <td class="px-4 py-3 text-center">
-                                                        <div class="flex items-center justify-center">
-                                                            <button
-                                                                wire:click="decrementarCantidadExistencia({{ $index }})"
-                                                                class="p-1 text-gray-500 transition bg-gray-200 rounded hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
-                                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fill-rule="evenodd"
-                                                                        d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                                                                        clip-rule="evenodd" />
-                                                                </svg>
-                                                            </button>
-                                                            <span
-                                                                class="mx-2 text-sm font-medium text-gray-800 dark:text-gray-200">{{ $existencia['cantidad'] }}</span>
-                                                            <button
-                                                                wire:click="incrementarCantidadExistencia({{ $index }})"
-                                                                class="p-1 text-white transition bg-green-500 rounded hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700">
-                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                    class="w-4 h-4" viewBox="0 0 20 20"
-                                                                    fill="currentColor">
-                                                                    <path fill-rule="evenodd"
-                                                                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                                                                        clip-rule="evenodd" />
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                    <td
-                                                        class="px-4 py-3 text-sm font-medium text-center text-gray-800 dark:text-gray-200">
-                                                        S/. {{ number_format($existencia['subtotal'], 2) }}
-                                                    </td>
-                                                    <td class="px-4 py-3 text-center">
-                                                        <div class="flex items-center justify-center space-x-2">
-                                                            @if ($existencia['es_producto'])
+                                                        </td>
+                                                        <td
+                                                            class="hidden px-3 py-3 text-sm text-center text-gray-800 dark:text-gray-200 sm:px-4 sm:table-cell">
+                                                            S/. {{ number_format($plato['precio_unitario'], 2) }}
+                                                        </td>
+                                                        <td class="px-2 py-3 text-center sm:px-4">
+                                                            <div class="flex items-center justify-center">
                                                                 <button
-                                                                    wire:click="toggleHeladoExistencia({{ $index }})"
-                                                                    class="p-1 text-blue-500 transition bg-blue-100 rounded hover:bg-blue-200 dark:bg-blue-900/20 dark:hover:bg-blue-800/30 dark:text-blue-400"
-                                                                    title="Cambiar entre normal/helado">
+                                                                    wire:click="decrementarCantidadPlato({{ $index }})"
+                                                                    class="p-1 text-gray-500 transition bg-gray-200 rounded hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300">
                                                                     <svg xmlns="http://www.w3.org/2000/svg"
-                                                                        class="w-4 h-4" viewBox="0 0 20 20"
-                                                                        fill="currentColor">
-                                                                        <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
-                                                                        <path
-                                                                            d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm12 6h2a1 1 0 110 2h-2v-2z" />
+                                                                        class="w-3 h-3 sm:w-4 sm:h-4"
+                                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                                        <path fill-rule="evenodd"
+                                                                            d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                                                            clip-rule="evenodd" />
                                                                     </svg>
                                                                 </button>
-                                                            @endif
-                                                            <button
-                                                                wire:click="removerExistencia({{ $index }})"
-                                                                class="p-1 text-white transition bg-red-500 rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
-                                                                title="Eliminar">
-                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                    class="w-4 h-4" viewBox="0 0 20 20"
-                                                                    fill="currentColor">
-                                                                    <path fill-rule="evenodd"
-                                                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                                        clip-rule="evenodd" />
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <!-- No hay existencias -->
-                                            @endforelse
+                                                                <span
+                                                                    class="mx-1 text-sm font-medium text-gray-800 dark:text-gray-200 sm:mx-2">{{ $plato['cantidad'] }}</span>
+                                                                <button
+                                                                    wire:click="incrementarCantidadPlato({{ $index }})"
+                                                                    class="p-1 text-white transition bg-indigo-500 rounded hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                        class="w-3 h-3 sm:w-4 sm:h-4"
+                                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                                        <path fill-rule="evenodd"
+                                                                            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                                                                            clip-rule="evenodd" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                        <td
+                                                            class="px-3 py-3 text-sm font-medium text-center text-gray-800 dark:text-gray-200 sm:px-4">
+                                                            S/. {{ number_format($plato['subtotal'], 2) }}
+                                                        </td>
+                                                        <td class="px-2 py-3 text-center sm:px-4">
+                                                            <div
+                                                                class="flex items-center justify-center space-x-1 sm:space-x-2">
+                                                                <button
+                                                                    wire:click="toggleLlevarPlato({{ $index }})"
+                                                                    class="p-1 text-orange-500 transition bg-orange-100 rounded hover:bg-orange-200 dark:bg-orange-900/20 dark:hover:bg-orange-800/30 dark:text-orange-400"
+                                                                    title="Cambiar entre mesa/llevar">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                        class="w-3 h-3 sm:w-4 sm:h-4"
+                                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                                        <path
+                                                                            d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8z" />
+                                                                        <path
+                                                                            d="M12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z" />
+                                                                    </svg>
+                                                                </button>
+                                                                <button wire:click="removerPlato({{ $index }})"
+                                                                    class="p-1 text-white transition bg-red-500 rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
+                                                                    title="Eliminar">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                        class="w-3 h-3 sm:w-4 sm:h-4"
+                                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                                        <path fill-rule="evenodd"
+                                                                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                                            clip-rule="evenodd" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @empty
+                                                    <!-- No hay platos -->
+                                                @endforelse
 
-                                            <!-- Mensaje cuando no hay items -->
-                                            @if (count($platosComanda) == 0 && count($existenciasComanda) == 0)
-                                                <tr>
-                                                    <td colspan="6"
-                                                        class="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-400">
-                                                        No hay platos ni existencias seleccionadas. Use los botones
-                                                        "Agregar Platos" o "Agregar Existencia" para añadir ítems a la
-                                                        comanda.
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        </tbody>
-                                    </table>
+                                                <!-- Existencias -->
+                                                @forelse($existenciasComanda as $index => $existencia)
+                                                    <tr
+                                                        class="transition-colors bg-green-50/30 hover:bg-green-50/50 dark:bg-green-900/10 dark:hover:bg-green-900/20">
+                                                        <td
+                                                            class="px-3 py-3 text-sm text-gray-800 dark:text-gray-200 sm:px-4">
+                                                            {{ $existencia['nombre'] }}
+                                                            <p class="text-xs text-gray-500">
+                                                                {{ $existencia['unidad_medida'] }}</p>
+                                                            <!-- Información adicional para móviles -->
+                                                            <div
+                                                                class="flex flex-wrap items-center gap-2 mt-1 sm:hidden">
+                                                                @if ($existencia['es_producto'])
+                                                                    <span
+                                                                        class="{{ $existencia['es_helado'] ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' }} px-2 py-0.5 text-xs font-semibold rounded-full">
+                                                                        {{ $existencia['es_helado'] ? 'HELADO' : 'NORMAL' }}
+                                                                    </span>
+                                                                @else
+                                                                    <span
+                                                                        class="px-2 py-0.5 text-xs font-semibold text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-200">
+                                                                        INSUMO
+                                                                    </span>
+                                                                @endif
+                                                                <span class="text-xs text-gray-600 dark:text-gray-400">
+                                                                    S/.
+                                                                    {{ number_format($existencia['precio_unitario'], 2) }}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td
+                                                            class="hidden px-3 py-3 text-sm text-center text-gray-800 dark:text-gray-200 sm:px-4 sm:table-cell">
+                                                            @if ($existencia['es_producto'])
+                                                                <span
+                                                                    class="{{ $existencia['es_helado'] ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' }} px-2 py-1 text-xs font-semibold rounded-full">
+                                                                    {{ $existencia['es_helado'] ? 'HELADO' : 'NORMAL' }}
+                                                                </span>
+                                                            @else
+                                                                <span
+                                                                    class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-200">
+                                                                    INSUMO
+                                                                </span>
+                                                            @endif
+                                                        </td>
+                                                        <td
+                                                            class="hidden px-3 py-3 text-sm text-center text-gray-800 dark:text-gray-200 sm:px-4 sm:table-cell">
+                                                            S/. {{ number_format($existencia['precio_unitario'], 2) }}
+                                                        </td>
+                                                        <td class="px-2 py-3 text-center sm:px-4">
+                                                            <div class="flex items-center justify-center">
+                                                                <button
+                                                                    wire:click="decrementarCantidadExistencia({{ $index }})"
+                                                                    class="p-1 text-gray-500 transition bg-gray-200 rounded hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                        class="w-3 h-3 sm:w-4 sm:h-4"
+                                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                                        <path fill-rule="evenodd"
+                                                                            d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                                                            clip-rule="evenodd" />
+                                                                    </svg>
+                                                                </button>
+                                                                <span
+                                                                    class="mx-1 text-sm font-medium text-gray-800 dark:text-gray-200 sm:mx-2">{{ $existencia['cantidad'] }}</span>
+                                                                <button
+                                                                    wire:click="incrementarCantidadExistencia({{ $index }})"
+                                                                    class="p-1 text-white transition bg-green-500 rounded hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                        class="w-3 h-3 sm:w-4 sm:h-4"
+                                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                                        <path fill-rule="evenodd"
+                                                                            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                                                                            clip-rule="evenodd" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                        <td
+                                                            class="px-3 py-3 text-sm font-medium text-center text-gray-800 dark:text-gray-200 sm:px-4">
+                                                            S/. {{ number_format($existencia['subtotal'], 2) }}
+                                                        </td>
+                                                        <td class="px-2 py-3 text-center sm:px-4">
+                                                            <div
+                                                                class="flex items-center justify-center space-x-1 sm:space-x-2">
+                                                                @if ($existencia['es_producto'])
+                                                                    <button
+                                                                        wire:click="toggleHeladoExistencia({{ $index }})"
+                                                                        class="p-1 text-blue-500 transition bg-blue-100 rounded hover:bg-blue-200 dark:bg-blue-900/20 dark:hover:bg-blue-800/30 dark:text-blue-400"
+                                                                        title="Cambiar entre normal/helado">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                            class="w-3 h-3 sm:w-4 sm:h-4"
+                                                                            viewBox="0 0 20 20" fill="currentColor">
+                                                                            <path
+                                                                                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
+                                                                            <path
+                                                                                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm12 6h2a1 1 0 110 2h-2v-2z" />
+                                                                        </svg>
+                                                                    </button>
+                                                                @endif
+                                                                <button
+                                                                    wire:click="removerExistencia({{ $index }})"
+                                                                    class="p-1 text-white transition bg-red-500 rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
+                                                                    title="Eliminar">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                        class="w-3 h-3 sm:w-4 sm:h-4"
+                                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                                        <path fill-rule="evenodd"
+                                                                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                                            clip-rule="evenodd" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @empty
+                                                    <!-- No hay existencias -->
+                                                @endforelse
+
+                                                <!-- Mensaje cuando no hay items -->
+                                                @if (count($platosComanda) == 0 && count($existenciasComanda) == 0)
+                                                    <tr>
+                                                        <td colspan="6"
+                                                            class="px-3 py-4 text-sm text-center text-gray-500 dark:text-gray-400 sm:px-4">
+                                                            No hay platos ni existencias seleccionadas. Use los botones
+                                                            "Agregar Platos" o "Agregar Existencia" para añadir ítems a
+                                                            la comanda.
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
 
@@ -333,7 +377,7 @@
                                         </div>
                                     </div>
 
-                                    @livewire('cliente.mesa-component')
+                                    <livewire:cliente.mesa-component>
                                 </div>
                             </div>
 
@@ -356,20 +400,24 @@
                                             class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                                             Tipo de Comprobante
                                         </label>
-                                        <select id="tipo-comprobante"
+                                        <select id="tipo-comprobante" wire:model="tipoComprobanteSeleccionado"
                                             class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
-                                            <option value="FACTURA">Factura</option>
-                                            <option value="BOLETA">Boleta</option>
+                                            <option value="" selected>Seleccione comprobante
+                                            </option>
+                                            @foreach ($tipoComprobantes as $comprobante)
+                                                <option value="{{ $comprobante->codigo }}">
+                                                    {{ $comprobante->descripcion }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
-
                                     <!-- Serie -->
                                     <div>
                                         <label for="serie-comprobante"
                                             class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                                             Serie
                                         </label>
-                                        <input id="serie-comprobante" type="text" value="F001" readonly disabled
+                                        <input id="serie-comprobante" type="text" value="{{ $serieComprobante }}"
+                                            readonly disabled
                                             class="block w-full px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200">
                                     </div>
 
@@ -442,8 +490,10 @@
                                         <select id="doc-modificar"
                                             class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
                                             <option value="">Seleccionar documento</option>
-                                            <option value="FACTURA">Factura</option>
-                                            <option value="BOLETA">Boleta</option>
+                                            @foreach ($tipoComprobantes as $comprobante)
+                                                <option value="{{ $comprobante->codigo }}">
+                                                    {{ $comprobante->descripcion }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
 
@@ -482,8 +532,8 @@
                                 </h3>
 
                                 <!-- Barra de búsqueda con botones -->
-                                <div class="flex flex-wrap items-center gap-2 mb-3">
-                                    <div class="relative flex-1">
+                                <div class="flex flex-col items-stretch gap-2 mb-3 sm:flex-row sm:items-center">
+                                    <div class="relative w-full">
                                         <div
                                             class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                             <svg xmlns="http://www.w3.org/2000/svg"
@@ -500,7 +550,7 @@
                                             placeholder="Ingrese N.° de documento del cliente">
                                     </div>
 
-                                    <div class="flex gap-2">
+                                    <div class="flex w-full gap-2 mt-2 sm:w-auto sm:mt-0">
                                         <!-- Botón de búsqueda -->
                                         <button wire:click="buscar"
                                             class="flex items-center justify-center h-9 px-3 py-1.5 text-sm font-medium text-white transition bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-700 dark:hover:bg-indigo-800">
@@ -514,7 +564,7 @@
                                         </button>
 
                                         <!-- Botón de nuevo cliente -->
-                                        @livewire('cliente.crear-cliente')
+                                        <livewire:cliente.crear-cliente>
                                     </div>
                                 </div>
 
@@ -569,7 +619,7 @@
                                 <!-- Información adicional y botones -->
                                 <div class="flex flex-wrap items-center justify-end gap-2 mt-3">
                                     <span class="mr-5 text-xs text-gray-500 dark:text-gray-400">Cliente desde:
-                                        15/01/2025</span>
+                                        {{ $this->fecha_cliente }}</span>
                                     <div class="flex space-x-2">
                                         <button wire:click="limpiarCliente"
                                             class="flex items-center px-2 py-1 text-xs text-red-500 transition-colors duration-200 bg-red-100 rounded-md hover:bg-red-200 dark:bg-red-900/20 dark:hover:bg-red-900/30 dark:text-red-400">
@@ -729,7 +779,7 @@
 
     <!-- Modal de Existencias -->
     @if ($mostrarModalExistencia)
-        <div wire:poll.2s
+        <div wire:poll.2s.visible
             class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900 bg-opacity-60">
             <div class="relative w-full max-w-5xl mx-auto bg-white rounded-lg shadow-xl dark:bg-gray-800">
                 <!-- Encabezado del modal con gradiente -->
@@ -929,7 +979,7 @@
 
     <!-- Modal de Platos -->
     @if ($mostrarModalPlato)
-        <div wire:poll.2s
+        <div wire:poll.2s.visible
             class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900 bg-opacity-60">
             <div class="relative w-full max-w-5xl mx-auto bg-white rounded-lg shadow-xl dark:bg-gray-800">
                 <!-- Encabezado del modal con gradiente -->

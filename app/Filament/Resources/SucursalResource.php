@@ -73,12 +73,7 @@ class SucursalResource extends Resource
                 Tables\Columns\TextColumn::make('empresa.nombre'),
                 Tables\Columns\TextColumn::make('tipo_establecimiento')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('fecha_inicio_operaciones')
-                    ->label('Inicio de operaciones')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('fecha_final_operaciones')
-                    ->label('Fin de operaciones')
-                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('direccion')
                     ->label('Dirección')
                     ->searchable(),

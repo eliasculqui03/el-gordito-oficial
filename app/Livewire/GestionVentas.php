@@ -13,6 +13,7 @@ use App\Models\Existencia;
 use App\Models\MovimientoCaja;
 use App\Models\Plato;
 use App\Models\SesionCaja;
+use App\Models\TipoComprobante;
 use App\Models\TipoExistencia;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
@@ -305,6 +306,10 @@ class GestionVentas extends Component
 
 
 
+    public $tipoComprobantes = [];
+    public $tipoComprobanteSeleccionado = null;
+    public $serieComprobante = '';
+
 
     public function render()
     {
@@ -318,6 +323,9 @@ class GestionVentas extends Component
                 ->where('estado', true)
                 ->get();
         }
+
+        $this->tipoComprobantes = TipoComprobante::where('estado', 1)->get();
+
 
 
         $categorias_plato = CategoriaPlato::where('estado', true)->get();
@@ -334,6 +342,27 @@ class GestionVentas extends Component
             'categorias_plato' => $categorias_plato,
             'platos' => $platos
         ]);
+    }
+
+
+
+    public function updatedTipoComprobanteSeleccionado()
+    {
+        $this->actualizarSerie();
+    }
+
+    public function actualizarSerie()
+    {
+        $comprobante = TipoComprobante::where('codigo', $this->tipoComprobanteSeleccionado)
+            ->where('estado', 1)
+            ->first();
+
+        if ($comprobante) {
+            // Tomar la primera letra de la descripción
+            $primeraLetra = substr($comprobante->descripcion, 0, 1);
+            // Formatear la serie con la letra y el ID de la caja
+            $this->serieComprobante = $primeraLetra . '00' . ($this->caja->id ?? '');
+        }
     }
 
 
@@ -461,7 +490,6 @@ class GestionVentas extends Component
     {
         $this->selectedCategoriaPlato = $categoriaId;
     }
-
 
 
 
@@ -605,12 +633,6 @@ class GestionVentas extends Component
             $nombre = $this->existenciasComanda[$index]['nombre'];
             array_splice($this->existenciasComanda, $index, 1);
             $this->calcularTotales();
-
-            Notification::make()
-                ->title('Existencia eliminada')
-                ->body("$nombre ha sido eliminado de la comanda.")
-                ->success()
-                ->send();
         }
     }
 

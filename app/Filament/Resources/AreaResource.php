@@ -31,7 +31,8 @@ class AreaResource extends Resource
         return $form
             ->schema([
                 TextInput::make('nombre')
-                    ->required(),
+                    ->required()
+                    ->autocomplete(false),
                 Forms\Components\Select::make('users')
                     ->label('Agregar usuarios')
                     ->relationship('users', 'name')
@@ -39,7 +40,8 @@ class AreaResource extends Resource
                     ->preload()
                     ->searchable(),
                 Forms\Components\Textarea::make('descripcion')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->autocomplete(false),
                 Toggle::make('estado')
                     ->default(true),
             ]);
@@ -50,9 +52,7 @@ class AreaResource extends Resource
         return $table
             ->columns([
                 //
-                TextColumn::make('nombre')
-                    ->sortable()
-                    ->searchable(),
+                TextColumn::make('nombre'),
                 TextColumn::make('users.name')
                     ->badge()
                     ->label('Usuario'),
@@ -71,9 +71,8 @@ class AreaResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
 
             ]);
     }

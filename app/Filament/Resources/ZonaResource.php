@@ -30,6 +30,7 @@ class ZonaResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('nombre')
                     ->required()
+                    ->autocomplete(false)
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
                 Forms\Components\TextInput::make('descripcion')
@@ -37,7 +38,7 @@ class ZonaResource extends Resource
                     ->default(null),
                 CheckboxList::make('cajas')
                     ->relationship('cajas', 'nombre', function ($query) {
-                        $query->where('estado', true);
+                        $query->whereIn('estado', ['Abierta', 'Cerrada']);
                     })
                     ->searchable()
                     ->columns(3),
@@ -62,6 +63,10 @@ class ZonaResource extends Resource
                 Tables\Columns\TextColumn::make('users.name')
                     ->label('Mozos')
                     ->badge(),
+                Tables\Columns\TextColumn::make('cajas.nombre')
+                    ->label('Cajas')
+                    ->badge()
+                    ->color('info'),
                 Tables\Columns\IconColumn::make('estado')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -77,15 +82,11 @@ class ZonaResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getPages(): array

@@ -21,7 +21,7 @@ class GestionVentas extends Page
 
     public function getMaxContentWidth(): MaxWidth
     {
-        return MaxWidth::MaxContent;
+        return MaxWidth::Full;
     }
 
     protected function getHeaderActions(): array

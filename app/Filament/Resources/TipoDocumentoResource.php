@@ -34,11 +34,14 @@ class TipoDocumentoResource extends Resource
         return $form
             ->schema([
                 TextInput::make('tipo')
-                    ->required(),
+                    ->required()
+                    ->autocomplete(false),
                 TextInput::make('descripcion_larga')
-                    ->required(),
+                    ->required()
+                    ->autocomplete(false),
                 TextInput::make('descripcion_corta')
-                    ->required(),
+                    ->required()
+                    ->autocomplete(false),
                 Toggle::make('estado')
                     ->label('Activo')
                     ->default(true),
