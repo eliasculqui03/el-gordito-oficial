@@ -119,11 +119,17 @@ class ComandasPlatos extends Component
         ]);
     }
 
-    public function marcarPlatoListo($platoId)
+    public function marcarPlatoListo($grupoKey)
     {
         try {
+            // Obtener las partes de la clave del grupo
+            $keyParts = explode('-', $grupoKey);
+            $platoId = $keyParts[0];
+            $esParaLlevar = $keyParts[1] === 'llevar';
+
             // Obtener todas las comandas platos relacionadas que estén en estado 'Procesando'
             $comandaPlatos = ComandaPlato::where('plato_id', $platoId)
+                ->where('llevar', $esParaLlevar)
                 ->where('estado', 'Procesando')
                 ->get();
 
@@ -147,28 +153,87 @@ class ComandasPlatos extends Component
         }
     }
 
+    // Método para cancelar el procesamiento de un plato
+    public function cancelarProcesamiento($grupoKey)
+    {
+        try {
+            // Obtener las partes de la clave del grupo
+            $keyParts = explode('-', $grupoKey);
+            $platoId = $keyParts[0];
+            $esParaLlevar = $keyParts[1] === 'llevar';
+
+            // Obtener todas las comandas platos relacionadas que estén en estado 'Procesando'
+            $comandaPlatos = ComandaPlato::where('plato_id', $platoId)
+                ->where('llevar', $esParaLlevar)
+                ->where('estado', 'Procesando')
+                ->get();
+
+            // Actualizar el estado de todos los platos relacionados a 'Pendiente'
+            foreach ($comandaPlatos as $comandaPlato) {
+                $comandaPlato->update(['estado' => 'Pendiente']);
+            }
+
+            // Verificar si hay otras comandas platos de la misma comanda que siguen en proceso
+            foreach ($comandaPlatos as $comandaPlato) {
+                $comanda = $comandaPlato->comanda;
+                $hayPlatosEnProceso = $comanda->comandaPlatos()
+                    ->where('estado', 'Procesando')
+                    ->exists();
+
+                // Si no hay más platos en proceso, actualizar el estado de la comanda a 'Abierta'
+                if (!$hayPlatosEnProceso) {
+                    $comanda->update(['estado' => 'Abierta']);
+                }
+            }
+
+            // Notificar éxito
+            Notification::make()
+                ->title('Procesamiento cancelado')
+                ->success()
+                ->send();
+        } catch (\Exception $e) {
+            // Notificar error
+            Notification::make()
+                ->title('Error al cancelar el procesamiento')
+                ->body('No se pudo actualizar el estado del plato')
+                ->danger()
+                ->send();
+        }
+    }
 
     public function getPlatosACocinarProperty()
     {
-        return ComandaPlato::query()
+        $platosAgrupados = [];
+
+        $comandaPlatos = ComandaPlato::query()
             ->where('estado', 'Procesando')
             ->whereHas('plato', function ($query) {
                 $query->where('area_id', $this->selectedArea);
             })
             ->with('plato')
-            ->get()
-            ->groupBy('plato_id')
-            ->map(function ($grupo) {
-                $primerItem = $grupo->first();
-                return [
-                    'id' => $primerItem->plato->id,
-                    'nombre' => $primerItem->plato->nombre,
-                    'total' => $grupo->sum('cantidad'),
-                    'estado' => $primerItem->estado
-                ];
-            })
-            ->values()
-            ->all();
+            ->get();
+
+        // Primero agrupamos por plato_id y luego por llevar (true/false)
+        $grupos = $comandaPlatos->groupBy(function ($item) {
+            return $item->plato_id . '-' . ($item->llevar ? 'llevar' : 'local');
+        });
+
+        foreach ($grupos as $key => $grupo) {
+            $primerItem = $grupo->first();
+            $keyParts = explode('-', $key);
+            $esParaLlevar = $keyParts[1] === 'llevar';
+
+            $platosAgrupados[] = [
+                'id' => $primerItem->plato->id,
+                'nombre' => $primerItem->plato->nombre,
+                'total' => $grupo->sum('cantidad'),
+                'estado' => $primerItem->estado,
+                'paraLlevar' => $esParaLlevar,
+                'grupoKey' => $key // Agregamos una clave única para cada grupo
+            ];
+        }
+
+        return $platosAgrupados;
     }
 
     public function validarProcesar($comandaId)

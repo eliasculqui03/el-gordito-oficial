@@ -423,11 +423,9 @@ class GestionVentas extends Component
         }, 'tipoExistencia', 'categoriaExistencia']);
 
 
-        $this->tipoProductosId = TipoExistencia::where(
-            'nombre',
-            'like',
-            '%producto%',
-        )->first()?->id;
+        $this->tipoProductosId = TipoExistencia::whereRaw('LOWER(nombre) LIKE ?', ['%producto%'])
+            ->orWhereRaw('LOWER(nombre) LIKE ?', ['%productos%'])
+            ->first()?->id;
 
         // Obtener resultados sin paginación
         return $query->get();
@@ -515,8 +513,17 @@ class GestionVentas extends Component
             ->findOrFail($existenciaId);
 
         // Determinar si es producto basado en el tipo de existencia
-        $esProducto = $existencia->tipoExistencia->nombre == 'Producto' ||
-            strpos(strtolower($existencia->tipoExistencia->nombre), 'producto') !== false;
+        $esProducto = in_array(
+            strtolower($existencia->tipoExistencia->nombre),
+            [
+                'producto',
+                'productos',
+                'Producto',
+                'Productos',
+                'PRODUCTO',
+                'PRODUCTOS'
+            ]
+        );
 
         $precioUnitario = $existencia->precio_venta;
 

@@ -13,7 +13,7 @@
                                     class="{{ $selectedArea == $area->id
                                         ? 'bg-white shadow text-primary-600 dark:bg-gray-800 dark:text-primary-400'
                                         : 'text-gray-500 hover:text-gray-700 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/50' }}
-                                px-3 py-2 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition-all duration-150 flex-grow sm:flex-grow-0 mb-1">
+                            px-3 py-2 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition-all duration-150 flex-grow sm:flex-grow-0 mb-1">
                                     {{ $area->nombre }}
                                 </button>
                             @endforeach
@@ -34,6 +34,7 @@
                             };
                         @endphp
 
+
                         <div
                             class="overflow-hidden transition-all duration-150 bg-white border shadow-sm hover:shadow dark:bg-gray-800 dark:border-gray-700 rounded-xl {{ $colorClase }}">
                             <!-- Header -->
@@ -44,9 +45,9 @@
                                     </span>
                                     <span
                                         class="px-2 py-0.5 text-xs font-medium rounded-full
-                                    {{ $tiempoTranscurrido >= 6
-                                        ? 'bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300'
-                                        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}">
+                                {{ $tiempoTranscurrido >= 6
+                                    ? 'bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300'
+                                    : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}">
                                         {{ $tiempoTranscurrido }} min
                                     </span>
                                 </div>
@@ -88,30 +89,78 @@
                                 </div>
                             </div>
 
-                            <!-- Lista de Platos - Adaptado para mejor visualización en móvil -->
-                            <div class="px-3 py-2 space-y-1">
+                            <!-- Lista de Platos - Diseño mejorado con mejor experiencia móvil -->
+                            <div class="p-3 space-y-2">
                                 @foreach ($comanda->comandaPlatos->where('plato.area_id', $selectedArea) as $comandaPlato)
                                     <div
-                                        class="flex flex-wrap items-center justify-between p-2 transition-colors rounded-lg bg-gray-50/50 dark:bg-gray-700/50">
-                                        <div class="w-full mb-1 sm:w-auto sm:mb-0">
-                                            <span class="text-sm font-medium text-gray-900 dark:text-white">
-                                                {{ $comandaPlato->plato->nombre }}
-                                            </span>
+                                        class="flex flex-col justify-between p-3 transition-all rounded-lg bg-gray-50 hover:bg-gray-100 sm:flex-row sm:items-center hover:shadow-md dark:bg-gray-700/50 dark:hover:bg-gray-700">
+
+                                        <div class="flex items-start justify-between w-full sm:w-auto">
+                                            <div>
+                                                <h3 class="text-sm font-medium text-gray-900 dark:text-white">
+                                                    {{ $comandaPlato->plato->nombre }}
+                                                </h3>
+
+                                                @if ($comandaPlato->llevar)
+                                                    <span
+                                                        class="inline-flex items-center mt-1 px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                        Para llevar
+                                                    </span>
+                                                @endif
+                                            </div>
+
+                                            <div class="flex items-center gap-2 sm:hidden">
+                                                <span
+                                                    class="flex items-center justify-center w-8 h-8 text-sm font-bold rounded-full
+                    {{ $comandaPlato->estado === 'Listo'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
+                        : ($comandaPlato->estado === 'Procesando'
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300') }}">
+                                                    {{ $comandaPlato->cantidad }}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div class="flex items-center w-full gap-2 sm:w-auto">
-                                            <span
-                                                class="px-2 py-1 text-sm font-medium text-gray-900 bg-gray-100 rounded-lg dark:bg-gray-600 dark:text-white">
-                                                x{{ $comandaPlato->cantidad }}
-                                            </span>
-                                            <span
-                                                class="px-2 py-1 text-xs font-medium rounded-lg
-                                            {{ $comandaPlato->estado === 'Listo'
-                                                ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
-                                                : ($comandaPlato->estado === 'Procesando'
-                                                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400'
-                                                    : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300') }}">
-                                                {{ $comandaPlato->estado }}
-                                            </span>
+
+                                        <div class="flex items-center justify-between gap-2 mt-2 sm:mt-0">
+                                            <div class="sm:hidden">
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-md
+                    {{ $comandaPlato->estado === 'Listo'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
+                        : ($comandaPlato->estado === 'Procesando'
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300') }}">
+                                                    {{ $comandaPlato->estado }}
+                                                </span>
+                                            </div>
+
+                                            <div class="hidden gap-3 sm:flex sm:items-center">
+                                                <span
+                                                    class="flex items-center justify-center w-8 h-8 text-sm font-bold rounded-full
+                    {{ $comandaPlato->estado === 'Listo'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
+                        : ($comandaPlato->estado === 'Procesando'
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300') }}">
+                                                    {{ $comandaPlato->cantidad }}
+                                                </span>
+
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-md
+                    {{ $comandaPlato->estado === 'Listo'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
+                        : ($comandaPlato->estado === 'Procesando'
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300') }}">
+                                                    {{ $comandaPlato->estado }}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 @endforeach
@@ -146,6 +195,7 @@
                         </div>
                     @endforelse
                 </div>
+
             </div>
         </div>
 
@@ -165,14 +215,31 @@
                 <div class="space-y-2">
                     @forelse ($platosACocinar as $plato)
                         <div
-                            class="flex flex-col justify-between p-3 transition-colors rounded-lg sm:flex-row sm:items-center bg-gray-50 hover:bg-gray-100 dark:bg-gray-700/50 dark:hover:bg-gray-700">
+                            class="flex flex-col justify-between p-3 transition-colors rounded-lg sm:flex-row sm:items-center bg-gray-50 hover:bg-gray-100 dark:bg-gray-700/50 dark:hover:bg-gray-700 {{ $plato['paraLlevar'] ? 'border-l-4 border-blue-500 dark:border-blue-400' : '' }}">
                             <div class="flex-1 min-w-0 mb-2 sm:mb-0">
-                                <p class="text-sm font-medium text-gray-900 break-words dark:text-white sm:truncate">
-                                    {{ $plato['nombre'] }}
-                                </p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">
-                                    En preparación
-                                </p>
+                                <div class="flex flex-col">
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                            {{ $plato['nombre'] }}
+                                        </p>
+                                        @if ($plato['paraLlevar'])
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                Llevar
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                                            En preparación
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                             <div
                                 class="flex items-center justify-between w-full gap-2 sm:justify-end sm:w-auto sm:ml-4">
@@ -180,10 +247,20 @@
                                     class="px-2.5 py-1 text-sm font-medium bg-primary-100 text-primary-700 rounded-lg dark:bg-primary-900/50 dark:text-primary-400">
                                     x{{ $plato['total'] }}
                                 </span>
-                                <button wire:click="marcarPlatoListo({{ $plato['id'] }})"
-                                    class="px-3 py-1 text-sm font-medium text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:bg-green-500 dark:hover:bg-green-600">
-                                    Listo
-                                </button>
+                                <div class="flex space-x-2">
+                                    {{-- <button wire:click="cancelarProcesamiento('{{ $plato['grupoKey'] }}')"
+                                        class="p-2 text-sm font-medium text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:bg-red-500 dark:hover:bg-red-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button> --}}
+                                    <button wire:click="marcarPlatoListo('{{ $plato['grupoKey'] }}')"
+                                        class="px-3 py-1 text-sm font-medium text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:bg-green-500 dark:hover:bg-green-600">
+                                        Listo
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     @empty
@@ -197,4 +274,3 @@
             </div>
         </div>
     </div>
-</div>

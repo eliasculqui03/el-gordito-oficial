@@ -112,11 +112,17 @@ class ComandasExistencias extends Component
         ]);
     }
 
-    public function marcarExistenciaLista($existenciaId)
+    public function marcarExistenciaLista($grupoKey)
     {
         try {
+            // Obtener las partes de la clave del grupo
+            $keyParts = explode('-', $grupoKey);
+            $existenciaId = $keyParts[0];
+            $esHelado = $keyParts[1] === 'helado';
+
             // Obtener todas las comandas existencias relacionadas que estén en estado 'Procesando'
             $comandaExistencias = ComandaExistencia::where('existencia_id', $existenciaId)
+                ->where('helado', $esHelado)
                 ->where('estado', 'Procesando')
                 ->get();
 
@@ -140,28 +146,87 @@ class ComandasExistencias extends Component
         }
     }
 
+    public function cancelarPreparacionExistencia($grupoKey)
+    {
+        try {
+            // Obtener las partes de la clave del grupo
+            $keyParts = explode('-', $grupoKey);
+            $existenciaId = $keyParts[0];
+            $esHelado = $keyParts[1] === 'helado';
+
+            // Obtener todas las comandas existencias relacionadas que estén en estado 'Procesando'
+            $comandaExistencias = ComandaExistencia::where('existencia_id', $existenciaId)
+                ->where('helado', $esHelado)
+                ->where('estado', 'Procesando')
+                ->get();
+
+            // Actualizar el estado de todas las existencias relacionadas a 'Pendiente'
+            foreach ($comandaExistencias as $comandaExistencia) {
+                $comandaExistencia->update(['estado' => 'Pendiente']);
+            }
+
+            // Verificar si hay otras comandas existencias de la misma comanda que siguen en proceso
+            foreach ($comandaExistencias as $comandaExistencia) {
+                $comanda = $comandaExistencia->comanda;
+                $hayExistenciasEnProceso = $comanda->comandaExistencias()
+                    ->where('estado', 'Procesando')
+                    ->exists();
+
+                // Si no hay más existencias en proceso, actualizar el estado de la comanda a 'Abierta'
+                if (!$hayExistenciasEnProceso) {
+                    $comanda->update(['estado' => 'Abierta']);
+                }
+            }
+
+            // Notificar éxito
+            Notification::make()
+                ->title('Preparación cancelada')
+                ->success()
+                ->send();
+        } catch (\Exception $e) {
+            // Notificar error
+            Notification::make()
+                ->title('Error al cancelar la preparación')
+                ->body('No se pudo actualizar el estado de la existencia')
+                ->danger()
+                ->send();
+        }
+    }
+
     public function getExistenciasAProcesarProperty()
     {
-        return ComandaExistencia::query()
+        $existenciasAgrupadas = [];
+
+        $comandaExistencias = ComandaExistencia::query()
             ->where('estado', 'Procesando')
             ->whereHas('existencia', function ($query) {
                 $query->where('area_existencia_id', $this->selectedArea);
             })
             ->with('existencia.unidadMedida')
-            ->get()
-            ->groupBy('existencia_id')
-            ->map(function ($grupo) {
-                $primerItem = $grupo->first();
-                return [
-                    'id' => $primerItem->existencia->id,
-                    'nombre' => $primerItem->existencia->nombre,
-                    'unidad' => $primerItem->existencia->unidadMedida->nombre ?? '',
-                    'total' => $grupo->sum('cantidad'),
-                    'estado' => $primerItem->estado
-                ];
-            })
-            ->values()
-            ->all();
+            ->get();
+
+        // Primero agrupamos por existencia_id y luego por helado (true/false)
+        $grupos = $comandaExistencias->groupBy(function ($item) {
+            return $item->existencia_id . '-' . ($item->helado ? 'helado' : 'normal');
+        });
+
+        foreach ($grupos as $key => $grupo) {
+            $primerItem = $grupo->first();
+            $keyParts = explode('-', $key);
+            $esHelado = $keyParts[1] === 'helado';
+
+            $existenciasAgrupadas[] = [
+                'id' => $primerItem->existencia->id,
+                'nombre' => $primerItem->existencia->nombre,
+                'unidad' => $primerItem->existencia->unidadMedida->descripcion ?? '',
+                'total' => $grupo->sum('cantidad'),
+                'estado' => $primerItem->estado,
+                'helado' => $esHelado,
+                'grupoKey' => $key // Agregamos una clave única para cada grupo
+            ];
+        }
+
+        return $existenciasAgrupadas;
     }
 
     public function validarProcesar($comandaId)
@@ -177,4 +242,3 @@ class ComandasExistencias extends Component
         return true;
     }
 }
-//

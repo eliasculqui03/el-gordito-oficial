@@ -19,6 +19,6 @@ class ComandasExistencias extends Page
 
     public function getMaxContentWidth(): MaxWidth
     {
-        return MaxWidth::MaxContent;
+        return MaxWidth::Full;
     }
 }

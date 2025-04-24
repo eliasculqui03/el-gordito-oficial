@@ -33,9 +33,11 @@ class AlmacenResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('nombre')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->autocomplete(false),
                 Forms\Components\TextInput::make('descripcion')
-                    ->label('Descripción'),
+                    ->label('Descripción')
+                    ->autocomplete(false),
                 Forms\Components\Toggle::make('estado')
                     ->default(true)
                     ->required(),

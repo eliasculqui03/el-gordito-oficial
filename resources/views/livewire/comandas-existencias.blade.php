@@ -21,6 +21,7 @@
                     @endif
                 </div>
 
+
                 <!-- Grid de Comandas - Adaptativo a diferentes tamaños de pantalla -->
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
                     @forelse($comandas as $comanda)
@@ -71,6 +72,7 @@
                                         </span>
                                         <span class="font-medium text-gray-700 truncate dark:text-gray-300">
                                             {{ $comanda->cliente->nombre }}
+
                                         </span>
                                     </div>
                                     <div class="flex items-center gap-2 mt-1 text-sm">
@@ -92,14 +94,28 @@
                             <div class="px-3 py-2 space-y-1">
                                 @foreach ($comanda->comandaExistencias->where('existencia.area_existencia_id', $selectedArea) as $comandaExistencia)
                                     <div
-                                        class="flex flex-wrap items-center justify-between p-2 transition-colors rounded-lg bg-gray-50/50 dark:bg-gray-700/50">
+                                        class="flex flex-wrap items-center justify-between p-2 transition-colors rounded-lg {{ $comandaExistencia->helado ? 'border-l-4 border-blue-500 dark:border-blue-400' : '' }} bg-gray-50/50 dark:bg-gray-700/50">
                                         <div class="w-full mb-1 sm:w-auto sm:mb-0">
                                             <div class="flex flex-col">
-                                                <span class="text-sm font-medium text-gray-900 dark:text-white">
-                                                    {{ $comandaExistencia->existencia->nombre }}
-                                                </span>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-sm font-medium text-gray-900 dark:text-white">
+                                                        {{ $comandaExistencia->existencia->nombre }}
+                                                    </span>
+                                                    @if ($comandaExistencia->helado)
+                                                        <span
+                                                            class="inline-flex items-center px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 mr-1"
+                                                                fill="none" viewBox="0 0 24 24"
+                                                                stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                            </svg>
+                                                            Helado
+                                                        </span>
+                                                    @endif
+                                                </div>
                                                 <span class="text-xs text-gray-500 dark:text-gray-400">
-                                                    {{ $comandaExistencia->existencia->unidadMedida->nombre }}
+                                                    {{ $comandaExistencia->existencia->unidadMedida->descripcion }}
                                                 </span>
                                             </div>
                                         </div>
@@ -111,11 +127,11 @@
                                             </span>
                                             <span
                                                 class="px-2 py-1 text-xs font-medium rounded-lg
-                    {{ $comandaExistencia->estado === 'Listo'
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
-                        : ($comandaExistencia->estado === 'Procesando'
-                            ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400'
-                            : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300') }}">
+                {{ $comandaExistencia->estado === 'Listo'
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
+                    : ($comandaExistencia->estado === 'Procesando'
+                        ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400'
+                        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300') }}">
                                                 {{ $comandaExistencia->estado }}
                                             </span>
                                         </div>
@@ -154,7 +170,7 @@
                 </div>
             </div>
         </div>
-        <!-- Panel derecho - Aparece arriba en móvil, a la derecha en desktop -->
+        <!-- Panel derecho - Adaptado para móviles y desktop -->
         <div class="order-1 col-span-1 md:col-span-12 lg:col-span-3 lg:order-2">
             <div class="sticky p-4 mb-4 overflow-y-auto bg-white border shadow-sm top-2 dark:bg-gray-800 dark:border-gray-700 rounded-xl lg:mb-0"
                 style="max-height: calc(100vh - 2rem)">
@@ -170,25 +186,51 @@
                 <div class="space-y-2">
                     @forelse ($existenciasAProcesar ?? [] as $existencia)
                         <div
-                            class="flex flex-col justify-between p-3 transition-colors rounded-lg sm:flex-row sm:items-center bg-gray-50 hover:bg-gray-100 dark:bg-gray-700/50 dark:hover:bg-gray-700">
+                            class="flex flex-col justify-between p-3 transition-colors rounded-lg sm:flex-row sm:items-center bg-gray-50 hover:bg-gray-100 dark:bg-gray-700/50 dark:hover:bg-gray-700 {{ $existencia['helado'] ? 'border-l-4 border-blue-500 dark:border-blue-400' : '' }}">
                             <div class="flex-1 min-w-0 mb-2 sm:mb-0">
-                                <p class="text-sm font-medium text-gray-900 break-words dark:text-white sm:truncate">
-                                    {{ $existencia['nombre'] }}
-                                </p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">
-                                    {{ $existencia['unidad'] ?? '' }}
-                                </p>
+                                <div class="flex flex-col">
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                            {{ $existencia['nombre'] }}
+                                        </p>
+                                        @if ($existencia['helado'])
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 mr-1"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                </svg>
+                                                Helado
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ $existencia['unidad'] ?? '' }}
+                                    </p>
+                                </div>
                             </div>
+
                             <div
                                 class="flex items-center justify-between w-full gap-2 sm:w-auto sm:ml-4 sm:justify-end">
                                 <span
                                     class="px-2.5 py-1 text-sm font-medium bg-primary-100 text-primary-700 rounded-lg dark:bg-primary-900/50 dark:text-primary-400">
                                     x{{ $existencia['total'] }}
                                 </span>
-                                <button wire:click="marcarExistenciaLista({{ $existencia['id'] }})"
-                                    class="px-3 py-1 text-sm font-medium text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:bg-green-500 dark:hover:bg-green-600">
-                                    Listo
-                                </button>
+                                <div class="flex space-x-2">
+                                    <button wire:click="cancelarPreparacionExistencia('{{ $existencia['grupoKey'] }}')"
+                                        class="p-2 text-sm font-medium text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:bg-red-500 dark:hover:bg-red-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                    <button wire:click="marcarExistenciaLista('{{ $existencia['grupoKey'] }}')"
+                                        class="px-3 py-1 text-sm font-medium text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:bg-green-500 dark:hover:bg-green-600">
+                                        Listo
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     @empty

@@ -92,10 +92,19 @@
                                                     <span class="font-medium text-gray-700 dark:text-gray-300">
                                                         #{{ str_pad($asignacion->comandaPlato->comanda_id, 4, '0', STR_PAD_LEFT) }}
                                                     </span>
+
+                                                    @if ($asignacion->comandaPlato->llevar)
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-blue-200 text-indigo-800 dark:bg-blue-900/40 dark:text-blue-300">
+
+                                                            Para llevar
+                                                        </span>
+                                                    @endif
                                                     <span
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100">
                                                         Entregando
                                                     </span>
+
                                                 </div>
                                             </div>
 
@@ -213,6 +222,13 @@
                                                     <span class="font-medium text-gray-700 dark:text-gray-300">
                                                         #{{ str_pad($platoListo->comanda_id, 4, '0', STR_PAD_LEFT) }}
                                                     </span>
+                                                    @if ($platoListo->llevar)
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full bg-blue-200 text-indigo-800 dark:bg-blue-900/40 dark:text-blue-300">
+
+                                                            Para llevar
+                                                        </span>
+                                                    @endif
                                                     <span
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
                                                         Listo
@@ -234,7 +250,8 @@
                                                 </div>
 
                                                 <!-- Información del cliente -->
-                                                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                                <div
+                                                    class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                                                     <svg class="flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500 mr-1.5"
                                                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                                         fill="currentColor">
