@@ -16,6 +16,7 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class EmpleadoResource extends Resource
 {
@@ -147,10 +148,16 @@ class EmpleadoResource extends Resource
             ])
             ->actions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
+
                     Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+
                 ])
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+
+                    ExportBulkAction::make()
+                ]),
             ]);
     }
 

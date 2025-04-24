@@ -94,8 +94,8 @@ class MesaComponent extends Component
             nombre: $this->zonaNombre,
         );
 
-        // Cerramos el modal usando la función existente
-        $this->closeModalMesa();
+        // Eliminamos esta línea para que el modal no se cierre automáticamente
+        // $this->closeModalMesa();
 
         Notification::make()
             ->title('Mesa seleccionada')

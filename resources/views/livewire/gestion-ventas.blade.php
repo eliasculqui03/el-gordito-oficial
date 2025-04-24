@@ -3,8 +3,7 @@
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
         <div class="container ">
             <!-- Facturación con nueva estructura -->
-            <div
-                class="overflow-hidden transition-colors duration-200 bg-white rounded-lg shadow dark:bg-gray-800 dark:shadow-gray-700/30">
+            <div class="overflow-hidden transition-colors duration-200 bg-white rounded-lg shadow dark:bg-gray-900 ">
                 <div class="p-4">
                     <!-- Layout principal con grid responsivo -->
                     <div class="grid grid-cols-1 gap-6 lg:grid-cols-5">
@@ -18,7 +17,7 @@
                                         Productos</h3>
 
                                     <!-- Número de pedido integrado -->
-                                    <div wire:poll.visible
+                                    <div wire:poll.4s.visible
                                         class="px-3 py-2 text-center bg-white border-2 border-indigo-500 rounded-lg shadow-sm dark:bg-gray-800 dark:border-indigo-400">
                                         <div class="flex items-center">
                                             <span
@@ -31,6 +30,17 @@
 
                                 <!-- Botones de acción colocados sobre la tabla -->
                                 <div class="flex flex-wrap gap-3 mb-4">
+
+                                    <!-- Botón de Agregar Platos -->
+                                    <button wire:click="abrirModalPlato"
+                                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-indigo-600 rounded-md hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" viewBox="0 0 20 20"
+                                            fill="currentColor">
+                                            <path
+                                                d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z" />
+                                        </svg>
+                                        Agregar Platos
+                                    </button>
                                     <!-- Botón de Agregar Existencia -->
                                     <button wire:click="abrirModalExistencia"
                                         class="flex items-center justify-center px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-green-600 rounded-md hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400">
@@ -44,16 +54,7 @@
                                         Agregar Existencia
                                     </button>
 
-                                    <!-- Botón de Agregar Platos -->
-                                    <button wire:click="abrirModalPlato"
-                                        class="flex items-center justify-center px-4 py-2 text-sm font-medium text-white transition-colors duration-200 bg-indigo-600 rounded-md hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" viewBox="0 0 20 20"
-                                            fill="currentColor">
-                                            <path
-                                                d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100 2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z" />
-                                        </svg>
-                                        Agregar Platos
-                                    </button>
+
                                 </div>
 
                                 <!-- Tabla mejorada con responsividad -->
@@ -355,14 +356,15 @@
                                 <div class="flex flex-wrap items-center justify-between gap-4">
                                     <div class="flex flex-wrap items-center gap-4">
                                         <!-- Zona -->
-                                        <div class="flex items-center">
+                                        <div
+                                            class="flex flex-col items-start space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-2">
                                             <label for="zona-input"
-                                                class="mr-2 text-sm font-medium tracking-wide text-gray-700 dark:text-gray-300">
+                                                class="text-sm font-medium tracking-wide text-gray-700 dark:text-gray-300 sm:mr-2">
                                                 Zona:
                                             </label>
                                             <input id="zona-input" type="text" value="{{ $this->nombre_zona }}"
                                                 readonly disabled
-                                                class="px-3 py-2 text-sm font-medium text-indigo-600 bg-gray-100 border border-gray-300 rounded-md shadow-sm w-28 dark:bg-gray-600 dark:border-gray-600 dark:text-indigo-300">
+                                                class="w-full px-3 py-2 text-sm font-medium text-indigo-600 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:w-34 dark:bg-gray-600 dark:border-gray-600 dark:text-indigo-300">
                                         </div>
 
                                         <!-- Mesa -->
@@ -779,8 +781,7 @@
 
     <!-- Modal de Existencias -->
     @if ($mostrarModalExistencia)
-        <div wire:poll.2s.visible
-            class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900 bg-opacity-60">
+        <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900 bg-opacity-60">
             <div class="relative w-full max-w-5xl mx-auto bg-white rounded-lg shadow-xl dark:bg-gray-800">
                 <!-- Encabezado del modal con gradiente -->
                 <div
@@ -851,7 +852,7 @@
                     </div>
 
                     <!-- Grid de Existencias -->
-                    <div class="overflow-y-auto" style="max-height: 400px;">
+                    <div wire:poll.4s.visible class="overflow-y-auto min-h-[360px]" style="max-height: 360px;">
                         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                             @forelse($existencias as $existencia)
                                 <div
@@ -979,8 +980,7 @@
 
     <!-- Modal de Platos -->
     @if ($mostrarModalPlato)
-        <div wire:poll.2s.visible
-            class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900 bg-opacity-60">
+        <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900 bg-opacity-60">
             <div class="relative w-full max-w-5xl mx-auto bg-white rounded-lg shadow-xl dark:bg-gray-800">
                 <!-- Encabezado del modal con gradiente -->
                 <div
@@ -1027,7 +1027,7 @@
                     </div>
 
                     <!-- Grid de Platos disponibles -->
-                    <div class="overflow-y-auto" style="max-height: 400px;">
+                    <div wire:poll.4s.visible class="overflow-y-auto min-h-[400px]" style="max-height: 400px;">
                         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                             @forelse($platos as $plato)
                                 <div

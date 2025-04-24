@@ -13,6 +13,7 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class PlatoResource extends Resource
 {
@@ -54,7 +55,8 @@ class PlatoResource extends Resource
                     ->required()
                     ->relationship('unidadMedida', 'descripcion')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->default(58),
                 Forms\Components\Select::make('area_id')
                     ->relationship('area', 'nombre', function ($query) {
                         $query->where('estado', true); // Filtra las cajas activas
@@ -115,15 +117,11 @@ class PlatoResource extends Resource
                     ->relationship('area', 'nombre'),
             ])
             ->actions([
-                ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                ])
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    ExportBulkAction::make()
                 ]),
             ]);
     }
