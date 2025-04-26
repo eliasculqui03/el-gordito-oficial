@@ -9,6 +9,7 @@ use App\Models\Cliente;
 use App\Models\Comanda;
 use App\Models\ComandaExistencia;
 use App\Models\ComandaPlato;
+use App\Models\Empresa;
 use App\Models\Existencia;
 use App\Models\MovimientoCaja;
 use App\Models\Plato;
@@ -18,6 +19,7 @@ use App\Models\TipoExistencia;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -539,6 +541,7 @@ class GestionVentas extends Component
                 'id' => $existenciaId,
                 'nombre' => $existencia->nombre,
                 'unidad_medida' => $existencia->unidadMedida->descripcion ?? 'Sin U. de medida',
+                'unidad_medida_codigo' => $existencia->unidadMedida->codigo ?? 'Sin U. de medida',
                 'precio_unitario' => $precioUnitario,
                 'cantidad' => 1,
                 'subtotal' => $precioUnitario,
@@ -571,6 +574,7 @@ class GestionVentas extends Component
                 'id' => $platoId,
                 'nombre' => $plato->nombre,
                 'unidad_medida' => $plato->unidadMedida->descripcion ?? 'Sin U. de medida',
+                'unidad_medida_codigo' => $plato->unidadMedida->codigo ?? 'Sin U. de medida',
                 'precio_unitario' => $precioUnitario,
                 'cantidad' => 1,
                 'subtotal' => $precioUnitario,
@@ -753,27 +757,29 @@ class GestionVentas extends Component
     private function calcularTotales()
     {
         // Calcular subtotales
-        $this->totalGeneral = 0;
+        $this->subtotalGeneral = 0;
 
         // Sumar subtotales de existencias
         foreach ($this->existenciasComanda as $existencia) {
-            $this->totalGeneral += $existencia['subtotal'];
+            $this->subtotalGeneral += $existencia['subtotal'];
         }
 
         // Sumar subtotales de platos
         foreach ($this->platosComanda as $plato) {
-            $this->totalGeneral += $plato['subtotal'];
+            $this->subtotalGeneral += $plato['subtotal'];
         }
 
         // Calcular IGV (18%)
-        $this->igvGeneral = $this->totalGeneral * 0.18;
+        $this->igvGeneral = $this->subtotalGeneral * 0.18;
 
         // Por ahora, el descuento está en 0
         $this->descuentoGeneral = 0;
 
         // Calcular total general
-        $this->subtotalGeneral = $this->totalGeneral - $this->igvGeneral;
+        $this->totalGeneral = $this->subtotalGeneral + $this->igvGeneral;
     }
+
+
 
     // Método para guardar la comanda en la base de datos
     public function guardarComanda()
@@ -851,7 +857,6 @@ class GestionVentas extends Component
 
             // Calcular nuevo número de pedido
 
-
             Notification::make()
                 ->title('Comanda guardada')
                 ->body('La comanda ha sido guardada exitosamente con número: ' . $this->numeroPedido)
@@ -872,64 +877,325 @@ class GestionVentas extends Component
     //================================VENTAS=====================================
 
 
-    public function movimientosCajas()
+
+    public $serie;
+    public $numeroSerie;
+    public $fechaEmision;
+    public $monedaSelecionada;
+    public $formaPago;
+
+    public function guardarComandaComprobante()
     {
-
-        // Validar que exista una sesión de caja activa
-        if (!$this->sesionCajaId) {
-            // Intentar encontrar la sesión activa
-            $sesionCaja = \App\Models\SesionCaja::where('caja_id', $this->cajaId)
-                ->where('estado', true)
-                ->latest()
-                ->first();
-
-            if ($sesionCaja) {
-                $this->sesionCajaId = $sesionCaja->id;
-            } else {
-                // No hay sesión activa, mostrar error con Filament
-                Notification::make()
-                    ->title('Error al registrar movimiento')
-                    ->body('No hay una sesión de caja activa. Por favor, abra la caja primero.')
-                    ->danger()
-                    ->duration(5000)
-                    ->send();
-                return;
-            }
-        }
-
-        // Validar el monto con notificación Filament
-        if ($this->totalGeneral <= 0) {
+        // Validar que haya al menos un producto o plato
+        if (count($this->platosComanda) == 0 && count($this->existenciasComanda) == 0) {
             Notification::make()
-                ->title('Monto inválido')
-                ->body('El monto debe ser mayor a cero.')
-                ->warning()
-                ->duration(4000)
+                ->title('Error al guardar')
+                ->body('Debe agregar al menos un plato o existencia a la comanda.')
+                ->danger()
                 ->send();
             return;
         }
 
+        // Validar que si hay platos para mesa, debe tener mesa asignada
+        $tienePlatosParaMesa = collect($this->platosComanda)->where('es_llevar', false)->count() > 0;
 
+        if ($tienePlatosParaMesa && (empty($this->id_mesa) || empty($this->id_zona))) {
+            Notification::make()
+                ->title('Error de validación')
+                ->body('Debe seleccionar una mesa y zona para los platos servidos en mesa.')
+                ->danger()
+                ->send();
+            return;
+        }
 
-        // Crear el movimiento
-        MovimientoCaja::create([
-            'user_id' => \Illuminate\Support\Facades\Auth::id(),
-            'sesion_caja_id' => $this->sesionCajaId,
-            'tipo_transaccion' => 'Ingreso',
-            'motivo' => 'Venta',
-            'monto' => $this->totalGeneral,
+        // Validar cliente (obligatorio)
+        if (!$this->id_cliente) {
+            Notification::make()
+                ->title('Error de validación')
+                ->body('Debe seleccionar un cliente para la comanda.')
+                ->danger()
+                ->send();
+            return;
+        }
 
-            'descripcion' => null,
-        ]);
+        try {
+            // Crear la comanda utilizando el modelo Comanda
+            // $comanda = new Comanda();
+            // $comanda->cliente_id = $this->id_cliente;
+            // $comanda->zona_id = $this->id_zona ?: null;
+            // $comanda->mesa_id = $this->id_mesa ?: null;
+            // $comanda->save();
 
+            // // Guardar los platos utilizando el modelo ComandaPlato
+            // foreach ($this->platosComanda as $plato) {
+            //     $comandaPlato = new ComandaPlato();
+            //     $comandaPlato->comanda_id = $comanda->id;
+            //     $comandaPlato->plato_id = $plato['id'];
+            //     $comandaPlato->cantidad = $plato['cantidad'];
+            //     $comandaPlato->subtotal = $plato['subtotal'];
+            //     $comandaPlato->llevar = $plato['es_llevar'];
+            //     $comandaPlato->save();
+            // }
 
-        $mensaje = 'Se ha  vendido S/. ' . number_format($this->totalGeneral, 2) . ' por concepto de ';
+            // // Guardar las existencias utilizando el modelo ComandaExistencia
+            // foreach ($this->existenciasComanda as $existencia) {
+            //     $comandaExistencia = new ComandaExistencia();
+            //     $comandaExistencia->comanda_id = $comanda->id;
+            //     $comandaExistencia->existencia_id = $existencia['id'];
+            //     $comandaExistencia->cantidad = $existencia['cantidad'];
+            //     $comandaExistencia->subtotal = $existencia['subtotal'];
+            //     $comandaExistencia->helado = $existencia['es_helado'];
+            //     $comandaExistencia->save();
+            // }
 
-        // Mostrar notificación de éxito
-        \Filament\Notifications\Notification::make()
-            ->title('Movimiento registrado')
-            ->body($mensaje)
-            ->success()
-            ->duration(4000)
-            ->send();
+            // Calcular nuevo número de pedido
+            Notification::make()
+                ->title('Comanda guardada')
+                ->body('La comanda ha sido guardada exitosamente con número: ' . $this->numeroPedido)
+                ->success()
+                ->send();
+
+            $this->calcularNumeroPedido();
+
+            // Obtener información de la empresa
+            $empresa = Empresa::first();
+            $cliente = Cliente::find($this->id_cliente);
+
+            // Generar serie y correlativo
+
+            $nroComprobante = $this->serieComprobante . '-' . $this->numeroPedido;
+
+            // Calcular valores de factura
+            $subtotal = $this->subtotalGeneral;
+            $igv = $this->igvGeneral;
+            $total = $this->totalGeneral;
+
+            // Preparar array de detalle para factura electrónica
+            $detalleFactura = [];
+            $item = 1;
+
+            // Agregar platos al detalle de factura
+            foreach ($this->platosComanda as $plato) {
+
+                $totalSinigv = $plato['cantidad'] * $plato['precio_unitario'];
+                $detalleFactura[] = [
+                    "txtITEM" => (string)$item,
+                    "txtUNIDAD_MEDIDA_DET" => (string)$plato['unidad_medida_codigo'],
+                    "txtCANTIDAD_DET" => (string)$plato['cantidad'],
+                    "txtPRECIO_DET" => (string)($plato['precio_unitario'] * 1.18),
+                    "txtIMPORTE_DET" => (string)$totalSinigv,
+                    "txtPRECIO_TIPO_CODIGO" => "01",
+                    "txtIGV" => (string)($totalSinigv * 0.18),
+                    "txtISC" => "0",
+                    "txtCOD_TIPO_OPERACION" => "10",
+                    "txtCODIGO_DET" => "PLA" . str_pad($plato['id'], 3, '0', STR_PAD_LEFT),
+                    "txtDESCRIPCION_DET" => $plato['nombre'] . ($plato['es_llevar'] ? " - LLEVAR" : ""),
+                    "txtPRECIO_SIN_IGV_DET" => (string)$plato['precio_unitario'],
+                    "FLG_ICBPER" => "0",
+                    "IMPUESTO_BP" => "0",
+                    "IMPORTE_BP" => "0"
+                ];
+
+                $item++;
+            }
+
+            // Agregar existencias al detalle de factura
+            foreach ($this->existenciasComanda as $existencia) {
+
+                $totalSinigv = round($existencia['cantidad'] * $existencia['precio_unitario']);
+
+                $detalleFactura[] = [
+                    "txtITEM" => (string)$item,
+                    "txtUNIDAD_MEDIDA_DET" => (string)$existencia['unidad_medida_codigo'],
+                    "txtCANTIDAD_DET" => (string)$existencia['cantidad'],
+                    "txtPRECIO_DET" => (string)($existencia['precio_unitario'] * 1.18),
+                    "txtIMPORTE_DET" => (string)$totalSinigv,
+                    "txtPRECIO_TIPO_CODIGO" => "01",
+                    "txtIGV" => (string)($totalSinigv * 0.18),
+                    "txtISC" => "0",
+                    "txtCOD_TIPO_OPERACION" => "10",
+                    "txtCODIGO_DET" => "EXI" . str_pad($existencia['id'], 3, '0', STR_PAD_LEFT),
+                    "txtDESCRIPCION_DET" => $existencia['nombre'] . ($existencia['es_helado'] ? " - HELADO" : ""),
+                    "txtPRECIO_SIN_IGV_DET" => (string)$existencia['precio_unitario'],
+                    "FLG_ICBPER" => "0",
+                    "IMPUESTO_BP" => "0",
+                    "IMPORTE_BP" => "0"
+                ];
+
+                $item++;
+            }
+
+            // Crear el objeto JSON para facturación electrónica
+            $datos = [
+                "ICBP" => "0",
+                "txtTIPO_OPERACION" => "0101",
+                "txtTOTAL_GRAVADAS" => (string)$subtotal,
+                "txtSUB_TOTAL" => (string)$subtotal,
+                "txtPOR_IGV" => "18.00",
+                "txtTOTAL_IGV" => (string)$igv,
+                "txtTOTAL" => (string)$total,
+                "txtTOTAL_LETRAS" => $this->numeroALetras($total),
+                "txtNRO_COMPROBANTE" => $nroComprobante,
+                "txtFECHA_DOCUMENTO" => date('Y-m-d'),
+                "txtFECHA_VTO" => date('Y-m-d'),
+                "txtCOD_TIPO_DOCUMENTO" => $this->tipoComprobanteSeleccionado ?? '099',
+                "txtCOD_MONEDA" => $this->monedaSelecionada ?? "Hola",
+                "detalle_forma_pago" => [
+                    [
+                        "COD_FORMA_PAGO" => $this->formaPago ?? "zzz"
+                    ]
+                ],
+                "txtNRO_DOCUMENTO_CLIENTE" => $cliente->ruc ?? $cliente->numero_documento,
+                "txtRAZON_SOCIAL_CLIENTE" => $cliente->nombre ?? ($cliente->nombres . ' ' . $cliente->apellidos),
+                "txtTIPO_DOCUMENTO_CLIENTE" => $cliente->tipoDocumento->tipo,
+                "txtDIRECCION_CLIENTE" => $cliente->direccion ?? "SIN DIRECCIÓN",
+                "txtCIUDAD_CLIENTE" => $cliente->ciudad ?? "CIUDAD",
+                "txtCOD_PAIS_CLIENTE" => "PE",
+                "txtNRO_DOCUMENTO_EMPRESA" => $empresa->ruc ?? "11",
+                "txtTIPO_DOCUMENTO_EMPRESA" => "6",
+                "txtNOMBRE_COMERCIAL_EMPRESA" => $empresa->nombre_comercial ?? "RESTAURANTE",
+                "txtCODIGO_UBIGEO_EMPRESA" => $empresa->ubigeo ?? "150101",
+                "txtDIRECCION_EMPRESA" => $empresa->direccion ?? "DIRECCIÓN COMERCIAL",
+                "txtDEPARTAMENTO_EMPRESA" => $empresa->departamento ?? "LIMA",
+                "txtPROVINCIA_EMPRESA" => $empresa->provincia ?? "LIMA",
+                "txtDISTRITO_EMPRESA" => $empresa->distrito ?? "DISTRITO",
+                "txtCODIGO_PAIS_EMPRESA" => "PE",
+                "txtRAZON_SOCIAL_EMPRESA" => $empresa->nombre ?? "RAZÓN SOCIAL EMPRESA",
+                "txtUSUARIO_SOL_EMPRESA" => $empresa->usuario_sol ?? "MODDATOS",
+                "txtPASS_SOL_EMPRESA" => $empresa->clave_sol ?? "moddatos",
+                "txtPAS_FIRMA" => $empresa->clave_firma ?? "123456",
+                "txtTIPO_PROCESO" => "3",
+                "txtFLG_ANTICIPO" => "0",
+                "txtFLG_REGU_ANTICIPO" => "0",
+                "txtMONTO_REGU_ANTICIPO" => "0",
+                "detalle" => $detalleFactura
+            ];
+
+            // Guardar el JSON en la base de datos o enviar a API
+            $jsonData = json_encode($datos);
+
+            // Enviar el JSON a la API de facturación
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer 5|BSz4NaMp677HJ7gtOSHaL4hht6UzNluLBtsothM3',
+                'Accept' => 'application/json'
+            ])->post('http://localhost/v01-facvip/public/api/cpe', $datos);
+
+            // Verificar si la respuesta fue exitosa
+            if ($response->successful()) {
+                $responseData = $response->json();
+
+                // Verificar si contiene la URL del XML CPE
+                if (isset($responseData['xml_cpe'])) {
+                    // Hacer la solicitud GET para obtener el XML
+                    $xmlResponse = Http::withHeaders([
+                        'Authorization' => 'Bearer 5|BSz4NaMp677HJ7gtOSHaL4hht6UzNluLBtsothM3'
+                    ])->get($responseData['xml_cpe']);
+
+                    // Guardar el XML en una variable
+                    $xmlContent = $xmlResponse->body();
+
+                    // Mostrar el XML con dd()
+                    dd($xmlContent);
+                } else {
+                    dd('No se encontró la URL del XML en la respuesta', $responseData);
+                }
+            } else {
+                dd('Error en la solicitud a la API', $response->status(), $response->body());
+            }
+            // Aquí puedes guardar este JSON en un campo de tu tabla Comanda o enviarlo a tu API de facturación
+            // $comanda->json_factura = $jsonData;
+            // $comanda->save();
+
+            // Aquí podrías hacer una llamada a API para enviar la factura electrónica con el JSON
+            // $response = Http::post('URL_DE_TU_API_FACTURACION', $datos);
+
+            // Validar que exista una sesión de caja activa
+            if (!$this->sesionCajaId) {
+                // Intentar encontrar la sesión activa
+                $sesionCaja = \App\Models\SesionCaja::where('caja_id', $this->cajaId)
+                    ->where('estado', true)
+                    ->latest()
+                    ->first();
+
+                if ($sesionCaja) {
+                    $this->sesionCajaId = $sesionCaja->id;
+                } else {
+                    // No hay sesión activa, mostrar error con Filament
+                    Notification::make()
+                        ->title('Error al registrar movimiento')
+                        ->body('No hay una sesión de caja activa. Por favor, abra la caja primero.')
+                        ->danger()
+                        ->duration(5000)
+                        ->send();
+                    return;
+                }
+            }
+
+            // Validar el monto con notificación Filament
+            if ($this->totalGeneral <= 0) {
+                Notification::make()
+                    ->title('Monto inválido')
+                    ->body('El monto debe ser mayor a cero.')
+                    ->warning()
+                    ->duration(4000)
+                    ->send();
+                return;
+            }
+
+            // Crear el movimiento
+            MovimientoCaja::create([
+                'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                'sesion_caja_id' => $this->sesionCajaId,
+                'tipo_transaccion' => 'Ingreso',
+                'motivo' => 'Venta',
+                'monto' => $this->totalGeneral,
+                'descripcion' => 'Factura: ' . $nroComprobante,
+            ]);
+
+            $mensaje = 'Se ha vendido S/. ' . number_format($this->totalGeneral, 2) . ' por concepto de venta. Factura: ' . $nroComprobante;
+
+            // Mostrar notificación de éxito
+            \Filament\Notifications\Notification::make()
+                ->title('Movimiento registrado')
+                ->body($mensaje)
+                ->success()
+                ->duration(4000)
+                ->send();
+
+            // Limpiar los arrays después de guardar
+            $this->platosComanda = [];
+            $this->existenciasComanda = [];
+            $this->calcularTotales();
+
+            // Limpiar otros campos
+            $this->limpiarCliente();
+            $this->limpiarMesaZona();
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Error al guardar')
+                ->body('Ocurrió un error al guardar la comanda: ' . $e->getMessage())
+                ->danger()
+                ->send();
+        }
     }
+
+    /**
+     * Convierte un número a su representación en letras
+     */
+    private function numeroALetras($numero)
+    {
+        $formatter = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
+        $entero = floor($numero);
+        $decimal = round(($numero - $entero) * 100);
+
+        // Convertir a mayúsculas y formatear
+        $texto = strtoupper($formatter->format($entero)) . ' CON ' .
+            str_pad($decimal, 2, '0', STR_PAD_LEFT) . '/100 SOLES';
+
+        return $texto;
+    }
+
+    /**
+     * Obtiene el siguiente número de correlativo para la factura
+     */
 }

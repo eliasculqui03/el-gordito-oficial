@@ -388,6 +388,8 @@
                         <!-- Segunda columna (2/5) -->
                         <div class="order-2 space-y-4 lg:order-2 lg:col-span-2">
                             <!-- Primera fila: Información básica -->
+
+
                             <!-- Facturación Electrónica con Grid Responsivo -->
                             <div
                                 class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
@@ -429,8 +431,8 @@
                                             class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                                             Número
                                         </label>
-                                        <input id="numero-comprobante" type="text" value="000004" readonly
-                                            disabled
+                                        <input id="numero-comprobante" type="text"
+                                            value="{{ $this->numeroPedido }}" readonly disabled
                                             class="block w-full px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200">
                                     </div>
 
@@ -440,11 +442,11 @@
                                             class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                                             Fecha de Emisión
                                         </label>
-                                        <div
-                                            class="px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200">
-                                            {{ now()->format('d/m/Y') }}
-                                        </div>
+                                        <input type="text" id="fecha-emision"
+                                            value="{{ now()->format('d/m/Y') }}" readonly disabled
+                                            class="block w-full px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200">
                                     </div>
+
 
                                     <!-- Moneda -->
                                     <div>
@@ -452,9 +454,11 @@
                                             class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                                             Moneda
                                         </label>
-                                        <select id="moneda"
+                                        <select id="moneda" wire:model='monedaSelecionada'
                                             class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
-                                            <option value="PEN" selected>Soles (PEN)</option>
+                                            <option value="" selected>Seleccione moneda
+                                            </option>
+                                            <option value="PEN">Soles (PEN)</option>
                                             <option value="USD">Dólares (USD)</option>
                                         </select>
                                     </div>
@@ -465,11 +469,14 @@
                                             class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                                             Forma de Pago
                                         </label>
-                                        <select id="forma-pago"
+                                        <select id="forma-pago" wire:model="formaPago"
                                             class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
-                                            <option value="CONTADO">Contado</option>
-                                            <option value="CREDITO">Crédito</option>
+                                            <option value="" selected>Seleccione
+                                            </option>
+                                            <option value="Contado">Contado</option>
+                                            <option value="Credito">Crédito</option>
                                         </select>
+
                                     </div>
                                 </div>
                             </div>
@@ -479,7 +486,8 @@
                             <!-- Modificación de documento (Card con fondo sutil) -->
                             <div
                                 class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                                <h3 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Modificación de
+                                <h3 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Modificación
+                                    de
                                     Documento</h3>
                                 <!-- Grid para Modificación de Documento - 2 elementos por fila -->
                                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -530,7 +538,8 @@
                             <!-- Datos del Cliente (Card con sombra suave) -->
                             <div
                                 class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                                <h3 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Datos del Cliente
+                                <h3 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Datos del
+                                    Cliente
                                 </h3>
 
                                 <!-- Barra de búsqueda con botones -->
@@ -667,7 +676,7 @@
                                     </button>
 
                                     <!-- Botón para guardar pedido y generar comprobante -->
-                                    <button wire:click="movimientosCajas"
+                                    <button wire:click='guardarComandaComprobante'
                                         class="flex items-center justify-center col-span-2 px-3 py-2 text-sm font-medium text-white transition-colors duration-200 bg-indigo-600 rounded-md hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
                                             viewBox="0 0 20 20" fill="currentColor">
@@ -679,6 +688,7 @@
                                     </button>
                                 </div>
                             </div>
+
 
                             <!-- Información de usuario y caja -->
                             <div
@@ -932,6 +942,7 @@
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                             @empty
                                 <div class="col-span-5 p-6 text-center">
