@@ -1038,11 +1038,11 @@ class GestionVentas extends Component
                 "txtNRO_COMPROBANTE" => $nroComprobante,
                 "txtFECHA_DOCUMENTO" => date('Y-m-d'),
                 "txtFECHA_VTO" => date('Y-m-d'),
-                "txtCOD_TIPO_DOCUMENTO" => $this->tipoComprobanteSeleccionado ?? '099',
-                "txtCOD_MONEDA" => $this->monedaSelecionada ?? "Hola",
+                "txtCOD_TIPO_DOCUMENTO" => $this->tipoComprobanteSeleccionado,
+                "txtCOD_MONEDA" => $this->monedaSelecionada ?? "PEN",
                 "detalle_forma_pago" => [
                     [
-                        "COD_FORMA_PAGO" => $this->formaPago ?? "zzz"
+                        "COD_FORMA_PAGO" => $this->formaPago ?? "Contado"
                     ]
                 ],
                 "txtNRO_DOCUMENTO_CLIENTE" => $cliente->ruc ?? $cliente->numero_documento,
@@ -1072,7 +1072,9 @@ class GestionVentas extends Component
             ];
 
             // Guardar el JSON en la base de datos o enviar a API
-            $jsonData = json_encode($datos);
+
+
+            // dd($datos);
 
             // Enviar el JSON a la API de facturación
             $response = Http::withHeaders([
