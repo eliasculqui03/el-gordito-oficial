@@ -15,6 +15,9 @@ class Comanda extends Model
         'cliente_id',
         'zona_id',
         'mesa_id',
+        'subtotal',
+        'igv',
+        'total_general',
         'estado',
         'estado_pago',
     ];
@@ -45,6 +48,6 @@ class Comanda extends Model
 
     public function ventas(): HasMany
     {
-        return $this->hasMany(Venta::class);
+        return $this->hasMany(ComprobantePago::class);
     }
 }

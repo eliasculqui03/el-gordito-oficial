@@ -14,6 +14,7 @@ class ComandaPlato extends Model
     protected $fillable = [
         'comanda_id',
         'plato_id',
+        'precio_unitario',
         'cantidad',
         'subtotal',
         'llevar',

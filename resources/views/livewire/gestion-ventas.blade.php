@@ -390,151 +390,6 @@
                             <!-- Primera fila: Información básica -->
 
 
-                            <!-- Facturación Electrónica con Grid Responsivo -->
-                            <div
-                                class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                                <h3 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Facturación
-                                    Electrónica</h3>
-
-                                <!-- Grid con 2 elementos por fila en pantallas medianas y grandes -->
-                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-2">
-                                    <!-- Tipo de Comprobante -->
-                                    <div>
-                                        <label for="tipo-comprobante"
-                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                            Tipo de Comprobante
-                                        </label>
-                                        <select id="tipo-comprobante" wire:model="tipoComprobanteSeleccionado"
-                                            class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
-                                            <option value="" selected>Seleccione comprobante
-                                            </option>
-                                            @foreach ($tipoComprobantes as $comprobante)
-                                                <option value="{{ $comprobante->codigo }}">
-                                                    {{ $comprobante->descripcion }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <!-- Serie -->
-                                    <div>
-                                        <label for="serie-comprobante"
-                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                            Serie
-                                        </label>
-                                        <input id="serie-comprobante" type="text" value="{{ $serieComprobante }}"
-                                            readonly disabled
-                                            class="block w-full px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200">
-                                    </div>
-
-                                    <!-- Número -->
-                                    <div>
-                                        <label for="numero-comprobante"
-                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                            Número
-                                        </label>
-                                        <input id="numero-comprobante" type="text"
-                                            value="{{ $this->numeroPedido }}" readonly disabled
-                                            class="block w-full px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200">
-                                    </div>
-
-                                    <!-- Fecha de Emisión -->
-                                    <div>
-                                        <label for="fecha-emision"
-                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                            Fecha de Emisión
-                                        </label>
-                                        <input type="text" id="fecha-emision"
-                                            value="{{ now()->format('d/m/Y') }}" readonly disabled
-                                            class="block w-full px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200">
-                                    </div>
-
-
-                                    <!-- Moneda -->
-                                    <div>
-                                        <label for="moneda"
-                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                            Moneda
-                                        </label>
-                                        <select id="moneda" wire:model='monedaSelecionada'
-                                            class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
-                                            <option value="" selected>Seleccione moneda
-                                            </option>
-                                            <option value="PEN">Soles (PEN)</option>
-                                            <option value="USD">Dólares (USD)</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Forma de Pago (Nuevo campo) -->
-                                    <div>
-                                        <label for="forma-pago"
-                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                            Forma de Pago
-                                        </label>
-                                        <select id="forma-pago" wire:model="formaPago"
-                                            class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
-                                            <option value="" selected>Seleccione
-                                            </option>
-                                            <option value="Contado">Contado</option>
-                                            <option value="Credito">Crédito</option>
-                                        </select>
-
-                                    </div>
-                                </div>
-                            </div>
-
-
-
-                            <!-- Modificación de documento (Card con fondo sutil) -->
-                            <div
-                                class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                                <h3 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Modificación
-                                    de
-                                    Documento</h3>
-                                <!-- Grid para Modificación de Documento - 2 elementos por fila -->
-                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                    <!-- Documento a Modificar -->
-                                    <div>
-                                        <label for="doc-modificar"
-                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                            Documento a Modificar
-                                        </label>
-                                        <select id="doc-modificar"
-                                            class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
-                                            <option value="">Seleccionar documento</option>
-                                            @foreach ($tipoComprobantes as $comprobante)
-                                                <option value="{{ $comprobante->codigo }}">
-                                                    {{ $comprobante->descripcion }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <!-- Nro. Documento -->
-                                    <div>
-                                        <label for="nro-doc-modificar"
-                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                            Nro. Documento
-                                        </label>
-                                        <input id="nro-doc-modificar" type="text" placeholder="F001-000000"
-                                            class="block w-full px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-400 dark:text-gray-200">
-                                    </div>
-
-                                    <!-- Motivo (ocupando toda la fila) -->
-                                    <div class="sm:col-span-2">
-                                        <label for="motivo"
-                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                            Motivo
-                                        </label>
-                                        <select id="motivo"
-                                            class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
-                                            <option value="">Seleccionar motivo</option>
-                                            <option value="ANULACION">Anulación de la operación</option>
-                                            <option value="CORRECCION">Corrección por error</option>
-                                            <option value="DESCUENTO">Descuento global</option>
-                                            <option value="DEVOLUCION">Devolución total</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Datos del Cliente (Card con sombra suave) -->
                             <div
                                 class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
@@ -614,17 +469,7 @@
                                             class="block w-full px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200">
                                     </div>
 
-                                    <!-- Dirección (ocupando toda la fila) -->
-                                    <div class="sm:col-span-2">
-                                        <label for="direccion"
-                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-                                            Dirección
-                                        </label>
-                                        <input id="direccion" type="text"
-                                            placeholder="Ejemplo: AV. PRINCIPAL 123, LIMA"
-                                            value="{{ $this->direccion_cliente }}"
-                                            class="block w-full px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-400 dark:text-gray-200">
-                                    </div>
+
                                 </div>
 
                                 <!-- Información adicional y botones -->
@@ -645,6 +490,159 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Facturación Electrónica con Grid Responsivo -->
+                            <div
+                                class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                                <h3 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Facturación
+                                    Electrónica</h3>
+
+                                <!-- Grid con 2 elementos por fila en pantallas medianas y grandes -->
+                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-2">
+                                    <!-- Tipo de Comprobante -->
+                                    <div>
+                                        <label for="tipo-comprobante"
+                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                            Tipo de Comprobante
+                                        </label>
+                                        <select id="tipo-comprobante" wire:model="tipoComprobanteSeleccionado"
+                                            {{ !$clienteEncontrado ? 'disabled' : '' }}
+                                            class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
+                                            <option value="" selected>Seleccione comprobante
+                                            </option>
+                                            @foreach ($tipoComprobantes as $comprobante)
+                                                <option value="{{ $comprobante->codigo }}">
+                                                    {{ $comprobante->descripcion }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <!-- Serie -->
+                                    <div>
+                                        <label for="serie-comprobante"
+                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                            Serie
+                                        </label>
+                                        <input id="serie-comprobante" type="text" wire:model="serieComprobante"
+                                            readonly disabled
+                                            class="block w-full px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200">
+                                    </div>
+
+                                    <!-- Número -->
+                                    <div>
+                                        <label for="numero-comprobante"
+                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                            Número
+                                        </label>
+                                        <input id="numero-comprobante" type="text" wire:model='numeroPedido'
+                                            readonly disabled
+                                            class="block w-full px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200">
+                                    </div>
+
+                                    <!-- Fecha de Emisión -->
+                                    <div>
+                                        <label for="fecha-emision"
+                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                            Fecha de Emisión
+                                        </label>
+                                        <input type="text" id="fecha-emision"
+                                            value="{{ now()->format('d/m/Y') }}" readonly disabled
+                                            class="block w-full px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200">
+                                    </div>
+
+
+                                    <!-- Moneda -->
+                                    <div>
+                                        <label for="moneda"
+                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                            Moneda
+                                        </label>
+                                        <select id="moneda" wire:model='monedaSelecionada'
+                                            {{ !$clienteEncontrado ? 'disabled' : '' }}
+                                            class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
+                                            <option value="" selected>Seleccione moneda
+                                            </option>
+                                            <option value="PEN">Soles (PEN)</option>
+                                            <option value="USD">Dólares (USD)</option>
+                                        </select>
+
+
+                                    </div>
+
+                                    <!-- Forma de Pago (Nuevo campo) -->
+                                    <div>
+                                        <label for="forma-pago"
+                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                            Forma de Pago
+                                        </label>
+                                        <select id="forma-pago" wire:model="formaPago"
+                                            {{ !$clienteEncontrado ? 'disabled' : '' }}
+                                            class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
+                                            <option value="" selected>Seleccione
+                                            </option>
+                                            <option value="Contado">Contado</option>
+                                            <option value="Credito">Crédito</option>
+                                        </select>
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <!-- Modificación de documento (Card con fondo sutil) -->
+                            <div
+                                class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                                <h3 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Modificación
+                                    de
+                                    Documento</h3>
+                                <!-- Grid para Modificación de Documento - 2 elementos por fila -->
+                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <!-- Documento a Modificar -->
+                                    <div>
+                                        <label for="doc-modificar"
+                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                            Documento a Modificar
+                                        </label>
+                                        <select id="doc-modificar" {{ !$clienteEncontrado ? 'disabled' : '' }}
+                                            class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
+                                            <option value="">Seleccionar documento</option>
+                                            @foreach ($tipoComprobantes as $comprobante)
+                                                <option value="{{ $comprobante->codigo }}">
+                                                    {{ $comprobante->descripcion }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Nro. Documento -->
+                                    <div>
+                                        <label for="nro-doc-modificar"
+                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                            Nro. Documento
+                                        </label>
+                                        <input id="nro-doc-modificar" type="text" placeholder="F001-000000"
+                                            {{ !$clienteEncontrado ? 'disabled' : '' }}
+                                            class="block w-full px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:focus:ring-indigo-400 dark:text-gray-200">
+                                    </div>
+
+                                    <!-- Motivo (ocupando toda la fila) -->
+                                    <div class="sm:col-span-2">
+                                        <label for="motivo"
+                                            class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+                                            Motivo
+                                        </label>
+                                        <select id="motivo" {{ !$clienteEncontrado ? 'disabled' : '' }}
+                                            class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
+                                            <option value="">Seleccionar motivo</option>
+                                            <option value="ANULACION">Anulación de la operación</option>
+                                            <option value="CORRECCION">Corrección por error</option>
+                                            <option value="DESCUENTO">Descuento global</option>
+                                            <option value="DEVOLUCION">Devolución total</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+
 
                             <!-- Método de Pago y Observaciones -->
                             <div

@@ -9,8 +9,11 @@ use App\Models\Cliente;
 use App\Models\Comanda;
 use App\Models\ComandaExistencia;
 use App\Models\ComandaPlato;
+use App\Models\DisponibilidadPlato;
 use App\Models\Empresa;
 use App\Models\Existencia;
+use App\Models\Inventario;
+use App\Models\Mesa;
 use App\Models\MovimientoCaja;
 use App\Models\Plato;
 use App\Models\SesionCaja;
@@ -264,7 +267,7 @@ class GestionVentas extends Component
             $this->fecha_cliente = $cliente->created_at->format('Y/m/d');
             $this->direccion_cliente = $cliente->direccion;
 
-
+            $this->clienteEncontrado = true;
 
             Notification::make()
                 ->title('Cliente encontrado')
@@ -301,17 +304,17 @@ class GestionVentas extends Component
         $this->tipo_documento = '';
         $this->fecha_cliente = '';
         $this->direccion_cliente = '';
+        $this->serieComprobante = '';
+
+        $this->clienteEncontrado = false;
     }
-
-
-
-
-
 
     public $tipoComprobantes = [];
     public $tipoComprobanteSeleccionado = null;
     public $serieComprobante = '';
 
+
+    public $clienteEncontrado = false;
 
     public function render()
     {
@@ -370,7 +373,6 @@ class GestionVentas extends Component
 
 
     //===================================EXISTENCIA================================
-
 
     public $mostrarModalExistencia = false;
     public $selectedTipoExistencia = '';
@@ -490,13 +492,6 @@ class GestionVentas extends Component
     {
         $this->selectedCategoriaPlato = $categoriaId;
     }
-
-
-
-
-
-
-
 
 
 
@@ -781,7 +776,6 @@ class GestionVentas extends Component
 
 
 
-    // Método para guardar la comanda en la base de datos
     public function guardarComanda()
     {
         // Validar que haya al menos un producto o plato
@@ -810,41 +804,208 @@ class GestionVentas extends Component
         if (!$this->id_cliente) {
             Notification::make()
                 ->title('Error de validación')
-                ->body('Debe seleccionar un cliente para la comanda.')
+                ->body('Debe ingresar un cliente para la comanda.')
+                ->danger()
+                ->send();
+            return;
+        }
+
+        // NUEVA VALIDACIÓN: Verificar que la mesa esté libre si se está asignando una
+        if ($this->id_mesa) {
+            $mesa = Mesa::find($this->id_mesa);
+            if (!$mesa) {
+                Notification::make()
+                    ->title('Error de validación')
+                    ->body('La mesa seleccionada no existe.')
+                    ->danger()
+                    ->send();
+                return;
+            }
+
+            if ($mesa->estado != 'Libre') {
+                Notification::make()
+                    ->title('Mesa no disponible')
+                    ->body('La mesa seleccionada no está libre actualmente.')
+                    ->danger()
+                    ->send();
+                return;
+            }
+        }
+
+        // NUEVA VALIDACIÓN: Verificar disponibilidad de platos
+        $platosNoDisponibles = [];
+        // Agrupar platos por ID para sumar las cantidades totales (para llevar + no para llevar)
+        $platosAgrupados = [];
+        foreach ($this->platosComanda as $plato) {
+            if (!isset($platosAgrupados[$plato['id']])) {
+                $platosAgrupados[$plato['id']] = [
+                    'id' => $plato['id'],
+                    'nombre' => $plato['nombre'],
+                    'cantidad_total' => 0
+                ];
+            }
+            $platosAgrupados[$plato['id']]['cantidad_total'] += $plato['cantidad'];
+        }
+
+        // Verificar disponibilidad con cantidades agrupadas
+        foreach ($platosAgrupados as $plato) {
+            $disponibilidad = DisponibilidadPlato::where('plato_id', $plato['id'])->first();
+
+            // Verificar si existe registro de disponibilidad
+            if (!$disponibilidad) {
+                $platosNoDisponibles[] = $plato['nombre'];
+                continue;
+            }
+
+            // Verificar disponibilidad booleana
+            if (!$disponibilidad->disponibilidad) {
+                $platosNoDisponibles[] = $plato['nombre'];
+                continue;
+            }
+
+            // Verificar cantidad disponible contra el total agrupado
+            if ($disponibilidad->cantidad < $plato['cantidad_total']) {
+                $platosNoDisponibles[] = $plato['nombre'] . " (solo hay " . $disponibilidad->cantidad . " disponibles)";
+            }
+        }
+
+        if (count($platosNoDisponibles) > 0) {
+            Notification::make()
+                ->title('Platos no disponibles')
+                ->body('Los siguientes platos no están disponibles: ' . implode(', ', $platosNoDisponibles))
+                ->danger()
+                ->send();
+            return;
+        }
+
+        // NUEVA VALIDACIÓN: Verificar stock de existencias
+        $existenciasSinStock = [];
+        // Agrupar existencias por ID para sumar las cantidades totales (helado + no helado)
+        $existenciasAgrupadas = [];
+        foreach ($this->existenciasComanda as $existencia) {
+            if (!isset($existenciasAgrupadas[$existencia['id']])) {
+                $existenciasAgrupadas[$existencia['id']] = [
+                    'id' => $existencia['id'],
+                    'nombre' => $existencia['nombre'],
+                    'cantidad_total' => 0
+                ];
+            }
+            $existenciasAgrupadas[$existencia['id']]['cantidad_total'] += $existencia['cantidad'];
+        }
+
+        // Verificar stock con cantidades agrupadas
+        foreach ($existenciasAgrupadas as $existencia) {
+            $inventario = Inventario::where('existencia_id', $existencia['id'])
+                ->first();
+
+            if (!$inventario || $inventario->stock < $existencia['cantidad_total']) {
+                $stockDisponible = $inventario ? $inventario->stock : 0;
+                $existenciasSinStock[] = $existencia['nombre'] . " (solo hay " . $stockDisponible . " en stock)";
+            }
+        }
+
+        if (count($existenciasSinStock) > 0) {
+            Notification::make()
+                ->title('Stock insuficiente')
+                ->body('Las siguientes existencias no tienen stock suficiente: ' . implode(', ', $existenciasSinStock))
                 ->danger()
                 ->send();
             return;
         }
 
         try {
+            DB::beginTransaction();
+
             // Crear la comanda utilizando el modelo Comanda
             $comanda = new Comanda();
             $comanda->cliente_id = $this->id_cliente;
             $comanda->zona_id = $this->id_zona ?: null;
             $comanda->mesa_id = $this->id_mesa ?: null;
+            $comanda->subtotal = $this->subtotalGeneral;
+            $comanda->igv = $this->igvGeneral;
+            $comanda->total_general = $this->totalGeneral;
             $comanda->save();
+
+            // Mapeo para controlar cuánto se ha reducido de cada plato
+            $reduccionPlatos = [];
 
             // Guardar los platos utilizando el modelo ComandaPlato
             foreach ($this->platosComanda as $plato) {
                 $comandaPlato = new ComandaPlato();
                 $comandaPlato->comanda_id = $comanda->id;
                 $comandaPlato->plato_id = $plato['id'];
+                $comandaPlato->precio_unitario = $plato['precio_unitario'];
                 $comandaPlato->cantidad = $plato['cantidad'];
                 $comandaPlato->subtotal = $plato['subtotal'];
                 $comandaPlato->llevar = $plato['es_llevar'];
                 $comandaPlato->save();
+
+                // Llevar un control de la cantidad total a reducir por plato
+                if (!isset($reduccionPlatos[$plato['id']])) {
+                    $reduccionPlatos[$plato['id']] = 0;
+                }
+                $reduccionPlatos[$plato['id']] += $plato['cantidad'];
             }
+
+            // Actualizar disponibilidad de platos una sola vez por cada ID
+            foreach ($reduccionPlatos as $platoId => $cantidadReducir) {
+                $disponibilidad = DisponibilidadPlato::where('plato_id', $platoId)->first();
+                if ($disponibilidad) {
+                    $disponibilidad->cantidad -= $cantidadReducir;
+                    // Si la cantidad llega a 0, marcar como no disponible
+                    if ($disponibilidad->cantidad <= 0) {
+                        $disponibilidad->disponibilidad = false;
+                        $disponibilidad->cantidad = 0;
+                    }
+                    $disponibilidad->save();
+                }
+            }
+
+            // Mapeo para controlar cuánto se ha reducido de cada existencia
+            $reduccionExistencias = [];
 
             // Guardar las existencias utilizando el modelo ComandaExistencia
             foreach ($this->existenciasComanda as $existencia) {
                 $comandaExistencia = new ComandaExistencia();
                 $comandaExistencia->comanda_id = $comanda->id;
                 $comandaExistencia->existencia_id = $existencia['id'];
+                $comandaExistencia->precio_unitario = $existencia['precio_unitario'];
                 $comandaExistencia->cantidad = $existencia['cantidad'];
                 $comandaExistencia->subtotal = $existencia['subtotal'];
                 $comandaExistencia->helado = $existencia['es_helado'];
                 $comandaExistencia->save();
+
+                // Llevar un control de la cantidad total a reducir por existencia
+                if (!isset($reduccionExistencias[$existencia['id']])) {
+                    $reduccionExistencias[$existencia['id']] = 0;
+                }
+                $reduccionExistencias[$existencia['id']] += $existencia['cantidad'];
             }
+
+            // Actualizar inventario una sola vez por cada ID de existencia
+            foreach ($reduccionExistencias as $existenciaId => $cantidadReducir) {
+                $inventario = Inventario::where('existencia_id', $existenciaId)->first();
+
+                if ($inventario) {
+                    $inventario->stock -= $cantidadReducir;
+                    // Evitar stock negativo
+                    if ($inventario->stock < 0) {
+                        $inventario->stock = 0;
+                    }
+                    $inventario->save();
+                }
+            }
+
+            // CAMBIAR ESTADO DE LA MESA A OCUPADA
+            if ($this->id_mesa) {
+                $mesa = Mesa::find($this->id_mesa);
+                if ($mesa) {
+                    $mesa->estado = 'Ocupada';
+                    $mesa->save();
+                }
+            }
+
+            DB::commit();
 
             // Limpiar los arrays después de guardar
             $this->platosComanda = [];
@@ -855,8 +1016,6 @@ class GestionVentas extends Component
             $this->limpiarCliente();
             $this->limpiarMesaZona();
 
-            // Calcular nuevo número de pedido
-
             Notification::make()
                 ->title('Comanda guardada')
                 ->body('La comanda ha sido guardada exitosamente con número: ' . $this->numeroPedido)
@@ -865,6 +1024,8 @@ class GestionVentas extends Component
 
             $this->calcularNumeroPedido();
         } catch (\Exception $e) {
+            DB::rollBack();
+
             Notification::make()
                 ->title('Error al guardar')
                 ->body('Ocurrió un error al guardar la comanda: ' . $e->getMessage())
@@ -1039,10 +1200,10 @@ class GestionVentas extends Component
                 "txtFECHA_DOCUMENTO" => date('Y-m-d'),
                 "txtFECHA_VTO" => date('Y-m-d'),
                 "txtCOD_TIPO_DOCUMENTO" => $this->tipoComprobanteSeleccionado,
-                "txtCOD_MONEDA" => $this->monedaSelecionada ?? "PEN",
+                "txtCOD_MONEDA" => $this->monedaSelecionada,
                 "detalle_forma_pago" => [
                     [
-                        "COD_FORMA_PAGO" => $this->formaPago ?? "Contado"
+                        "COD_FORMA_PAGO" => $this->formaPago
                     ]
                 ],
                 "txtNRO_DOCUMENTO_CLIENTE" => $cliente->ruc ?? $cliente->numero_documento,
@@ -1074,7 +1235,7 @@ class GestionVentas extends Component
             // Guardar el JSON en la base de datos o enviar a API
 
 
-            // dd($datos);
+            dd($datos);
 
             // Enviar el JSON a la API de facturación
             $response = Http::withHeaders([

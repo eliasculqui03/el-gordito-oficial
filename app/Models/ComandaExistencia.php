@@ -14,6 +14,7 @@ class ComandaExistencia extends Model
     protected $fillable = [
         'comanda_id',
         'existencia_id',
+        'precio_unitario',
         'cantidad',
         'subtotal',
         'helado',

@@ -16,6 +16,9 @@ return new class extends Migration
             $table->unsignedBigInteger('cliente_id')->nullable();
             $table->unsignedBigInteger('zona_id');
             $table->unsignedBigInteger('mesa_id');
+            $table->double('subtotal', 10, 2);
+            $table->double('igv', 10, 2);
+            $table->double('total_general', 10, 2);
             $table->enum('estado', ['Abierta', 'Procesando', 'Completada', 'Cancelada'])->default('Abierta');
             $table->enum('estado_pago', ['Pendiente', 'Pagada'])->default('Pendiente');
             $table->timestamps();
