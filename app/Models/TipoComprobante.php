@@ -24,9 +24,4 @@ class TipoComprobante extends Model
     {
         return $this->hasMany(OrdenCompra::class);
     }
-
-    public function ventas(): HasMany
-    {
-        return $this->hasMany(Venta::class);
-    }
 }

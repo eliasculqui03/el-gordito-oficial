@@ -505,17 +505,17 @@
                                             class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                                             Tipo de Comprobante
                                         </label>
-                                        <select id="tipo-comprobante" wire:model="tipoComprobanteSeleccionado"
+                                        <select id="tipo-comprobante" wire:model.live="tipoComprobanteSeleccionado"
                                             {{ !$clienteEncontrado ? 'disabled' : '' }}
                                             class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
-                                            <option value="" selected>Seleccione comprobante
-                                            </option>
+                                            <option value="" selected>Seleccione comprobante</option>
                                             @foreach ($tipoComprobantes as $comprobante)
                                                 <option value="{{ $comprobante->codigo }}">
                                                     {{ $comprobante->descripcion }}</option>
                                             @endforeach
                                         </select>
                                     </div>
+
                                     <!-- Serie -->
                                     <div>
                                         <label for="serie-comprobante"
@@ -556,7 +556,7 @@
                                             class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                                             Moneda
                                         </label>
-                                        <select id="moneda" wire:model='monedaSelecionada'
+                                        <select id="moneda" wire:model.live='monedaSelecionada'
                                             {{ !$clienteEncontrado ? 'disabled' : '' }}
                                             class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
                                             <option value="" selected>Seleccione moneda
@@ -574,7 +574,7 @@
                                             class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                                             Forma de Pago
                                         </label>
-                                        <select id="forma-pago" wire:model="formaPago"
+                                        <select id="forma-pago" wire:model.live="formaPago"
                                             {{ !$clienteEncontrado ? 'disabled' : '' }}
                                             class="block w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-indigo-600">
                                             <option value="" selected>Seleccione
@@ -663,7 +663,7 @@
                                 <!-- Botones de acción -->
                                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                                     <!-- Botón para solo guardar pedido -->
-                                    <button wire:click="guardarComanda"
+                                    <button wire:click="guardarPedido"
                                         class="flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
                                             viewBox="0 0 20 20" fill="currentColor">

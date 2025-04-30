@@ -9,6 +9,7 @@ use App\Models\Cliente;
 use App\Models\Comanda;
 use App\Models\ComandaExistencia;
 use App\Models\ComandaPlato;
+use App\Models\ComprobantePago;
 use App\Models\DisponibilidadPlato;
 use App\Models\Empresa;
 use App\Models\Existencia;
@@ -187,12 +188,17 @@ class GestionVentas extends Component
 
     public function calcularNumeroPedido()
     {
-        $totalComandas = Comanda::count();
+        // Obtener la última comanda creada
+        $ultimaComanda = Comanda::orderBy('id', 'desc')->first();
 
+        // Si existe al menos una comanda, tomar su ID y sumar 1
+        // De lo contrario, comenzar desde 1
+        $proximoNumero = $ultimaComanda ? $ultimaComanda->id + 1 : 1;
 
-        $proximoNumero = $totalComandas + 1;
-
+        // Formatear el número con ceros a la izquierda
         $this->numeroPedido = str_pad($proximoNumero, 6, '0', STR_PAD_LEFT);
+
+        return $this->numeroPedido;
     }
 
 
@@ -367,6 +373,8 @@ class GestionVentas extends Component
             $primeraLetra = substr($comprobante->descripcion, 0, 1);
             // Formatear la serie con la letra y el ID de la caja
             $this->serieComprobante = $primeraLetra . '00' . ($this->caja->id ?? '');
+        } else {
+            $this->serieComprobante = '';
         }
     }
 
@@ -775,6 +783,14 @@ class GestionVentas extends Component
     }
 
 
+    public function guardarPedido()
+    {
+
+        $resultado = $this->guardarComanda();
+        if ($resultado !== false) {
+            $this->limpiarGeneral();
+        }
+    }
 
     public function guardarComanda()
     {
@@ -785,7 +801,8 @@ class GestionVentas extends Component
                 ->body('Debe agregar al menos un plato o existencia a la comanda.')
                 ->danger()
                 ->send();
-            return;
+
+            return false;
         }
 
         // Validar que si hay platos para mesa, debe tener mesa asignada
@@ -797,7 +814,8 @@ class GestionVentas extends Component
                 ->body('Debe seleccionar una mesa y zona para los platos servidos en mesa.')
                 ->danger()
                 ->send();
-            return;
+
+            return false;
         }
 
         // Validar cliente (obligatorio)
@@ -807,7 +825,8 @@ class GestionVentas extends Component
                 ->body('Debe ingresar un cliente para la comanda.')
                 ->danger()
                 ->send();
-            return;
+
+            return false;
         }
 
         // NUEVA VALIDACIÓN: Verificar que la mesa esté libre si se está asignando una
@@ -819,7 +838,8 @@ class GestionVentas extends Component
                     ->body('La mesa seleccionada no existe.')
                     ->danger()
                     ->send();
-                return;
+
+                return false;
             }
 
             if ($mesa->estado != 'Libre') {
@@ -828,7 +848,8 @@ class GestionVentas extends Component
                     ->body('La mesa seleccionada no está libre actualmente.')
                     ->danger()
                     ->send();
-                return;
+
+                return false;
             }
         }
 
@@ -875,7 +896,8 @@ class GestionVentas extends Component
                 ->body('Los siguientes platos no están disponibles: ' . implode(', ', $platosNoDisponibles))
                 ->danger()
                 ->send();
-            return;
+
+            return false;
         }
 
         // NUEVA VALIDACIÓN: Verificar stock de existencias
@@ -910,7 +932,8 @@ class GestionVentas extends Component
                 ->body('Las siguientes existencias no tienen stock suficiente: ' . implode(', ', $existenciasSinStock))
                 ->danger()
                 ->send();
-            return;
+
+            return false;
         }
 
         try {
@@ -1006,23 +1029,14 @@ class GestionVentas extends Component
             }
 
             DB::commit();
-
-            // Limpiar los arrays después de guardar
-            $this->platosComanda = [];
-            $this->existenciasComanda = [];
-            $this->calcularTotales();
-
-            // Limpiar otros campos
-            $this->limpiarCliente();
-            $this->limpiarMesaZona();
-
             Notification::make()
                 ->title('Comanda guardada')
                 ->body('La comanda ha sido guardada exitosamente con número: ' . $this->numeroPedido)
                 ->success()
                 ->send();
 
-            $this->calcularNumeroPedido();
+            // Retornar el ID de la comanda creada
+            return $comanda->id;
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -1031,10 +1045,26 @@ class GestionVentas extends Component
                 ->body('Ocurrió un error al guardar la comanda: ' . $e->getMessage())
                 ->danger()
                 ->send();
+
+            return false;
         }
     }
 
 
+    public function limpiarGeneral()
+    {
+
+
+        // Limpiar los arrays después de guardar
+        $this->platosComanda = [];
+        $this->existenciasComanda = [];
+        $this->calcularTotales();
+
+        // Limpiar otros campos
+        $this->limpiarCliente();
+        $this->limpiarMesaZona();
+        $this->calcularNumeroPedido();
+    }
     //================================VENTAS=====================================
 
 
@@ -1045,86 +1075,35 @@ class GestionVentas extends Component
     public $monedaSelecionada;
     public $formaPago;
 
+
+
     public function guardarComandaComprobante()
     {
-        // Validar que haya al menos un producto o plato
-        if (count($this->platosComanda) == 0 && count($this->existenciasComanda) == 0) {
+        // Generar serie y correlativo
+        $num = $this->calcularNumeroPedido();
+        $nroComprobante = $this->serieComprobante . '-' . $num;
+
+        // Obtener el ID de la comanda
+        $comandaId = $this->guardarComanda();
+        if ($comandaId == false) {
             Notification::make()
-                ->title('Error al guardar')
-                ->body('Debe agregar al menos un plato o existencia a la comanda.')
+                ->title('Error')
+                ->body('No se pudo guardar la comanda')
                 ->danger()
+                ->duration(5000)
                 ->send();
             return;
         }
 
-        // Validar que si hay platos para mesa, debe tener mesa asignada
-        $tienePlatosParaMesa = collect($this->platosComanda)->where('es_llevar', false)->count() > 0;
+        // Recuperar serie y número del comprobante (lo movemos aquí para usarlo en ambas ramas)
+        $serieNumero = explode('-', $nroComprobante);
+        $serie = $serieNumero[0] ?? '';
+        $numero = $serieNumero[1] ?? '';
 
-        if ($tienePlatosParaMesa && (empty($this->id_mesa) || empty($this->id_zona))) {
-            Notification::make()
-                ->title('Error de validación')
-                ->body('Debe seleccionar una mesa y zona para los platos servidos en mesa.')
-                ->danger()
-                ->send();
-            return;
-        }
-
-        // Validar cliente (obligatorio)
-        if (!$this->id_cliente) {
-            Notification::make()
-                ->title('Error de validación')
-                ->body('Debe seleccionar un cliente para la comanda.')
-                ->danger()
-                ->send();
-            return;
-        }
-
-        try {
-            // Crear la comanda utilizando el modelo Comanda
-            // $comanda = new Comanda();
-            // $comanda->cliente_id = $this->id_cliente;
-            // $comanda->zona_id = $this->id_zona ?: null;
-            // $comanda->mesa_id = $this->id_mesa ?: null;
-            // $comanda->save();
-
-            // // Guardar los platos utilizando el modelo ComandaPlato
-            // foreach ($this->platosComanda as $plato) {
-            //     $comandaPlato = new ComandaPlato();
-            //     $comandaPlato->comanda_id = $comanda->id;
-            //     $comandaPlato->plato_id = $plato['id'];
-            //     $comandaPlato->cantidad = $plato['cantidad'];
-            //     $comandaPlato->subtotal = $plato['subtotal'];
-            //     $comandaPlato->llevar = $plato['es_llevar'];
-            //     $comandaPlato->save();
-            // }
-
-            // // Guardar las existencias utilizando el modelo ComandaExistencia
-            // foreach ($this->existenciasComanda as $existencia) {
-            //     $comandaExistencia = new ComandaExistencia();
-            //     $comandaExistencia->comanda_id = $comanda->id;
-            //     $comandaExistencia->existencia_id = $existencia['id'];
-            //     $comandaExistencia->cantidad = $existencia['cantidad'];
-            //     $comandaExistencia->subtotal = $existencia['subtotal'];
-            //     $comandaExistencia->helado = $existencia['es_helado'];
-            //     $comandaExistencia->save();
-            // }
-
-            // Calcular nuevo número de pedido
-            Notification::make()
-                ->title('Comanda guardada')
-                ->body('La comanda ha sido guardada exitosamente con número: ' . $this->numeroPedido)
-                ->success()
-                ->send();
-
-            $this->calcularNumeroPedido();
-
+        if ($this->tipoComprobanteSeleccionado != 00) {
             // Obtener información de la empresa
             $empresa = Empresa::first();
             $cliente = Cliente::find($this->id_cliente);
-
-            // Generar serie y correlativo
-
-            $nroComprobante = $this->serieComprobante . '-' . $this->numeroPedido;
 
             // Calcular valores de factura
             $subtotal = $this->subtotalGeneral;
@@ -1137,7 +1116,6 @@ class GestionVentas extends Component
 
             // Agregar platos al detalle de factura
             foreach ($this->platosComanda as $plato) {
-
                 $totalSinigv = $plato['cantidad'] * $plato['precio_unitario'];
                 $detalleFactura[] = [
                     "txtITEM" => (string)$item,
@@ -1162,7 +1140,6 @@ class GestionVentas extends Component
 
             // Agregar existencias al detalle de factura
             foreach ($this->existenciasComanda as $existencia) {
-
                 $totalSinigv = round($existencia['cantidad'] * $existencia['precio_unitario']);
 
                 $detalleFactura[] = [
@@ -1232,11 +1209,6 @@ class GestionVentas extends Component
                 "detalle" => $detalleFactura
             ];
 
-            // Guardar el JSON en la base de datos o enviar a API
-
-
-            dd($datos);
-
             // Enviar el JSON a la API de facturación
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer 5|BSz4NaMp677HJ7gtOSHaL4hht6UzNluLBtsothM3',
@@ -1247,99 +1219,213 @@ class GestionVentas extends Component
             if ($response->successful()) {
                 $responseData = $response->json();
 
-                // Verificar si contiene la URL del XML CPE
-                if (isset($responseData['xml_cpe'])) {
-                    // Hacer la solicitud GET para obtener el XML
-                    $xmlResponse = Http::withHeaders([
+                // Extraer los datos de respuesta
+                $hashCpe = $responseData['hash_cpe'] ?? null;
+                $codSunat = $responseData['cod_sunat'] ?? null;
+                $msjSunat = $responseData['msj_sunat'] ?? null;
+                $hashCdr = $responseData['hash_cdr'] ?? null;
+                $xmlCpeUrl = $responseData['xml_cpe'] ?? null;
+                $xmlCdrUrl = $responseData['xml_cdr'] ?? null;
+
+                // Variables para almacenar el contenido de los XML
+                $xmlCpeContent = null;
+                $xmlCdrContent = null;
+
+                // Obtener el contenido del XML CPE
+                if ($xmlCpeUrl) {
+                    $xmlCpeResponse = Http::withHeaders([
                         'Authorization' => 'Bearer 5|BSz4NaMp677HJ7gtOSHaL4hht6UzNluLBtsothM3'
-                    ])->get($responseData['xml_cpe']);
+                    ])->get($xmlCpeUrl);
 
-                    // Guardar el XML en una variable
-                    $xmlContent = $xmlResponse->body();
-
-                    // Mostrar el XML con dd()
-                    dd($xmlContent);
-                } else {
-                    dd('No se encontró la URL del XML en la respuesta', $responseData);
+                    if ($xmlCpeResponse->successful()) {
+                        $xmlCpeContent = $xmlCpeResponse->body();
+                    }
                 }
-            } else {
-                dd('Error en la solicitud a la API', $response->status(), $response->body());
-            }
-            // Aquí puedes guardar este JSON en un campo de tu tabla Comanda o enviarlo a tu API de facturación
-            // $comanda->json_factura = $jsonData;
-            // $comanda->save();
 
-            // Aquí podrías hacer una llamada a API para enviar la factura electrónica con el JSON
-            // $response = Http::post('URL_DE_TU_API_FACTURACION', $datos);
+                // Obtener el contenido del XML CDR
+                if ($xmlCdrUrl) {
+                    $xmlCdrResponse = Http::withHeaders([
+                        'Authorization' => 'Bearer 5|BSz4NaMp677HJ7gtOSHaL4hht6UzNluLBtsothM3'
+                    ])->get($xmlCdrUrl);
 
-            // Validar que exista una sesión de caja activa
-            if (!$this->sesionCajaId) {
-                // Intentar encontrar la sesión activa
-                $sesionCaja = \App\Models\SesionCaja::where('caja_id', $this->cajaId)
-                    ->where('estado', true)
-                    ->latest()
-                    ->first();
+                    if ($xmlCdrResponse->successful()) {
+                        $xmlCdrContent = $xmlCdrResponse->body();
+                    }
+                }
 
-                if ($sesionCaja) {
-                    $this->sesionCajaId = $sesionCaja->id;
-                } else {
-                    // No hay sesión activa, mostrar error con Filament
+                $tipoComprobanteId = $this->obtenerTipoComprobanteId($this->tipoComprobanteSeleccionado);
+
+                // Crear el registro del comprobante en la base de datos
+                try {
+                    $comprobante = ComprobantePago::create([
+                        'tipo_comprobante_id' => $tipoComprobanteId,
+                        'serie' => $serie,
+                        'numero' => $numero,
+                        'cliente_id' => $this->id_cliente,
+                        'comanda_id' => $comandaId,
+                        'moneda' => $this->monedaSelecionada,
+                        'medio_pago' => $this->formaPago,
+                        'hash_cpe' => $hashCpe,
+                        'hash_cdr' => $hashCdr,
+                        'xml_cpe' => $xmlCpeContent,
+                        'xml_cdr' => $xmlCdrContent,
+                        'user_id' => Auth::id(),
+                        'caja_id' => $this->cajaId,
+                        'observaciones' => "Codigo: " . $codSunat . " " . $msjSunat,
+                    ]);
+
+                    // Notificar éxito
                     Notification::make()
-                        ->title('Error al registrar movimiento')
-                        ->body('No hay una sesión de caja activa. Por favor, abra la caja primero.')
+                        ->title('Facturación exitosa')
+                        ->body($msjSunat ?? 'El comprobante ha sido procesado correctamente')
+                        ->success()
+                        ->duration(5000)
+                        ->send();
+                } catch (\Exception $e) {
+                    // En caso de error al guardar en la base de datos
+                    Notification::make()
+                        ->title('Error al guardar el comprobante')
+                        ->body('Ocurrió un error al guardar el comprobante: ' . $e->getMessage())
                         ->danger()
                         ->duration(5000)
                         ->send();
+
                     return;
                 }
-            }
-
-            // Validar el monto con notificación Filament
-            if ($this->totalGeneral <= 0) {
+            } else {
+                // Error en la API de facturación
                 Notification::make()
-                    ->title('Monto inválido')
-                    ->body('El monto debe ser mayor a cero.')
-                    ->warning()
-                    ->duration(4000)
+                    ->title('Error en facturación electrónica')
+                    ->body('No se pudo conectar con el servicio de facturación: ' . ($response->body() ?? 'Error desconocido'))
+                    ->danger()
+                    ->duration(5000)
+                    ->send();
+
+                return;
+            }
+        } else {
+            // Guardar comprobante interno sin facturación electrónica
+            try {
+                // Buscamos el ID del tipo de comprobante (nota de venta o interno, código 00)
+                $tipoComprobanteId = $this->obtenerTipoComprobanteId('00');
+
+                if (!$tipoComprobanteId) {
+                    // Si no existe, intentar crearlo o usar un valor por defecto
+                    // Puedes ajustar esto según tu lógica de negocio
+                    $tipoComprobante = TipoComprobante::where('tipo', '00')
+                        ->orWhere('nombre', 'NOTA DE VENTA')
+                        ->orWhere('nombre', 'COMPROBANTE INTERNO')
+                        ->first();
+
+                    if ($tipoComprobante) {
+                        $tipoComprobanteId = $tipoComprobante->id;
+                    } else {
+                        // Si no existe ningún tipo de comprobante compatible, puedes:
+                        // 1. Crear uno nuevo (no implementado aquí)
+                        // 2. Usar un valor por defecto (implementado abajo)
+                        $tipoComprobanteId = 1; // Ajustar según tu base de datos
+
+                        Notification::make()
+                            ->title('Advertencia')
+                            ->body('No se encontró el tipo de comprobante interno. Se usará un valor por defecto.')
+                            ->warning()
+                            ->duration(5000)
+                            ->send();
+                    }
+                }
+
+                // Crear el comprobante sin datos de facturación electrónica
+                $comprobante = ComprobantePago::create([
+                    'tipo_comprobante_id' => $tipoComprobanteId,
+                    'serie' => $serie,
+                    'numero' => $numero,
+                    'cliente_id' => $this->id_cliente,
+                    'comanda_id' => $comandaId,
+                    'moneda' => $this->monedaSelecionada,
+                    'medio_pago' => $this->formaPago,
+                    'hash_cpe' => null,
+                    'hash_cdr' => null,
+                    'xml_cpe' => null,
+                    'xml_cdr' => null,
+                    'user_id' => Auth::id(),
+                    'caja_id' => $this->cajaId,
+                    'observaciones' => "Comprobante interno sin facturación electrónica",
+                ]);
+
+                // Notificar éxito
+                Notification::make()
+                    ->title('Comprobante interno registrado')
+                    ->body('El comprobante interno ha sido registrado correctamente')
+                    ->success()
+                    ->duration(5000)
+                    ->send();
+            } catch (\Exception $e) {
+                // En caso de error al guardar en la base de datos
+                Notification::make()
+                    ->title('Error al guardar el comprobante interno')
+                    ->body('Ocurrió un error al guardar el comprobante: ' . $e->getMessage())
+                    ->danger()
+                    ->duration(5000)
+                    ->send();
+
+                return;
+            }
+        }
+
+        // Validar que exista una sesión de caja activa
+        if (!$this->sesionCajaId) {
+            // Intentar encontrar la sesión activa
+            $sesionCaja = SesionCaja::where('caja_id', $this->cajaId)
+                ->where('estado', true)
+                ->latest()
+                ->first();
+
+            if ($sesionCaja) {
+                $this->sesionCajaId = $sesionCaja->id;
+            } else {
+                // No hay sesión activa, mostrar error con Filament
+                Notification::make()
+                    ->title('Error al registrar movimiento')
+                    ->body('No hay una sesión de caja activa. Por favor, abra la caja primero.')
+                    ->danger()
+                    ->duration(5000)
                     ->send();
                 return;
             }
+        }
 
-            // Crear el movimiento
-            MovimientoCaja::create([
-                'user_id' => \Illuminate\Support\Facades\Auth::id(),
-                'sesion_caja_id' => $this->sesionCajaId,
-                'tipo_transaccion' => 'Ingreso',
-                'motivo' => 'Venta',
-                'monto' => $this->totalGeneral,
-                'descripcion' => 'Factura: ' . $nroComprobante,
-            ]);
-
-            $mensaje = 'Se ha vendido S/. ' . number_format($this->totalGeneral, 2) . ' por concepto de venta. Factura: ' . $nroComprobante;
-
-            // Mostrar notificación de éxito
-            \Filament\Notifications\Notification::make()
-                ->title('Movimiento registrado')
-                ->body($mensaje)
-                ->success()
+        // Validar el monto con notificación Filament
+        if ($this->totalGeneral <= 0) {
+            Notification::make()
+                ->title('Monto inválido')
+                ->body('El monto debe ser mayor a cero.')
+                ->warning()
                 ->duration(4000)
                 ->send();
-
-            // Limpiar los arrays después de guardar
-            $this->platosComanda = [];
-            $this->existenciasComanda = [];
-            $this->calcularTotales();
-
-            // Limpiar otros campos
-            $this->limpiarCliente();
-            $this->limpiarMesaZona();
-        } catch (\Exception $e) {
-            Notification::make()
-                ->title('Error al guardar')
-                ->body('Ocurrió un error al guardar la comanda: ' . $e->getMessage())
-                ->danger()
-                ->send();
+            return;
         }
+
+        // Crear el movimiento
+        MovimientoCaja::create([
+            'user_id' => Auth::id(),
+            'sesion_caja_id' => $this->sesionCajaId,
+            'tipo_transaccion' => 'Ingreso',
+            'motivo' => 'Venta',
+            'monto' => $this->totalGeneral,
+            'descripcion' => 'Factura: ' . $nroComprobante,
+        ]);
+
+        $mensaje = 'Se ha vendido S/. ' . number_format($this->totalGeneral, 2) . ' por concepto de venta. Factura: ' . $nroComprobante;
+
+        // Mostrar notificación de éxito
+        Notification::make()
+            ->title('Movimiento registrado')
+            ->body($mensaje)
+            ->success()
+            ->duration(4000)
+            ->send();
+
+        $this->limpiarGeneral();
     }
 
     /**
@@ -1358,7 +1444,9 @@ class GestionVentas extends Component
         return $texto;
     }
 
-    /**
-     * Obtiene el siguiente número de correlativo para la factura
-     */
+    private function obtenerTipoComprobanteId($tipoComprobante)
+    {
+        $tipo = TipoComprobante::where('codigo', $tipoComprobante)->first();
+        return $tipo ? $tipo->id : null;
+    }
 }
