@@ -46,8 +46,8 @@ class Comanda extends Model
         return $this->hasMany(ComandaPlato::class);
     }
 
-    public function ventas(): HasMany
+    public function comprobantePago(): HasMany
     {
-        return $this->hasMany(ComprobantePago::class);
+        return $this->hasMany(comprobantePago::class);
     }
 }

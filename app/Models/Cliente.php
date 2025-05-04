@@ -31,8 +31,9 @@ class Cliente extends Model
         return $this->belongsTo(TipoDocumento::class);
     }
 
-    public function ventas(): HasMany
+
+    public function comprobantePago(): HasMany
     {
-        return $this->hasMany(Venta::class);
+        return $this->hasMany(comprobantePago::class);
     }
 }

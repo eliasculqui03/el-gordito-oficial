@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\ImprimirComprobante;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,3 +14,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+Route::get('/comprobante-imprimir/{id}', ImprimirComprobante::class)->name('imprimir.comprobante');

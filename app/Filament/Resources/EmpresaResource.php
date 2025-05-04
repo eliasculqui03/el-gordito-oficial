@@ -19,6 +19,12 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EmpresaResource extends Resource
 {
+    public static function canCreate(): bool
+    {
+        // Si existe al menos una empresa en la BD, no permitir crear más.
+        return !Empresa::exists();
+    }
+
     protected static ?string $model = Empresa::class;
 
     protected static ?string $navigationGroup = 'Empresa';

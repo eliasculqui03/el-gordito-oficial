@@ -46,4 +46,9 @@ class Caja extends Model
     {
         return $this->hasMany(MovimientoCaja::class);
     }
+
+    public function comprobantePago(): HasMany
+    {
+        return $this->hasMany(comprobantePago::class);
+    }
 }
