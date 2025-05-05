@@ -176,7 +176,6 @@ return [
 
     'pages' => [
         PanelMesas::class,
-        PanelComandas::class,
     ],
 
 ];

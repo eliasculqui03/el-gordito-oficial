@@ -7,7 +7,7 @@ use Livewire\Component;
 use SimpleXMLElement;
 use Exception;
 use Endroid\QrCode\QrCode;
-use Endroid\QrCode\Writer\PngWriter; // Import QR Code facade
+use Endroid\QrCode\Writer\PngWriter;
 
 class ImprimirComprobante extends Component
 {
@@ -16,15 +16,47 @@ class ImprimirComprobante extends Component
     public $datosXml = [];
     public $loading = true;
     public $error = null;
-    public $qrCode = null; // Add property for QR code
+    public $qrCode = null;
+    public $mostrarModal = false; // Para controlar la visibilidad del modal
 
-    public function mount($id)
+    protected $listeners = ['abrirModalImprimir' => 'abrirModal']; // Escuchar el evento
+
+    // Método para abrir el modal
+    public function abrirModal($id)
     {
         $this->comprobanteId = $id;
+        $this->cargarDatos();
+        $this->mostrarModal = true;
+    }
+
+    // Método para cerrar el modal
+    public function cerrarModal()
+    {
+        $this->mostrarModal = false;
+    }
+
+    public function mount($id = null)
+    {
+        $this->comprobanteId = $id;
+
+        // Si hay un ID válido al montar y no es un modal, cargar datos
+        if ($id && $id > 0) {
+            $this->cargarDatos();
+        } else {
+            // Si no hay ID al inicio, solo marcamos que no está cargando
+            $this->loading = false;
+        }
+    }
+
+    public function cargarDatos()
+    {
+        $this->loading = true;
+        $this->error = null;
+
         try {
             $this->cargarComprobante();
             $this->procesarXml();
-            $this->generarQrCode(); // Generate QR code after processing XML
+            $this->generarQrCode();
             $this->loading = false;
         } catch (Exception $e) {
             $this->error = "Error al cargar el comprobante: " . $e->getMessage();
@@ -85,11 +117,6 @@ class ImprimirComprobante extends Component
         }
     }
 
-    /**
-     * Genera el código QR según estándar SUNAT
-     */
-
-
     protected function generarQrCode()
     {
         if (!isset($this->datosXml['error']) && isset($this->datosXml['emisor_ruc'])) {
@@ -120,12 +147,6 @@ class ImprimirComprobante extends Component
         }
     }
 
-    /**
-     * Verifica si el XML es válido
-     *
-     * @param string $xml
-     * @return bool
-     */
     protected function esXmlValido($xml)
     {
         libxml_use_internal_errors(true);
@@ -136,13 +157,6 @@ class ImprimirComprobante extends Component
         return $doc !== false && empty($errors);
     }
 
-    /**
-     * Extrae los datos básicos del comprobante
-     *
-     * @param SimpleXMLElement $xmlObj
-     * @param array $namespaces
-     * @return array
-     */
     protected function extraerDatosBasicos($xmlObj, $namespaces)
     {
         $cbcNS = $namespaces['cbc'];
@@ -183,28 +197,12 @@ class ImprimirComprobante extends Component
         ];
     }
 
-    /**
-     * Obtiene un valor específico del XML
-     *
-     * @param SimpleXMLElement $xmlObj
-     * @param string $namespace
-     * @param string $tag
-     * @return string
-     */
     protected function obtenerValorXml($xmlObj, $namespace, $tag)
     {
         return isset($xmlObj->children($namespace)->{$tag}) ?
             (string)$xmlObj->children($namespace)->{$tag} : '';
     }
 
-    /**
-     * Obtiene un valor específico del emisor
-     *
-     * @param SimpleXMLElement $xmlObj
-     * @param array $namespaces
-     * @param string $tag
-     * @return string
-     */
     protected function obtenerValorEmisor($xmlObj, $namespaces, $tag)
     {
         $cbcNS = $namespaces['cbc'];
@@ -219,13 +217,6 @@ class ImprimirComprobante extends Component
         return '';
     }
 
-    /**
-     * Obtiene el nombre comercial del emisor
-     *
-     * @param SimpleXMLElement $xmlObj
-     * @param array $namespaces
-     * @return string
-     */
     protected function obtenerNombreComercial($xmlObj, $namespaces)
     {
         $cbcNS = $namespaces['cbc'];
@@ -238,13 +229,6 @@ class ImprimirComprobante extends Component
         return '';
     }
 
-    /**
-     * Obtiene la dirección del emisor
-     *
-     * @param SimpleXMLElement $xmlObj
-     * @param array $namespaces
-     * @return string
-     */
     protected function obtenerDireccionEmisor($xmlObj, $namespaces)
     {
         $cbcNS = $namespaces['cbc'];
@@ -257,14 +241,6 @@ class ImprimirComprobante extends Component
         return '';
     }
 
-    /**
-     * Obtiene un valor específico de la dirección del emisor
-     *
-     * @param SimpleXMLElement $xmlObj
-     * @param array $namespaces
-     * @param string $tag
-     * @return string
-     */
     protected function obtenerValorDireccionEmisor($xmlObj, $namespaces, $tag)
     {
         $cbcNS = $namespaces['cbc'];
@@ -277,14 +253,6 @@ class ImprimirComprobante extends Component
         return '';
     }
 
-    /**
-     * Obtiene un valor específico del cliente
-     *
-     * @param SimpleXMLElement $xmlObj
-     * @param array $namespaces
-     * @param string $tag
-     * @return string
-     */
     protected function obtenerValorCliente($xmlObj, $namespaces, $tag)
     {
         $cbcNS = $namespaces['cbc'];
@@ -299,13 +267,6 @@ class ImprimirComprobante extends Component
         return '';
     }
 
-    /**
-     * Obtiene la dirección del cliente
-     *
-     * @param SimpleXMLElement $xmlObj
-     * @param array $namespaces
-     * @return string
-     */
     protected function obtenerDireccionCliente($xmlObj, $namespaces)
     {
         $cbcNS = $namespaces['cbc'];
@@ -318,14 +279,6 @@ class ImprimirComprobante extends Component
         return '';
     }
 
-    /**
-     * Obtiene un valor específico del total
-     *
-     * @param SimpleXMLElement $xmlObj
-     * @param array $namespaces
-     * @param string $tag
-     * @return string
-     */
     protected function obtenerValorTotal($xmlObj, $namespaces, $tag)
     {
         $cbcNS = $namespaces['cbc'];
@@ -338,13 +291,6 @@ class ImprimirComprobante extends Component
         return '0.00';
     }
 
-    /**
-     * Obtiene el valor del IGV
-     *
-     * @param SimpleXMLElement $xmlObj
-     * @param array $namespaces
-     * @return string
-     */
     protected function obtenerValorIGV($xmlObj, $namespaces)
     {
         $cbcNS = $namespaces['cbc'];
@@ -357,13 +303,6 @@ class ImprimirComprobante extends Component
         return '0.00';
     }
 
-    /**
-     * Obtiene la forma de pago
-     *
-     * @param SimpleXMLElement $xmlObj
-     * @param array $namespaces
-     * @return string
-     */
     protected function obtenerFormaPago($xmlObj, $namespaces)
     {
         $cbcNS = $namespaces['cbc'];
@@ -376,12 +315,6 @@ class ImprimirComprobante extends Component
         return 'Contado';
     }
 
-    /**
-     * Extrae los detalles de los items
-     *
-     * @param SimpleXMLElement $xmlObj
-     * @param array $namespaces
-     */
     protected function extraerDetallesItems($xmlObj, $namespaces)
     {
         $cbcNS = $namespaces['cbc'];
@@ -419,30 +352,24 @@ class ImprimirComprobante extends Component
         }
     }
 
-    /**
-     * Imprime el ticket
-     */
     public function imprimir()
     {
-        $this->dispatch('imprimirTicket');
-    }
+        try {
+            // Nos aseguramos de que los datos estén cargados
+            if (empty($this->datosXml) || isset($this->datosXml['error'])) {
+                throw new Exception("No hay datos para imprimir");
+            }
 
-    /**
-     * Descarga el XML del comprobante
-     */
-    public function descargarXml()
-    {
-        if (!empty($this->comprobante->xml_cpe)) {
-            $this->dispatch('descargarXml', [
-                'xml' => $this->comprobante->xml_cpe,
-                'filename' => $this->datosXml['serie_numero'] . '.xml'
-            ]);
+            // Aquí simplemente disparamos un evento de JavaScript
+            $this->dispatch('imprimirComprobante');
+
+            return true;
+        } catch (Exception $e) {
+            $this->error = "Error al imprimir: " . $e->getMessage();
+            return false;
         }
     }
 
-    /**
-     * Renderiza la vista
-     */
     public function render()
     {
         return view('livewire.imprimir-comprobante');

@@ -3,15 +3,12 @@
 namespace App\Livewire;
 
 use App\Models\ComprobantePago;
-use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class Ventas extends Component
+class ListaComprobantes extends Component
 {
-
     use WithPagination;
-
 
     public $search = '';
 
@@ -22,7 +19,10 @@ class Ventas extends Component
         }
     }
 
-
+    public function abrirModalImprimir($id)
+    {
+        $this->dispatch('abrirModalImprimir', $id);
+    }
 
     public function render()
     {
@@ -34,16 +34,13 @@ class Ventas extends Component
                         $query->where('nombre', 'like', "%{$search}%");
                     })
                         ->orWhere('serie', 'like', "%{$search}%")
-                        ->orWhere('numero', 'like', "%{$search}%")
-                        ->orWhereHas('comanda', function ($query) use ($search) {
-                            $query->where('numero', 'like', "%{$search}%");
-                        });
+                        ->orWhere('numero', 'like', "%{$search}%");
                 });
             })
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('livewire.ventas', [
+        return view('livewire.lista-comprobantes', [
             'comprobantes' => $comprobantes
         ]);
     }

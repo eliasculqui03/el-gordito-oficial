@@ -14,5 +14,4 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 Route::get('/comprobante-imprimir/{id}', ImprimirComprobante::class)->name('imprimir.comprobante');

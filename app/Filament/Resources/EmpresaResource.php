@@ -66,6 +66,13 @@ class EmpresaResource extends Resource
                                             ->label('N.° de decreto')
                                             ->maxLength(255)
                                             ->default(null),
+
+                                        Forms\Components\TextInput::make('email')
+                                            ->label('Correo ')
+                                            ->placeholder('example@email.com')
+                                            ->email()
+                                            ->maxLength(255)
+                                            ->default(null),
                                         Forms\Components\FileUpload::make('logo')
                                             ->image()
                                             ->imageEditor()
@@ -75,31 +82,37 @@ class EmpresaResource extends Resource
                                                 '16:9',
                                                 '4:3',
                                                 '1:1',
-                                            ]),
+                                            ])
+                                            ->columnSpanFull(),
                                     ])->columns(2)
                                     ->columnSpan(2),
 
                                 Section::make('Información detallada')
 
                                     ->schema([
-                                        Forms\Components\TextInput::make('email')
-                                            ->label('Correo ')
-                                            ->placeholder('example@email.com')
-                                            ->email()
-                                            ->maxLength(255)
-                                            ->default(null),
+
                                         Forms\Components\TextInput::make('telefono')
                                             ->label('N.° de teléfono')
                                             ->tel()
                                             ->maxLength(255)
                                             ->default(null),
-                                        Forms\Components\TextInput::make('direccion')
-                                            ->label('Dirección')
-                                            ->maxLength(255)
-                                            ->default(null),
                                         Forms\Components\TextInput::make('moneda')
                                             ->maxLength(255)
                                             ->default(null),
+                                        Forms\Components\TextInput::make('direccion')
+                                            ->label('Dirección')
+                                            ->required()
+                                            ->maxLength(255)
+                                            ->columnSpanFull(),
+                                        Forms\Components\TextInput::make('distrito')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('provincia')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('departamento')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('ubigeo')
+                                            ->required()
+                                            ->maxLength(8),
                                         Forms\Components\Textarea::make('mision')
                                             ->label('Misión')
                                             ->columnSpanFull(),
