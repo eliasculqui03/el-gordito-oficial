@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Comprobante {{ $comprobante->serie }}-{{ $comprobante->numero }}</title>
     <style>
         /* Reset y estilos base optimizados para ticketera */
@@ -14,138 +15,220 @@
         }
 
         body {
-            font-family: monospace;
-            /* Fuente monoespaciada para mejor compatibilidad con ticketeras */
+            font-family: 'Courier New', monospace;
             font-size: 10px;
-            line-height: 1.2;
+            line-height: 1.3;
             color: #000;
             background: #fff;
             width: 72mm;
-            /* Ancho estándar para ticketeras */
-            margin: 0 auto;
+            text-align: left;
+            /* Alineación global a la izquierda */
         }
 
         /* Contenedor principal */
         .ticket {
             width: 100%;
-            padding: 2mm;
+            padding: 3mm 2mm;
+            max-width: 300px;
+            margin: 0 auto;
+            text-align: left;
         }
 
-        /* Encabezado */
-        .header {
+        /* Solo estos elementos específicos se mantienen centrados */
+        .header-centered {
+            text-align: center;
+        }
+
+        .company-logo {
             text-align: center;
             margin-bottom: 5px;
-            padding-bottom: 5px;
-            border-bottom: 1px dotted #000;
         }
 
-        .logo {
-            display: none;
-            /* Ocultamos logo para ticketera */
+        .company-logo img {
+            max-width: 120px;
+            height: auto;
         }
 
         .company-name {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
+            text-transform: uppercase;
         }
 
         .company-info {
             font-size: 9px;
-        }
-
-        /* Detalles del comprobante */
-        .invoice-info {
             margin-bottom: 5px;
-            padding-bottom: 3px;
-            border-bottom: 1px dotted #000;
+            line-height: 1.4;
         }
 
-        .invoice-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 2px;
+        .separator {
+            border-top: 1px dashed #000;
+            margin: 6px 0;
         }
 
-        .invoice-label {
+        /* Detalles del comprobante - centrados */
+        .document-type {
+            text-align: center;
             font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 3px;
+            text-transform: uppercase;
         }
 
-        /* Información del cliente */
+        .document-number {
+            text-align: center;
+            font-weight: bold;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        /* Información del cliente - explícitamente a la izquierda */
         .customer-info {
-            margin-bottom: 5px;
-            padding-bottom: 3px;
-            border-bottom: 1px dotted #000;
-        }
-
-        /* Tabla de items */
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 5px;
-        }
-
-        .items-table th {
+            margin-bottom: 8px;
             text-align: left;
-            padding: 2px 0;
-            border-bottom: 1px dotted #000;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 3px;
+            text-align: left;
+        }
+
+        .info-label {
+            font-weight: bold;
+            min-width: 75px;
+            text-align: left;
+        }
+
+        /* Tabla de items - explícitamente a la izquierda */
+        .items-section {
+            text-align: left;
+        }
+
+        .items-header {
+            display: flex;
+            font-weight: bold;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 3px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
             font-size: 9px;
+            text-align: left;
         }
 
-        .items-table td {
-            padding: 2px 0;
-            vertical-align: top;
-            font-size: 9px;
+        .items-header .qty {
+            width: 15%;
+            text-align: left;
         }
 
-        .items-table tr:last-child td {
-            border-bottom: 1px dotted #000;
+        .items-header .desc {
+            width: 55%;
+            padding-left: 5px;
+            text-align: left;
         }
 
-        .item-description {
-            max-width: 30mm;
+        .items-header .total {
+            width: 30%;
+            text-align: right;
+        }
+
+        .item-row {
+            display: flex;
+            margin-bottom: 4px;
+            text-align: left;
+        }
+
+        .item-row .qty {
+            width: 15%;
+            text-align: left;
+        }
+
+        .item-row .desc {
+            width: 55%;
+            padding-left: 5px;
             word-wrap: break-word;
+            text-align: left;
         }
 
-        /* Totales */
+        .item-row .total {
+            width: 30%;
+            text-align: right;
+        }
+
+        /* Totales - explícitamente a la izquierda */
         .totals {
-            margin-top: 5px;
-            margin-left: auto;
-            width: 100%;
+            margin-top: 8px;
+            text-align: left;
         }
 
         .total-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
+            text-align: left;
         }
 
-        .total-label {
+        .total-row span:first-child {
+            text-align: left;
+        }
+
+        .total-row span:last-child {
+            text-align: right;
+        }
+
+        .bold-total {
             font-weight: bold;
+            font-size: 12px;
         }
 
-        .grand-total {
+        /* Forma de pago - explícitamente a la izquierda */
+        .payment-info {
+            margin: 8px 0;
+            text-align: left;
+        }
+
+        /* QR Code - centrado */
+        .qr-container {
+            text-align: center;
+            margin: 12px 0;
+        }
+
+        .qr-title {
             font-weight: bold;
-            font-size: 11px;
-            border-top: 1px dotted #000;
-            padding-top: 3px;
-            margin-top: 3px;
+            font-size: 9px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            text-align: center;
         }
 
-        /* Pie de página */
+        .qr-image {
+            display: inline-block;
+            padding: 5px;
+            border: 1px solid #ccc;
+            background-color: white;
+            border-radius: 4px;
+        }
+
+        .qr-image img {
+            width: 90px;
+            height: 90px;
+        }
+
+        /* Pie de página - centrado */
         .footer {
-            margin-top: 10px;
+            margin-top: 12px;
             text-align: center;
-            font-size: 8px;
-            padding-top: 3px;
-            border-top: 1px dotted #000;
+            font-size: 9px;
+            line-height: 1.4;
         }
 
-        /* Mensaje legal */
+        /* Mensaje legal - centrado */
         .legal {
-            margin-top: 5px;
-            font-size: 7px;
+            margin-top: 8px;
+            font-size: 8px;
             text-align: center;
+            line-height: 1.3;
         }
 
         /* Estilos para impresión */
@@ -159,105 +242,160 @@
                 padding: 0;
                 margin: 0;
             }
+
+            .ticket {
+                padding-top: 5mm;
+                padding-bottom: 10mm;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="ticket">
-        <!-- Encabezado con datos de empresa -->
-        <div class="header">
+        <!-- Encabezado con datos de empresa (centrado) -->
+        <div class="header-centered">
+            <!-- Opcional: Logo de la empresa -->
+            <div class="company-logo">
+                @if (isset($logoUrl) && $logoUrl)
+                    <img src="{{ $logoUrl }}" alt="Logo">
+                @endif
+            </div>
+
             <div class="company-name">{{ $xmlData['empresa']['razonSocial'] ?? 'Nombre de Empresa' }}</div>
             <div class="company-info">
-                RUC: {{ $xmlData['empresa']['ruc'] ?? '12345678901' }}<br>
+                {{ $xmlData['empresa']['nombreComercial'] ?? ($xmlData['empresa']['razonSocial'] ?? 'Nombre Comercial') }}<br>
+                <strong>RUC:</strong> {{ $xmlData['empresa']['ruc'] ?? '12345678901' }}<br>
                 {{ $xmlData['empresa']['direccion'] ?? 'Dirección de la empresa' }}<br>
                 {{ $xmlData['empresa']['distrito'] ?? 'Distrito' }},
                 {{ $xmlData['empresa']['provincia'] ?? 'Provincia' }}
             </div>
         </div>
 
-        <!-- Datos del comprobante -->
-        <div class="invoice-info">
-            <div class="invoice-row">
-                <span class="invoice-label">Comprobante:</span>
-                <span>{{ $xmlData['tipoComprobante'] ?? 'FACTURA' }} {{ $xmlData['numeroComprobante'] ?? '' }}</span>
+        <div class="separator"></div>
+
+        <div class="header-centered">
+            <div class="document-type">
+                @if (isset($xmlData['tipoComprobante']) && $xmlData['tipoComprobante'] == '01')
+                    Factura Electrónica
+                @elseif(isset($xmlData['tipoComprobante']) && $xmlData['tipoComprobante'] == '03')
+                    Boleta de Venta Electrónica
+                @else
+                    Comprobante Electrónico
+                @endif
             </div>
-            <div class="invoice-row">
-                <span class="invoice-label">Fecha:</span>
+            <div class="document-number">{{ $xmlData['numeroComprobante'] ?? '' }}</div>
+        </div>
+
+        <div class="separator"></div>
+
+        <!-- Datos del cliente (alineado a la izquierda) -->
+        <div class="customer-info">
+            <div class="info-row">
+                <span class="info-label">FECHA:</span>
                 <span>{{ date('d/m/Y H:i', strtotime($xmlData['fechaEmision'] ?? now())) }}</span>
             </div>
-        </div>
 
-        <!-- Datos del cliente -->
-        <div class="customer-info">
-            <div class="invoice-row">
-                <span class="invoice-label">Cliente:</span>
+            @php
+                $tipoDoc = isset($xmlData['cliente']['tipoDoc']) ? substr($xmlData['cliente']['tipoDoc'], 0, 1) : '';
+                $etiquetaDoc = $tipoDoc == '6' ? 'RUC:' : 'DNI:';
+            @endphp
+
+            <div class="info-row">
+                <span class="info-label">{{ $etiquetaDoc }}</span>
+                <span>{{ $xmlData['cliente']['numDoc'] ?? '00000000' }}</span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">CLIENTE:</span>
                 <span>{{ $xmlData['cliente']['razonSocial'] ?? 'Cliente Generico' }}</span>
             </div>
-            <div class="invoice-row">
-                <span class="invoice-label">Doc:</span>
-                <span>{{ $xmlData['cliente']['tipoDoc'] ?? 'DNI' }}
-                    {{ $xmlData['cliente']['numDoc'] ?? '00000000' }}</span>
-            </div>
-            <div class="invoice-row">
-                <span class="invoice-label">Dir:</span>
-                <span>{{ $xmlData['cliente']['direccion'] ?? '-' }}</span>
-            </div>
+
+            @if (!empty($xmlData['cliente']['direccion']))
+                <div class="info-row">
+                    <span class="info-label">DIRECCIÓN:</span>
+                    <span>{{ $xmlData['cliente']['direccion'] }}</span>
+                </div>
+            @endif
         </div>
 
-        <!-- Tabla de items -->
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th width="10%">Cant</th>
-                    <th width="50%">Descripción</th>
-                    <th width="20%">P.Unit</th>
-                    <th width="20%">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($xmlData['items'] ?? [] as $item)
-                    <tr>
-                        <td>{{ $item['cantidad'] ?? '1' }}</td>
-                        <td class="item-description">{{ $item['descripcion'] ?? '-' }}</td>
-                        <td>{{ number_format($item['precioUnitario'] ?? 0, 2) }}</td>
-                        <td>{{ number_format($item['subtotal'] ?? 0, 2) }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+        <div class="separator"></div>
 
-        <!-- Totales -->
+        <!-- Tabla de items (alineado a la izquierda) -->
+        <div class="items-section">
+            <div class="items-header">
+                <span class="qty">Cant.</span>
+                <span class="desc">Descripción</span>
+                <span class="total">Total</span>
+            </div>
+
+            @foreach ($xmlData['items'] ?? [] as $item)
+                <div class="item-row">
+                    <span class="qty">{{ $item['cantidad'] ?? '1' }}</span>
+                    <span class="desc">{{ $item['descripcion'] ?? '-' }}</span>
+                    <span class="total">{{ number_format($item['subtotal'] ?? 0, 2) }}</span>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="separator"></div>
+
+        <!-- Totales (alineado a la izquierda, valores a la derecha) -->
         <div class="totals">
             <div class="total-row">
-                <span class="total-label">OP. GRAVADAS:</span>
-                <span>{{ number_format(($xmlData['subtotal'] ?? 0) - ($xmlData['igv'] ?? 0), 2) }}</span>
+                <span>OP. GRAVADA:</span>
+                <span>S/ {{ number_format(($xmlData['subtotal'] ?? 0) - ($xmlData['igv'] ?? 0), 2) }}</span>
             </div>
             <div class="total-row">
-                <span class="total-label">IGV (18%):</span>
-                <span>{{ number_format($xmlData['igv'] ?? 0, 2) }}</span>
+                <span>I.G.V. 18%:</span>
+                <span>S/ {{ number_format($xmlData['igv'] ?? 0, 2) }}</span>
             </div>
-            <div class="total-row grand-total">
-                <span class="total-label">TOTAL:</span>
-                <span>{{ number_format($xmlData['total'] ?? 0, 2) }}</span>
+            <div class="total-row bold-total">
+                <span>TOTAL:</span>
+                <span>S/ {{ number_format($xmlData['total'] ?? 0, 2) }}</span>
             </div>
         </div>
 
-        <!-- Importe en letras -->
-        <div style="margin-top: 3px; font-size: 9px; text-align: center;">
-            <strong>SON:</strong> {{ $xmlData['importeLetras'] ?? 'CERO CON 00/100 SOLES' }}
+        <div class="separator"></div>
+
+        <!-- Forma de pago (alineado a la izquierda) -->
+        <div class="payment-info">
+            <div class="info-row">
+                <span class="info-label">FORMA DE PAGO:</span>
+                <span>{{ $xmlData['formaPago'] ?? ($xmlData['medioPago'] ?? 'CONTADO') }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">MONTO EN LETRAS:</span>
+                <span>{{ $xmlData['importeLetras'] ?? 'CERO CON 00/100 SOLES' }}</span>
+            </div>
         </div>
 
-        <!-- Pie de página -->
+        <div class="separator"></div>
+
+        <!-- Código QR (centrado) -->
+        @if (isset($qrCode) && $qrCode)
+            <div class="qr-container">
+                <div class="qr-title">Código QR</div>
+                <div class="qr-image">
+                    <img src="{{ $qrCode }}" alt="QR Code">
+                </div>
+            </div>
+            <div class="separator"></div>
+        @endif
+
+        <!-- Información adicional (centrado) -->
         <div class="footer">
-            <div>¡Gracias por su compra!</div>
-            <div>Atendido por: {{ $comprobante->user->name ?? 'Sistema' }}</div>
+            <p>Representación impresa del Comprobante Electrónico</p>
+            <p>Consulte su comprobante en: www.sunat.gob.pe</p>
+            <p class="bold-total">¡GRACIAS POR SU PREFERENCIA!</p>
         </div>
 
-        <!-- Mensaje legal -->
+        <!-- Mensaje legal (centrado) -->
         <div class="legal">
-            Representación impresa del comprobante electrónico<br>
-            Consulte su comprobante en {{ config('app.url') }}
+            Autorizado mediante Resolución de Intendencia N° 032- 005<br>
+            Representación impresa de la
+            {{ isset($xmlData['tipoComprobante']) && $xmlData['tipoComprobante'] == '01' ? 'Factura' : 'Boleta de Venta' }}
+            Electrónica
         </div>
     </div>
 
@@ -266,7 +404,7 @@
         window.onload = function() {
             setTimeout(function() {
                 window.print();
-            }, 200);
+            }, 500);
         };
     </script>
 </body>

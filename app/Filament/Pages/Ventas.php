@@ -15,7 +15,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Response;
 use SimpleXMLElement;
-use Torgodly\Html2Media\Tables\Actions\Html2MediaAction;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use Exception;
 
 class Ventas extends Page implements HasTable
 {
@@ -55,8 +57,6 @@ class Ventas extends Page implements HasTable
                     ->sortable(),
             ])
             ->actions([
-
-
                 Action::make('preview_pdf')
                     ->label('Vista Previa PDF')
                     ->icon('heroicon-o-eye')
@@ -66,9 +66,11 @@ class Ventas extends Page implements HasTable
                     ->modalCancelActionLabel('Cerrar')
                     ->modalContent(function (ComprobantePago $record) {
                         $xmlData = $this->parseXmlCpe($record->xml_cpe);
+                        $qrCode = $this->generarQrCode($xmlData);
                         $pdf = Pdf::loadView('tickets.pdf-template', [
                             'comprobante' => $record,
                             'xmlData' => $xmlData,
+                            'qrCode' => $qrCode,
                         ]);
 
                         // Convertir PDF a base64 para visualización
@@ -80,6 +82,7 @@ class Ventas extends Page implements HasTable
                             'record' => $record,
                         ]);
                     })
+
                     ->action(function () {
                         // No necesita acción, solo muestra el modal
                     })
@@ -89,9 +92,11 @@ class Ventas extends Page implements HasTable
                             ->color('primary')
                             ->action(function (ComprobantePago $record) {
                                 $xmlData = $this->parseXmlCpe($record->xml_cpe);
+                                $qrCode = $this->generarQrCode($xmlData);
                                 $pdf = Pdf::loadView('tickets.pdf-template', [
                                     'comprobante' => $record,
                                     'xmlData' => $xmlData,
+                                    'qrCode' => $qrCode,
                                 ]);
 
                                 return Response::streamDownload(
@@ -108,9 +113,11 @@ class Ventas extends Page implements HasTable
                     ->color('primary')
                     ->action(function (ComprobantePago $record) {
                         $xmlData = $this->parseXmlCpe($record->xml_cpe);
+                        $qrCode = $this->generarQrCode($xmlData);
                         $pdf = Pdf::loadView('tickets.pdf-template', [
                             'comprobante' => $record,
                             'xmlData' => $xmlData,
+                            'qrCode' => $qrCode,
                         ]);
 
                         return response()->streamDownload(
@@ -124,14 +131,11 @@ class Ventas extends Page implements HasTable
                 SelectFilter::make('tipo_comprobante_id')
                     ->label('Tipo de Comprobante')
                     ->options(TipoComprobante::pluck('descripcion', 'id')),
-
-
             ])
             ->bulkActions([
                 //
             ]);
     }
-
 
     protected function parseXmlCpe(?string $xmlContent): ?array
     {
@@ -203,11 +207,50 @@ class Ventas extends Page implements HasTable
             }
 
             return $data;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Manejar errores de parseo
             return [
                 'error' => 'Error al parsear el XML: ' . $e->getMessage(),
             ];
         }
+    }
+
+    protected function generarQrCode($xmlData): ?string
+    {
+        if (!isset($xmlData['error']) && isset($xmlData['empresa']['ruc'])) {
+            try {
+                // Obtener los componentes del número de comprobante (serie-correlativo)
+                $numeroPartes = explode('-', $xmlData['numeroComprobante']);
+                $serie = $numeroPartes[0] ?? '';
+                $correlativo = $numeroPartes[1] ?? '';
+
+                // Formatear datos para el QR según especificación SUNAT
+                $qrTexto = implode('|', [
+                    $xmlData['empresa']['ruc'] ?? '',                      // RUC emisor
+                    $xmlData['tipoComprobante'] ?? '',                     // Tipo de comprobante
+                    $serie,                                                // Serie
+                    $correlativo,                                          // Correlativo
+                    $xmlData['igv'] ?? '',                                 // Total IGV
+                    $xmlData['total'] ?? '',                               // Total del comprobante
+                    $xmlData['fechaEmision'] ?? '',                        // Fecha de emisión
+                    substr($xmlData['cliente']['tipoDoc'] ?? '', 0, 1),    // Tipo de documento del cliente
+                    $xmlData['cliente']['numDoc'] ?? ''                    // Número de documento del cliente
+                ]);
+
+                // Crear QR con endroid/qr-code
+                $qrCode = new QrCode($qrTexto);
+                $writer = new PngWriter();
+                $result = $writer->write($qrCode);
+
+                // Obtener la imagen como string base64
+                return $result->getDataUri();
+            } catch (Exception $e) {
+                // Si hay un error, registrarlo y devolver null
+                // Puedes añadir un log aquí si lo necesitas
+                return null;
+            }
+        }
+
+        return null;
     }
 }
