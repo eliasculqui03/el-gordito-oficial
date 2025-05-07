@@ -4,6 +4,9 @@ namespace App\Filament\Pages;
 
 use App\Models\ComprobantePago;
 use App\Models\TipoComprobante;
+use App\Models\Comanda;
+use App\Models\ComandaExistencia;
+use App\Models\ComandaPlato;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -18,18 +21,24 @@ use SimpleXMLElement;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Exception;
+use Filament\Support\Enums\MaxWidth;
 
 class Ventas extends Page implements HasTable
 {
     use InteractsWithTable;
 
+
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
     protected static ?string $navigationLabel = 'Registro de Ventas';
     protected static ?string $title = 'Historial de Comprobantes';
-    protected static ?string $navigationGroup = 'Facturación';
     protected static string $view = 'filament.pages.ventas';
 
     protected static ?int $navigationSort = 2;
+
+    public function getMaxContentWidth(): MaxWidth
+    {
+        return MaxWidth::Full;
+    }
 
     public function table(Table $table): Table
     {
@@ -57,6 +66,7 @@ class Ventas extends Page implements HasTable
                     ->sortable(),
             ])
             ->actions([
+                // Acción para vista previa de PDF usando XML
                 Action::make('preview_pdf')
                     ->label('Vista Previa PDF')
                     ->icon('heroicon-o-eye')
@@ -65,13 +75,24 @@ class Ventas extends Page implements HasTable
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Cerrar')
                     ->modalContent(function (ComprobantePago $record) {
-                        $xmlData = $this->parseXmlCpe($record->xml_cpe);
-                        $qrCode = $this->generarQrCode($xmlData);
-                        $pdf = Pdf::loadView('tickets.pdf-template', [
-                            'comprobante' => $record,
-                            'xmlData' => $xmlData,
-                            'qrCode' => $qrCode,
-                        ]);
+                        if ($record->xml_cpe !== null) {
+                            // Usar XML para generar el PDF
+                            $xmlData = $this->parseXmlCpe($record->xml_cpe);
+                            $qrCode = $this->generarQrCode($xmlData);
+                            $pdf = Pdf::loadView('tickets.pdf-template', [
+                                'comprobante' => $record,
+                                'xmlData' => $xmlData,
+                                'qrCode' => $qrCode,
+                            ]);
+                        } else {
+                            // Usar base de datos para generar el PDF (sin QR)
+                            $datosComprobante = $this->obtenerDatosDeBaseDatos($record);
+                            $pdf = Pdf::loadView('tickets.pdf-db-template', [
+                                'comprobante' => $record,
+                                'datos' => $datosComprobante,
+                                'qrCode' => null, // No incluimos QR para comprobantes sin XML
+                            ]);
+                        }
 
                         // Convertir PDF a base64 para visualización
                         $pdfContent = $pdf->output();
@@ -82,7 +103,6 @@ class Ventas extends Page implements HasTable
                             'record' => $record,
                         ]);
                     })
-
                     ->action(function () {
                         // No necesita acción, solo muestra el modal
                     })
@@ -91,41 +111,63 @@ class Ventas extends Page implements HasTable
                             ->label('Descargar PDF')
                             ->color('primary')
                             ->action(function (ComprobantePago $record) {
-                                $xmlData = $this->parseXmlCpe($record->xml_cpe);
-                                $qrCode = $this->generarQrCode($xmlData);
-                                $pdf = Pdf::loadView('tickets.pdf-template', [
-                                    'comprobante' => $record,
-                                    'xmlData' => $xmlData,
-                                    'qrCode' => $qrCode,
-                                ]);
+                                if ($record->xml_cpe !== null) {
+                                    // Usar XML para generar el PDF
+                                    $xmlData = $this->parseXmlCpe($record->xml_cpe);
+                                    $qrCode = $this->generarQrCode($xmlData);
+                                    $pdf = Pdf::loadView('tickets.pdf-template', [
+                                        'comprobante' => $record,
+                                        'xmlData' => $xmlData,
+                                        'qrCode' => $qrCode,
+                                    ]);
+                                } else {
+                                    // Usar base de datos para generar el PDF (sin QR)
+                                    $datosComprobante = $this->obtenerDatosDeBaseDatos($record);
+                                    $pdf = Pdf::loadView('tickets.pdf-db-template', [
+                                        'comprobante' => $record,
+                                        'datos' => $datosComprobante,
+                                        'qrCode' => null, // No incluimos QR para comprobantes sin XML
+                                    ]);
+                                }
 
                                 return Response::streamDownload(
                                     fn() => print($pdf->output()),
                                     "comprobante-{$record->serie}-{$record->numero}.pdf"
                                 );
                             })
-                    ])
-                    ->visible(fn(ComprobantePago $record): bool => $record->xml_cpe !== null),
+                    ]),
 
+                // Acción para descargar PDF
                 Action::make('download')
                     ->label('Descargar PDF')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('primary')
                     ->action(function (ComprobantePago $record) {
-                        $xmlData = $this->parseXmlCpe($record->xml_cpe);
-                        $qrCode = $this->generarQrCode($xmlData);
-                        $pdf = Pdf::loadView('tickets.pdf-template', [
-                            'comprobante' => $record,
-                            'xmlData' => $xmlData,
-                            'qrCode' => $qrCode,
-                        ]);
+                        if ($record->xml_cpe !== null) {
+                            // Usar XML para generar el PDF
+                            $xmlData = $this->parseXmlCpe($record->xml_cpe);
+                            $qrCode = $this->generarQrCode($xmlData);
+                            $pdf = Pdf::loadView('tickets.pdf-template', [
+                                'comprobante' => $record,
+                                'xmlData' => $xmlData,
+                                'qrCode' => $qrCode,
+                            ]);
+                        } else {
+                            // Usar base de datos para generar el PDF (sin QR)
+                            $datosComprobante = $this->obtenerDatosDeBaseDatos($record);
+                            $pdf = Pdf::loadView('tickets.pdf-db-template', [
+                                'comprobante' => $record,
+                                'datos' => $datosComprobante,
+                                'qrCode' => null, // No incluimos QR para comprobantes sin XML
+                            ]);
+                        }
 
                         return response()->streamDownload(
                             fn() => print($pdf->output()),
                             "comprobante-{$record->serie}-{$record->numero}.pdf"
                         );
                     })
-                    ->visible(fn(ComprobantePago $record): bool => $record->xml_cpe !== null)
+                    ->visible(fn(ComprobantePago $record): bool => $record->xml_cpe !== null || $record->xml_cpe === null)
             ])
             ->filters([
                 SelectFilter::make('tipo_comprobante_id')
@@ -137,8 +179,109 @@ class Ventas extends Page implements HasTable
             ]);
     }
 
+    /**
+     * Obtiene los datos del comprobante desde la base de datos
+     *
+     * @param ComprobantePago $comprobante
+     * @return array
+     */
+    protected function obtenerDatosDeBaseDatos(ComprobantePago $comprobante): array
+    {
+        // Cargar relaciones necesarias
+        $comprobante->load(['cliente', 'comanda', 'user', 'caja', 'tipoComprobante']);
+
+        // Obtener los detalles de la comanda (platos y existencias)
+        $comanda = $comprobante->comanda;
+        $comanda->load(['comandaPlatos.plato', 'comandaExistencias.existencia']);
+
+        // Crear array con los datos en formato similar al XML
+        $datosComprobante = [
+            'numeroComprobante' => $comprobante->serie . '-' . $comprobante->numero,
+            'fechaEmision' => $comprobante->created_at->format('Y-m-d'),
+            'tipoComprobante' => $comprobante->tipoComprobante->codigo_sunat ?? $comprobante->tipo_comprobante_id,
+            'moneda' => $comprobante->moneda,
+            'importeLetras' => $this->numeroALetras($comanda->total_general),
+
+            // Información de la empresa (deberías obtenerla desde la configuración)
+            'empresa' => [
+                'ruc' => '20608899996', // Esto deberías obtenerlo de alguna configuración
+                'razonSocial' => 'TU EMPRESA S.A.C.', // Esto deberías obtenerlo de alguna configuración
+                'nombreComercial' => 'TU EMPRESA', // Esto deberías obtenerlo de alguna configuración
+                'direccion' => 'AV. PRINCIPAL 123', // Esto deberías obtenerlo de alguna configuración
+                'distrito' => 'DISTRITO', // Esto deberías obtenerlo de alguna configuración
+                'provincia' => 'PROVINCIA', // Esto deberías obtenerlo de alguna configuración
+            ],
+
+            // Información del cliente
+            'cliente' => [
+                'tipoDoc' => $comprobante->cliente->tipo_documento, // Asume que existe este campo
+                'numDoc' => $comprobante->cliente->numero_documento, // Asume que existe este campo
+                'razonSocial' => $comprobante->cliente->nombre,
+                'direccion' => $comprobante->cliente->direccion ?? 'SIN DIRECCIÓN',
+            ],
+
+            // Información de pago
+            'medioPago' => $comprobante->medio_pago,
+            'formaPago' => 'Contado', // Asume que es contado por defecto, ajustar según necesidad
+
+            // Totales
+            'subtotal' => number_format($comanda->subtotal, 2, '.', ''),
+            'igv' => number_format($comanda->igv, 2, '.', ''),
+            'total' => number_format($comanda->total_general, 2, '.', ''),
+
+            // Detalle de items
+            'items' => [],
+        ];
+
+        // Agregar platos como items
+        foreach ($comanda->comandaPlatos as $comandaPlato) {
+            $datosComprobante['items'][] = [
+                'cantidad' => $comandaPlato->cantidad,
+                'unidad' => 'NIU', // NIU = Unidad (no en el Sistema Internacional de Unidades)
+                'descripcion' => $comandaPlato->plato->nombre,
+                'codigo' => $comandaPlato->plato->id,
+                'precioUnitario' => number_format($comandaPlato->precio_unitario / 1.18, 2, '.', ''), // Valor sin IGV
+                'precioVenta' => number_format($comandaPlato->precio_unitario, 2, '.', ''), // Valor con IGV
+                'subtotal' => number_format($comandaPlato->subtotal / 1.18, 2, '.', ''), // Subtotal sin IGV
+                'igv' => number_format($comandaPlato->subtotal - ($comandaPlato->subtotal / 1.18), 2, '.', ''), // IGV
+            ];
+        }
+
+        // Agregar existencias como items
+        foreach ($comanda->comandaExistencias as $comandaExistencia) {
+            $datosComprobante['items'][] = [
+                'cantidad' => $comandaExistencia->cantidad,
+                'unidad' => 'NIU', // NIU = Unidad
+                'descripcion' => $comandaExistencia->existencia->nombre,
+                'codigo' => $comandaExistencia->existencia->id,
+                'precioUnitario' => number_format($comandaExistencia->precio_unitario / 1.18, 2, '.', ''), // Valor sin IGV
+                'precioVenta' => number_format($comandaExistencia->precio_unitario, 2, '.', ''), // Valor con IGV
+                'subtotal' => number_format($comandaExistencia->subtotal / 1.18, 2, '.', ''), // Subtotal sin IGV
+                'igv' => number_format($comandaExistencia->subtotal - ($comandaExistencia->subtotal / 1.18), 2, '.', ''), // IGV
+            ];
+        }
+
+        return $datosComprobante;
+    }
+
+    /**
+     * Esta función convierte un número a su representación en letras
+     *
+     * @param float $numero
+     * @return string
+     */
+    protected function numeroALetras($numero): string
+    {
+        // Implementa la lógica para convertir números a letras
+        // Esta es una implementación muy básica, deberías usar una librería más completa
+        $formatter = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
+        $letras = strtoupper($formatter->format($numero));
+        return $letras . ' CON ' . substr(number_format($numero, 2, '.', ''), -2) . '/100 SOLES';
+    }
+
     protected function parseXmlCpe(?string $xmlContent): ?array
     {
+        // Código original sin cambios
         if (!$xmlContent) {
             return null;
         }
@@ -217,6 +360,7 @@ class Ventas extends Page implements HasTable
 
     protected function generarQrCode($xmlData): ?string
     {
+        // Código original sin cambios
         if (!isset($xmlData['error']) && isset($xmlData['empresa']['ruc'])) {
             try {
                 // Obtener los componentes del número de comprobante (serie-correlativo)
@@ -246,7 +390,6 @@ class Ventas extends Page implements HasTable
                 return $result->getDataUri();
             } catch (Exception $e) {
                 // Si hay un error, registrarlo y devolver null
-                // Puedes añadir un log aquí si lo necesitas
                 return null;
             }
         }

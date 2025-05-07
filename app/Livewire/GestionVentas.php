@@ -713,12 +713,6 @@ class GestionVentas extends Component
             $nombre = $this->platosComanda[$index]['nombre'];
             array_splice($this->platosComanda, $index, 1);
             $this->calcularTotales();
-
-            Notification::make()
-                ->title('Plato eliminado')
-                ->body("$nombre ha sido eliminado de la comanda.")
-                ->success()
-                ->send();
         }
     }
 
@@ -760,26 +754,25 @@ class GestionVentas extends Component
     private function calcularTotales()
     {
         // Calcular subtotales
-        $this->subtotalGeneral = 0;
+        $this->totalGeneral = 0;
 
         // Sumar subtotales de existencias
         foreach ($this->existenciasComanda as $existencia) {
-            $this->subtotalGeneral += $existencia['subtotal'];
+            $this->totalGeneral += $existencia['subtotal'];
         }
 
         // Sumar subtotales de platos
         foreach ($this->platosComanda as $plato) {
-            $this->subtotalGeneral += $plato['subtotal'];
+            $this->totalGeneral += $plato['subtotal'];
         }
 
-        // Calcular IGV (18%)
-        $this->igvGeneral = $this->subtotalGeneral * 0.18;
+        $this->subtotalGeneral = round($this->totalGeneral / 1.1, 2);
 
-        // Por ahora, el descuento está en 0
-        $this->descuentoGeneral = 0;
+        // Calcular IGV (18%)
+        $this->igvGeneral = round($this->subtotalGeneral * 0.1, 2);
 
         // Calcular total general
-        $this->totalGeneral = $this->subtotalGeneral + $this->igvGeneral;
+        $this->totalGeneral = round($this->subtotalGeneral + $this->igvGeneral);
     }
 
 
@@ -829,6 +822,8 @@ class GestionVentas extends Component
             return false;
         }
 
+
+
         // NUEVA VALIDACIÓN: Verificar que la mesa esté libre si se está asignando una
         if ($this->id_mesa) {
             $mesa = Mesa::find($this->id_mesa);
@@ -852,6 +847,7 @@ class GestionVentas extends Component
                 return false;
             }
         }
+
 
         // NUEVA VALIDACIÓN: Verificar disponibilidad de platos
         $platosNoDisponibles = [];
@@ -1064,6 +1060,10 @@ class GestionVentas extends Component
         $this->limpiarCliente();
         $this->limpiarMesaZona();
         $this->calcularNumeroPedido();
+
+        $this->tipoComprobanteSeleccionado = null;
+        $this->formaPago = null;
+        $this->monedaSelecionada = null;
     }
     //================================VENTAS=====================================
 
@@ -1079,6 +1079,47 @@ class GestionVentas extends Component
 
     public function guardarComandaComprobante()
     {
+
+        if ($this->tipoComprobanteSeleccionado == null) {
+            Notification::make()
+                ->title('Error de validación')
+                ->body('Debe seleccionar un tipo de comprobante.')
+                ->danger()
+                ->send();
+            return;
+        }
+
+        if ($this->monedaSelecionada == null) {
+            Notification::make()
+                ->title('Error de validación')
+                ->body('Debe seleccionar una moneda.')
+                ->danger()
+                ->send();
+            return;
+        }
+        if ($this->formaPago == null) {
+            Notification::make()
+                ->title('Error de validación')
+                ->body('Debe seleccionar una forma de pago.')
+                ->danger()
+                ->send();
+            return;
+        }
+
+        $cliente = Cliente::find($this->id_cliente);
+        if ($cliente->tipoDocumento->tipo == '1') {
+
+            if ($this->tipoComprobanteSeleccionado == '01') {
+                Notification::make()
+                    ->title('Error de validación')
+                    ->body('El cliente no puede recibir factura.')
+                    ->danger()
+                    ->send();
+
+                return;
+            }
+        }
+
         // Generar serie y correlativo
         $num = $this->calcularNumeroPedido();
         $nroComprobante = $this->serieComprobante . '-' . $num;
@@ -1095,6 +1136,7 @@ class GestionVentas extends Component
             return;
         }
 
+
         // Recuperar serie y número del comprobante (lo movemos aquí para usarlo en ambas ramas)
         $serieNumero = explode('-', $nroComprobante);
         $serie = $serieNumero[0] ?? '';
@@ -1103,7 +1145,7 @@ class GestionVentas extends Component
         if ($this->tipoComprobanteSeleccionado != 00) {
             // Obtener información de la empresa
             $empresa = Empresa::first();
-            $cliente = Cliente::find($this->id_cliente);
+
 
             // Calcular valores de factura
             $subtotal = $this->subtotalGeneral;
@@ -1116,20 +1158,20 @@ class GestionVentas extends Component
 
             // Agregar platos al detalle de factura
             foreach ($this->platosComanda as $plato) {
-                $totalSinigv = $plato['cantidad'] * $plato['precio_unitario'];
+                $totalSinigv = round(($plato['cantidad'] * $plato['precio_unitario']) / 1.1, 2);
                 $detalleFactura[] = [
                     "txtITEM" => (string)$item,
                     "txtUNIDAD_MEDIDA_DET" => (string)$plato['unidad_medida_codigo'],
                     "txtCANTIDAD_DET" => (string)$plato['cantidad'],
-                    "txtPRECIO_DET" => (string)($plato['precio_unitario'] * 1.18),
+                    "txtPRECIO_DET" => (string)($plato['precio_unitario']),
                     "txtIMPORTE_DET" => (string)$totalSinigv,
                     "txtPRECIO_TIPO_CODIGO" => "01",
-                    "txtIGV" => (string)($totalSinigv * 0.18),
+                    "txtIGV" => (string)round($totalSinigv * 0.1, 2),
                     "txtISC" => "0",
                     "txtCOD_TIPO_OPERACION" => "10",
                     "txtCODIGO_DET" => "PLA" . str_pad($plato['id'], 3, '0', STR_PAD_LEFT),
                     "txtDESCRIPCION_DET" => $plato['nombre'] . ($plato['es_llevar'] ? " - LLEVAR" : ""),
-                    "txtPRECIO_SIN_IGV_DET" => (string)$plato['precio_unitario'],
+                    "txtPRECIO_SIN_IGV_DET" => (string)round($plato['precio_unitario'] / 1.1, 2),
                     "FLG_ICBPER" => "0",
                     "IMPUESTO_BP" => "0",
                     "IMPORTE_BP" => "0"
@@ -1140,21 +1182,21 @@ class GestionVentas extends Component
 
             // Agregar existencias al detalle de factura
             foreach ($this->existenciasComanda as $existencia) {
-                $totalSinigv = round($existencia['cantidad'] * $existencia['precio_unitario']);
+                $totalSinigv = round(($existencia['cantidad'] * $existencia['precio_unitario']) / 1.1, 2);
 
                 $detalleFactura[] = [
                     "txtITEM" => (string)$item,
                     "txtUNIDAD_MEDIDA_DET" => (string)$existencia['unidad_medida_codigo'],
                     "txtCANTIDAD_DET" => (string)$existencia['cantidad'],
-                    "txtPRECIO_DET" => (string)($existencia['precio_unitario'] * 1.18),
+                    "txtPRECIO_DET" => (string)($existencia['precio_unitario']),
                     "txtIMPORTE_DET" => (string)$totalSinigv,
                     "txtPRECIO_TIPO_CODIGO" => "01",
-                    "txtIGV" => (string)($totalSinigv * 0.18),
+                    "txtIGV" => (string)round($totalSinigv * 0.1, 2),
                     "txtISC" => "0",
                     "txtCOD_TIPO_OPERACION" => "10",
                     "txtCODIGO_DET" => "EXI" . str_pad($existencia['id'], 3, '0', STR_PAD_LEFT),
-                    "txtDESCRIPCION_DET" => $existencia['nombre'] . ($existencia['es_helado'] ? " - HELADO" : ""),
-                    "txtPRECIO_SIN_IGV_DET" => (string)$existencia['precio_unitario'],
+                    "txtDESCRIPCION_DET" => (string)$existencia['nombre'] . ($existencia['es_helado'] ? " - HELADO" : ""),
+                    "txtPRECIO_SIN_IGV_DET" => (string)round($existencia['precio_unitario'] / 1.1, 2),
                     "FLG_ICBPER" => "0",
                     "IMPUESTO_BP" => "0",
                     "IMPORTE_BP" => "0"
@@ -1169,18 +1211,18 @@ class GestionVentas extends Component
                 "txtTIPO_OPERACION" => "0101",
                 "txtTOTAL_GRAVADAS" => (string)$subtotal,
                 "txtSUB_TOTAL" => (string)$subtotal,
-                "txtPOR_IGV" => "18.00",
+                "txtPOR_IGV" => "10.00",
                 "txtTOTAL_IGV" => (string)$igv,
                 "txtTOTAL" => (string)$total,
                 "txtTOTAL_LETRAS" => $this->numeroALetras($total),
                 "txtNRO_COMPROBANTE" => $nroComprobante,
                 "txtFECHA_DOCUMENTO" => date('Y-m-d'),
                 "txtFECHA_VTO" => date('Y-m-d'),
-                "txtCOD_TIPO_DOCUMENTO" => $this->tipoComprobanteSeleccionado,
-                "txtCOD_MONEDA" => $this->monedaSelecionada,
+                "txtCOD_TIPO_DOCUMENTO" => (string)$this->tipoComprobanteSeleccionado,
+                "txtCOD_MONEDA" => (string)$this->monedaSelecionada,
                 "detalle_forma_pago" => [
                     [
-                        "COD_FORMA_PAGO" => $this->formaPago
+                        "COD_FORMA_PAGO" => (string)$this->formaPago
                     ]
                 ],
                 "txtNRO_DOCUMENTO_CLIENTE" => $cliente->ruc ?? $cliente->numero_documento,

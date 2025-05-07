@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
+use Filament\Support\Enums\MaxWidth;
 use Illuminate\Database\Eloquent\Builder;
 
 class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
@@ -26,6 +27,12 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
     protected static ?string $title = 'Aprobación de Solicitudes';
 
     protected static ?string $slug = 'aprobacion-solicitudes';
+
+    public function getMaxContentWidth(): MaxWidth
+    {
+        return MaxWidth::Full;
+    }
+
 
     public function table(Table $table): Table
     {

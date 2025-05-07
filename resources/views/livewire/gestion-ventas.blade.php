@@ -330,7 +330,7 @@
                                             {{ number_format($subtotalGeneral, 2) }}</span>
                                     </div>
                                     <div class="flex justify-between">
-                                        <span class="text-sm text-gray-600 dark:text-gray-400">IGV (18%):</span>
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">IGV (10%):</span>
                                         <span class="text-sm font-medium text-gray-800 dark:text-gray-200">S/.
                                             {{ number_format($igvGeneral, 2) }}</span>
                                     </div>
@@ -420,13 +420,16 @@
                                         <!-- Botón de búsqueda -->
                                         <button wire:click="buscar"
                                             class="flex items-center justify-center h-9 px-3 py-1.5 text-sm font-medium text-white transition bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-700 dark:hover:bg-indigo-800">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                                            <svg wire:target='buscar' wire:loading.remove
+                                                xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
                                                 viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd"
                                                     d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
                                                     clip-rule="evenodd" />
                                             </svg>
-                                            <span class="ml-1">Buscar</span>
+                                            <span wire:target='buscar' wire:loading.remove
+                                                class="ml-1">Buscar</span> <span wire:target='buscar' wire:loading>
+                                                Buscando...</span>
                                         </button>
 
                                         <!-- Botón de nuevo cliente -->
@@ -515,7 +518,6 @@
                                             @endforeach
                                         </select>
                                     </div>
-
                                     <!-- Serie -->
                                     <div>
                                         <label for="serie-comprobante"
@@ -665,24 +667,32 @@
                                     <!-- Botón para solo guardar pedido -->
                                     <button wire:click="guardarPedido"
                                         class="flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
+                                        <svg wire:loading.remove wire:target='guardarPedido'
+                                            xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
                                             viewBox="0 0 20 20" fill="currentColor">
                                             <path
                                                 d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z" />
                                         </svg>
-                                        Guardar Pedido
+                                        <span wire:loading.remove wire:target='guardarPedido'>Guardar Pedido</span>
+                                        <span wire:loading wire:target='guardarPedido'>
+                                            Guardando...</span>
                                     </button>
 
                                     <!-- Botón para guardar pedido y generar comprobante -->
                                     <button wire:click='guardarComandaComprobante'
                                         class="flex items-center justify-center col-span-2 px-3 py-2 text-sm font-medium text-white transition-colors duration-200 bg-indigo-600 rounded-md hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
+                                        <svg wire:loading.remove wire:target='guardarComandaComprobante'
+                                            xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
                                             viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd"
                                                 d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm4.707 3.707a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L8.414 9H10a3 3 0 013 3v1a1 1 0 102 0v-1a5 5 0 00-5-5H8.414l1.293-1.293z"
                                                 clip-rule="evenodd" />
                                         </svg>
-                                        Guardar y Generar Comprobante
+                                        <span wire:loading.remove wire:target='guardarComandaComprobante'>Guardar y
+                                            Generar Comprobante</span> <span wire:loading
+                                            wire:target='guardarComandaComprobante'>
+                                            Generando...
+                                        </span>
                                     </button>
                                 </div>
                             </div>

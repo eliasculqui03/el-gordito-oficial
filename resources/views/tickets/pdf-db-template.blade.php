@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Comprobante {{ $comprobante->serie }}-{{ $comprobante->numero }}</title>
+    <title>Comprobante de Pago</title>
     <style>
         /* Reset y estilos base optimizados para ticketera */
         * {
@@ -22,7 +22,6 @@
             background: #fff;
             width: 72mm;
             text-align: left;
-            /* Alineación global a la izquierda */
         }
 
         /* Contenedor principal */
@@ -83,6 +82,17 @@
             margin-bottom: 5px;
         }
 
+        /* Aviso no electrónico */
+        .no-electronic {
+            text-align: center;
+            font-size: 9px;
+            font-weight: bold;
+            margin: 5px 0;
+            padding: 3px 0;
+            border-top: 1px dashed #000;
+            border-bottom: 1px dashed #000;
+        }
+
         /* Información del cliente - explícitamente a la izquierda */
         .customer-info {
             margin-bottom: 8px;
@@ -122,14 +132,19 @@
             text-align: left;
         }
 
+        .items-header .unit {
+            width: 15%;
+            text-align: left;
+        }
+
         .items-header .desc {
-            width: 55%;
+            width: 45%;
             padding-left: 5px;
             text-align: left;
         }
 
         .items-header .total {
-            width: 30%;
+            width: 25%;
             text-align: right;
         }
 
@@ -144,15 +159,20 @@
             text-align: left;
         }
 
+        .item-row .unit {
+            width: 15%;
+            text-align: left;
+        }
+
         .item-row .desc {
-            width: 55%;
+            width: 45%;
             padding-left: 5px;
             word-wrap: break-word;
             text-align: left;
         }
 
         .item-row .total {
-            width: 30%;
+            width: 25%;
             text-align: right;
         }
 
@@ -188,47 +208,12 @@
             text-align: left;
         }
 
-        /* QR Code - centrado */
-        .qr-container {
-            text-align: center;
-            margin: 12px 0;
-        }
-
-        .qr-title {
-            font-weight: bold;
-            font-size: 9px;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            text-align: center;
-        }
-
-        .qr-image {
-            display: inline-block;
-            padding: 5px;
-            border: 1px solid #ccc;
-            background-color: white;
-            border-radius: 4px;
-        }
-
-        .qr-image img {
-            width: 90px;
-            height: 90px;
-        }
-
         /* Pie de página - centrado */
         .footer {
             margin-top: 12px;
             text-align: center;
             font-size: 9px;
             line-height: 1.4;
-        }
-
-        /* Mensaje legal - centrado */
-        .legal {
-            margin-top: 8px;
-            font-size: 8px;
-            text-align: center;
-            line-height: 1.3;
         }
 
         /* Estilos para impresión */
@@ -255,20 +240,12 @@
     <div class="ticket">
         <!-- Encabezado con datos de empresa (centrado) -->
         <div class="header-centered">
-            <!-- Opcional: Logo de la empresa -->
-            <div class="company-logo">
-                @if (isset($logoUrl) && $logoUrl)
-                    <img src="{{ $logoUrl }}" alt="Logo">
-                @endif
-            </div>
-
-            <div class="company-name">{{ $xmlData['empresa']['razonSocial'] ?? 'Nombre de Empresa' }}</div>
+            <div class="company-name">{{ $datos['empresa']['nombreComercial'] }}</div>
             <div class="company-info">
-                {{ $xmlData['empresa']['nombreComercial'] ?? ($xmlData['empresa']['razonSocial'] ?? 'Nombre Comercial') }}<br>
-                <strong>RUC:</strong> {{ $xmlData['empresa']['ruc'] ?? '12345678901' }}<br>
-                {{ $xmlData['empresa']['direccion'] ?? 'Dirección de la empresa' }}<br>
-                {{ $xmlData['empresa']['distrito'] ?? 'Distrito' }},
-                {{ $xmlData['empresa']['provincia'] ?? 'Provincia' }}
+                {{ $datos['empresa']['razonSocial'] }}<br>
+                <strong>RUC:</strong> {{ $datos['empresa']['ruc'] }}<br>
+                {{ $datos['empresa']['direccion'] }}<br>
+                {{ $datos['empresa']['distrito'] }}, {{ $datos['empresa']['provincia'] }}
             </div>
         </div>
 
@@ -276,47 +253,55 @@
 
         <div class="header-centered">
             <div class="document-type">
-                @if (isset($xmlData['tipoComprobante']) && $xmlData['tipoComprobante'] == '01')
-                    Factura Electrónica
-                @elseif(isset($xmlData['tipoComprobante']) && $xmlData['tipoComprobante'] == '03')
-                    Boleta de Venta Electrónica
-                @else
-                    Comprobante Electrónico
-                @endif
+                @php
+                    $tipoComprobante = '';
+                    switch ($comprobante->tipo_comprobante_id) {
+                        case '01':
+                            $tipoComprobante = 'FACTURA';
+                            break;
+                        case '03':
+                            $tipoComprobante = 'BOLETA DE VENTA';
+                            break;
+                        default:
+                            $tipoComprobante = 'COMPROBANTE DE PAGO';
+                    }
+                @endphp
+                {{ $tipoComprobante }}
             </div>
-            <div class="document-number">{{ $xmlData['numeroComprobante'] ?? '' }}</div>
+            <div class="document-number">{{ $datos['numeroComprobante'] }}</div>
         </div>
 
-        <div class="separator"></div>
+        <!-- Aviso no electrónico -->
+        <div class="no-electronic">
+            DOCUMENTO DE REFERENCIA - NO VÁLIDO COMO COMPROBANTE ELECTRÓNICO
+        </div>
 
         <!-- Datos del cliente (alineado a la izquierda) -->
         <div class="customer-info">
             <div class="info-row">
                 <span class="info-label">FECHA:</span>
-                <span>{{ date('d/m/Y H:i', strtotime($xmlData['fechaEmision'] ?? now())) }}</span>
+                <span>{{ $datos['fechaEmision'] }}</span>
             </div>
 
-            @php
-                $tipoDoc = isset($xmlData['cliente']['tipoDoc']) ? substr($xmlData['cliente']['tipoDoc'], 0, 1) : '';
-                $etiquetaDoc = $tipoDoc == '6' ? 'RUC:' : 'DNI:';
-            @endphp
-
             <div class="info-row">
-                <span class="info-label">{{ $etiquetaDoc }}</span>
-                <span>{{ $xmlData['cliente']['numDoc'] ?? '00000000' }}</span>
+                <span class="info-label">{{ $datos['cliente']['tipoDoc'] == '6' ? 'RUC:' : 'DOC:' }}</span>
+                <span>{{ $datos['cliente']['numDoc'] }}</span>
             </div>
 
             <div class="info-row">
                 <span class="info-label">CLIENTE:</span>
-                <span>{{ $xmlData['cliente']['razonSocial'] ?? 'Cliente Generico' }}</span>
+                <span>{{ $datos['cliente']['razonSocial'] }}</span>
             </div>
 
-            @if (!empty($xmlData['cliente']['direccion']))
-                <div class="info-row">
-                    <span class="info-label">DIRECCIÓN:</span>
-                    <span>{{ $xmlData['cliente']['direccion'] }}</span>
-                </div>
-            @endif
+            <div class="info-row">
+                <span class="info-label">DIRECCIÓN:</span>
+                <span>{{ $datos['cliente']['direccion'] }}</span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">MONEDA:</span>
+                <span>{{ $datos['moneda'] == 'PEN' ? 'SOLES' : $datos['moneda'] }}</span>
+            </div>
         </div>
 
         <div class="separator"></div>
@@ -325,15 +310,17 @@
         <div class="items-section">
             <div class="items-header">
                 <span class="qty">Cant.</span>
+                <span class="unit">Unid.</span>
                 <span class="desc">Descripción</span>
                 <span class="total">Total</span>
             </div>
 
-            @foreach ($xmlData['items'] ?? [] as $item)
+            @foreach ($datos['items'] as $item)
                 <div class="item-row">
-                    <span class="qty">{{ $item['cantidad'] ?? '1' }}</span>
-                    <span class="desc">{{ $item['descripcion'] ?? '-' }}</span>
-                    <span class="total">{{ number_format($item['precioVenta'] ?? 0, 2) }}</span>
+                    <span class="qty">{{ $item['cantidad'] }}</span>
+                    <span class="unit">{{ $item['unidad'] }}</span>
+                    <span class="desc">{{ $item['descripcion'] }}</span>
+                    <span class="total">{{ number_format($item['cantidad'] * $item['precioVenta'], 2) }}</span>
                 </div>
             @endforeach
         </div>
@@ -342,17 +329,10 @@
 
         <!-- Totales (alineado a la izquierda, valores a la derecha) -->
         <div class="totals">
-            <div class="total-row">
-                <span>OP. GRAVADA:</span>
-                <span>S/ {{ number_format($xmlData['subtotal'] ?? 0, 2) }}</span>
-            </div>
-            <div class="total-row">
-                <span>I.G.V. 10%:</span>
-                <span>S/ {{ number_format($xmlData['igv'] ?? 0, 2) }}</span>
-            </div>
+            <!-- Mostramos solo el total final sin desglosar el IGV -->
             <div class="total-row bold-total">
-                <span>TOTAL:</span>
-                <span>S/ {{ number_format($xmlData['total'] ?? 0, 2) }}</span>
+                <span>TOTAL {{ $datos['moneda'] == 'PEN' ? 'S/' : $datos['moneda'] }}:</span>
+                <span>{{ number_format($datos['total'], 2) }}</span>
             </div>
         </div>
 
@@ -362,40 +342,25 @@
         <div class="payment-info">
             <div class="info-row">
                 <span class="info-label">FORMA DE PAGO:</span>
-                <span>{{ $xmlData['formaPago'] ?? ($xmlData['medioPago'] ?? 'CONTADO') }}</span>
+                <span>{{ $datos['formaPago'] }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">MONTO EN LETRAS:</span>
-                <span>{{ $xmlData['importeLetras'] ?? 'CERO CON 00/100 SOLES' }}</span>
+                <span class="info-label">MEDIO DE PAGO:</span>
+                <span>{{ $datos['medioPago'] }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">SON:</span>
+                <span>{{ $datos['importeLetras'] }}</span>
             </div>
         </div>
 
         <div class="separator"></div>
 
-        <!-- Código QR (centrado) -->
-        @if (isset($qrCode) && $qrCode)
-            <div class="qr-container">
-                <div class="qr-title">Código QR</div>
-                <div class="qr-image">
-                    <img src="{{ $qrCode }}" alt="QR Code">
-                </div>
-            </div>
-            <div class="separator"></div>
-        @endif
-
-        <!-- Información adicional (centrado) -->
+        <!-- Pie de página (centrado) -->
         <div class="footer">
-            <p>Representación impresa del Comprobante Electrónico</p>
-            <p>Consulte su comprobante en: www.sunat.gob.pe</p>
+            <p>Este documento es una impresión de referencia.</p>
+            <p>No tiene validez fiscal ni tributaria.</p>
             <p class="bold-total">¡GRACIAS POR SU PREFERENCIA!</p>
-        </div>
-
-        <!-- Mensaje legal (centrado) -->
-        <div class="legal">
-            Autorizado mediante Resolución de Intendencia N° 032- 005<br>
-            Representación impresa de la
-            {{ isset($xmlData['tipoComprobante']) && $xmlData['tipoComprobante'] == '01' ? 'Factura' : 'Boleta de Venta' }}
-            Electrónica
         </div>
     </div>
 
