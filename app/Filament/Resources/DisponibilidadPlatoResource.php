@@ -20,7 +20,7 @@ class DisponibilidadPlatoResource extends Resource
 {
     protected static ?string $model = DisponibilidadPlato::class;
 
-    protected static ?string $navigationLabel = 'Disponbilidad platos';
+    protected static ?string $navigationLabel = 'Dispo. de platos';
     protected static ?string $label = 'disponibilidad';
     protected static ?string $pluralLabel = 'Disponbilidad';
 

@@ -23,10 +23,10 @@ class AprobacionSolicitudes extends Page implements Tables\Contracts\HasTable
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
 
     protected static string $view = 'filament.pages.aprobacion-solicitudes';
-    protected static ?string $navigationLabel = 'Aprobación de Solicitudes';
-    protected static ?string $title = 'Aprobación de Solicitudes';
+    protected static ?string $navigationLabel = 'Aprob. Proveedor';
+    protected static ?string $title = 'Aprobacion de Solicitudes';
 
-    protected static ?string $slug = 'aprobacion-solicitudes';
+    //protected static ?string $slug = 'aprobacion-solicitudes';
 
     public function getMaxContentWidth(): MaxWidth
     {

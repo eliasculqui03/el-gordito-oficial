@@ -7,6 +7,7 @@ use App\Models\TipoComprobante;
 use App\Models\Comanda;
 use App\Models\ComandaExistencia;
 use App\Models\ComandaPlato;
+use App\Models\Empresa;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -30,7 +31,9 @@ class Ventas extends Page implements HasTable
 
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
     protected static ?string $navigationLabel = 'Registro de Ventas';
-    protected static ?string $title = 'Historial de Comprobantes';
+    protected static ?string $title = 'Registro de Ventas';
+    protected static ?string $navigationGroup = 'Ventas';
+    //protected static ?int $navigationSort = 1;
     protected static string $view = 'filament.pages.ventas';
 
     protected static ?int $navigationSort = 2;
@@ -78,6 +81,7 @@ class Ventas extends Page implements HasTable
                         if ($record->xml_cpe !== null) {
                             // Usar XML para generar el PDF
                             $xmlData = $this->parseXmlCpe($record->xml_cpe);
+                            $xmlData['fechaEmision'] = $record->created_at->format('Y-m-d H:i:s');
                             $qrCode = $this->generarQrCode($xmlData);
                             $pdf = Pdf::loadView('tickets.pdf-template', [
                                 'comprobante' => $record,
@@ -114,6 +118,7 @@ class Ventas extends Page implements HasTable
                                 if ($record->xml_cpe !== null) {
                                     // Usar XML para generar el PDF
                                     $xmlData = $this->parseXmlCpe($record->xml_cpe);
+                                    $xmlData['fechaEmision'] = $record->created_at->format('Y-m-d H:i:s');
                                     $qrCode = $this->generarQrCode($xmlData);
                                     $pdf = Pdf::loadView('tickets.pdf-template', [
                                         'comprobante' => $record,
@@ -146,6 +151,7 @@ class Ventas extends Page implements HasTable
                         if ($record->xml_cpe !== null) {
                             // Usar XML para generar el PDF
                             $xmlData = $this->parseXmlCpe($record->xml_cpe);
+                            $xmlData['fechaEmision'] = $record->created_at->format('Y-m-d H:i:s');
                             $qrCode = $this->generarQrCode($xmlData);
                             $pdf = Pdf::loadView('tickets.pdf-template', [
                                 'comprobante' => $record,
@@ -194,22 +200,24 @@ class Ventas extends Page implements HasTable
         $comanda = $comprobante->comanda;
         $comanda->load(['comandaPlatos.plato', 'comandaExistencias.existencia']);
 
+        $empresa = Empresa::first();
         // Crear array con los datos en formato similar al XML
         $datosComprobante = [
             'numeroComprobante' => $comprobante->serie . '-' . $comprobante->numero,
-            'fechaEmision' => $comprobante->created_at->format('Y-m-d'),
+            'fechaEmision' => $comprobante->created_at->format('Y-m-d H:i:s'),
             'tipoComprobante' => $comprobante->tipoComprobante->codigo_sunat ?? $comprobante->tipo_comprobante_id,
             'moneda' => $comprobante->moneda,
             'importeLetras' => $this->numeroALetras($comanda->total_general),
 
             // Información de la empresa (deberías obtenerla desde la configuración)
             'empresa' => [
-                'ruc' => '20608899996', // Esto deberías obtenerlo de alguna configuración
-                'razonSocial' => 'TU EMPRESA S.A.C.', // Esto deberías obtenerlo de alguna configuración
-                'nombreComercial' => 'TU EMPRESA', // Esto deberías obtenerlo de alguna configuración
-                'direccion' => 'AV. PRINCIPAL 123', // Esto deberías obtenerlo de alguna configuración
-                'distrito' => 'DISTRITO', // Esto deberías obtenerlo de alguna configuración
-                'provincia' => 'PROVINCIA', // Esto deberías obtenerlo de alguna configuración
+                'ruc' => $empresa->ruc,
+                'razonSocial' => $empresa->nombre,
+                'nombreComercial' => $empresa->nombre_comercial,
+                'direccion' => $empresa->direccion,
+                'distrito' => $empresa->distrito,
+                'provincia' => $empresa->provincia,
+                'departamento' => $empresa->departamento,
             ],
 
             // Información del cliente
@@ -217,7 +225,7 @@ class Ventas extends Page implements HasTable
                 'tipoDoc' => $comprobante->cliente->tipo_documento, // Asume que existe este campo
                 'numDoc' => $comprobante->cliente->numero_documento, // Asume que existe este campo
                 'razonSocial' => $comprobante->cliente->nombre,
-                'direccion' => $comprobante->cliente->direccion ?? 'SIN DIRECCIÓN',
+                'direccion' => $comprobante->cliente->direccion ?? '',
             ],
 
             // Información de pago
@@ -311,6 +319,7 @@ class Ventas extends Page implements HasTable
                     'direccion' => (string)$xml->xpath('//cac:AccountingSupplierParty//cbc:Line')[0] ?? '',
                     'distrito' => (string)$xml->xpath('//cac:AccountingSupplierParty//cbc:District')[0] ?? '',
                     'provincia' => (string)$xml->xpath('//cac:AccountingSupplierParty//cbc:CountrySubentity')[0] ?? '',
+                    'departamento' => (string)$xml->xpath('//cac:AccountingSupplierParty//cbc:CityName')[0] ?? '',
                 ],
 
                 // Información del cliente

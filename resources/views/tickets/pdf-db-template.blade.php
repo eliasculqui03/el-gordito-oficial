@@ -21,7 +21,8 @@
             color: #000;
             background: #fff;
             width: 72mm;
-            text-align: left;
+            text-align: center;
+            /* Centramos todo el contenido por defecto */
         }
 
         /* Contenedor principal */
@@ -30,35 +31,32 @@
             padding: 3mm 2mm;
             max-width: 300px;
             margin: 0 auto;
-            text-align: left;
         }
 
-        /* Solo estos elementos específicos se mantienen centrados */
-        .header-centered {
-            text-align: center;
-        }
-
+        /* Logo de empresa */
         .company-logo {
             text-align: center;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
         .company-logo img {
-            max-width: 120px;
-            height: auto;
+            width: 100px;
         }
 
+        /* Datos de empresa */
         .company-name {
             font-size: 13px;
             font-weight: bold;
             margin-bottom: 3px;
             text-transform: uppercase;
+            text-align: center;
         }
 
         .company-info {
             font-size: 9px;
             margin-bottom: 5px;
             line-height: 1.4;
+            text-align: center;
         }
 
         .separator {
@@ -93,10 +91,11 @@
             border-bottom: 1px dashed #000;
         }
 
-        /* Información del cliente - explícitamente a la izquierda */
+        /* Información del cliente - alineada a la izquierda para legibilidad */
         .customer-info {
             margin-bottom: 8px;
             text-align: left;
+            padding: 0 5px;
         }
 
         .info-row {
@@ -111,64 +110,91 @@
             text-align: left;
         }
 
-        /* Tabla de items - explícitamente a la izquierda */
+        .info-value {
+            flex: 1;
+        }
+
+        /* TABLA DE ITEMS EN FORMATO COLUMNAS */
         .items-section {
-            text-align: left;
+            width: 100%;
+            padding: 0 5px;
         }
 
         .items-header {
-            display: flex;
+            display: table;
+            width: 100%;
             font-weight: bold;
             border-bottom: 1px dashed #000;
             padding-bottom: 3px;
             margin-bottom: 5px;
             text-transform: uppercase;
             font-size: 9px;
-            text-align: left;
+        }
+
+        .items-header .table-row {
+            display: table-row;
+        }
+
+        .items-header .qty,
+        .items-header .desc,
+        .items-header .unit,
+        .items-header .total {
+            display: table-cell;
+            padding: 2px 3px;
         }
 
         .items-header .qty {
             width: 15%;
-            text-align: left;
-        }
-
-        .items-header .unit {
-            width: 15%;
-            text-align: left;
+            text-align: center;
         }
 
         .items-header .desc {
-            width: 45%;
-            padding-left: 5px;
-            text-align: left;
+            width: 40%;
+            text-align: center;
+        }
+
+        .items-header .unit {
+            width: 20%;
+            text-align: center;
         }
 
         .items-header .total {
             width: 25%;
-            text-align: right;
+            text-align: center;
+        }
+
+        .items-body {
+            display: table;
+            width: 100%;
         }
 
         .item-row {
-            display: flex;
-            margin-bottom: 4px;
-            text-align: left;
+            display: table-row;
+        }
+
+        .item-row .qty,
+        .item-row .desc,
+        .item-row .unit,
+        .item-row .total {
+            display: table-cell;
+            padding: 2px 3px;
+            vertical-align: top;
         }
 
         .item-row .qty {
             width: 15%;
-            text-align: left;
-        }
-
-        .item-row .unit {
-            width: 15%;
-            text-align: left;
+            text-align: center;
         }
 
         .item-row .desc {
-            width: 45%;
-            padding-left: 5px;
-            word-wrap: break-word;
+            width: 40%;
             text-align: left;
+            word-wrap: break-word;
+        }
+
+        .item-row .unit {
+            width: 20%;
+            text-align: right;
         }
 
         .item-row .total {
@@ -176,25 +202,30 @@
             text-align: right;
         }
 
-        /* Totales - explícitamente a la izquierda */
+        /* TOTALES ALINEADOS A LA DERECHA */
         .totals {
             margin-top: 8px;
-            text-align: left;
+            width: 100%;
+            padding: 0 5px;
+            text-align: right;
         }
 
         .total-row {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             margin-bottom: 3px;
-            text-align: left;
+            width: 100%;
         }
 
         .total-row span:first-child {
             text-align: left;
+            margin-right: 5px;
         }
 
         .total-row span:last-child {
             text-align: right;
+            min-width: 70px;
+            font-weight: bold;
         }
 
         .bold-total {
@@ -202,10 +233,11 @@
             font-size: 12px;
         }
 
-        /* Forma de pago - explícitamente a la izquierda */
+        /* Forma de pago - alineada a la izquierda */
         .payment-info {
             margin: 8px 0;
             text-align: left;
+            padding: 0 5px;
         }
 
         /* Pie de página - centrado */
@@ -214,6 +246,23 @@
             text-align: center;
             font-size: 9px;
             line-height: 1.4;
+        }
+
+        .thanks-message {
+            font-weight: bold;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        /* QR Code para facturación electrónica */
+        .qr-code {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .qr-code img {
+            width: 100px;
+            height: 100px;
         }
 
         /* Estilos para impresión */
@@ -238,98 +287,90 @@
 
 <body>
     <div class="ticket">
-        <!-- Encabezado con datos de empresa (centrado) -->
-        <div class="header-centered">
-            <div class="company-name">{{ $datos['empresa']['nombreComercial'] }}</div>
-            <div class="company-info">
-                {{ $datos['empresa']['razonSocial'] }}<br>
-                <strong>RUC:</strong> {{ $datos['empresa']['ruc'] }}<br>
-                {{ $datos['empresa']['direccion'] }}<br>
-                {{ $datos['empresa']['distrito'] }}, {{ $datos['empresa']['provincia'] }}
-            </div>
+        <!-- Encabezado con logo y datos de empresa (centrado) -->
+        <div class="company-logo">
+            <!-- Reemplazar con la ruta correcta a tu logo -->
+            <img src="{{ asset('public/images/logo_sucursal.jpg') }}" alt="Logo">
+        </div>
+
+        <div class="company-name">{{ $datos['empresa']['nombreComercial'] }}</div>
+        <div class="company-info">
+            {{ $datos['empresa']['razonSocial'] }}<br>
+            <strong>RUC:</strong> {{ $datos['empresa']['ruc'] }}<br>
+            {{ $datos['empresa']['direccion'] }}<br>
+            {{ $datos['empresa']['distrito'] }} -
+            {{ $datos['empresa']['provincia'] }} -
+            {{ $datos['empresa']['departamento'] }}
         </div>
 
         <div class="separator"></div>
 
-        <div class="header-centered">
-            <div class="document-type">
-                @php
-                    $tipoComprobante = '';
-                    switch ($comprobante->tipo_comprobante_id) {
-                        case '01':
-                            $tipoComprobante = 'FACTURA';
-                            break;
-                        case '03':
-                            $tipoComprobante = 'BOLETA DE VENTA';
-                            break;
-                        default:
-                            $tipoComprobante = 'COMPROBANTE DE PAGO';
-                    }
-                @endphp
-                {{ $tipoComprobante }}
-            </div>
-            <div class="document-number">{{ $datos['numeroComprobante'] }}</div>
+        <!-- Tipo y número de documento (centrado) -->
+        <div class="document-type">
+            TICKET DE VENTA
         </div>
+        <div class="document-number">{{ $datos['numeroComprobante'] }}</div>
 
-        <!-- Aviso no electrónico -->
-        <div class="no-electronic">
-            DOCUMENTO DE REFERENCIA - NO VÁLIDO COMO COMPROBANTE ELECTRÓNICO
-        </div>
+        <div class="separator"></div>
 
-        <!-- Datos del cliente (alineado a la izquierda) -->
+        <!-- Datos del cliente (alineado a la izquierda para mayor legibilidad) -->
         <div class="customer-info">
             <div class="info-row">
                 <span class="info-label">FECHA:</span>
-                <span>{{ $datos['fechaEmision'] }}</span>
+                <span class="info-value">{{ $datos['fechaEmision'] }}</span>
             </div>
 
             <div class="info-row">
                 <span class="info-label">{{ $datos['cliente']['tipoDoc'] == '6' ? 'RUC:' : 'DOC:' }}</span>
-                <span>{{ $datos['cliente']['numDoc'] }}</span>
+                <span class="info-value">{{ $datos['cliente']['numDoc'] }}</span>
             </div>
 
             <div class="info-row">
                 <span class="info-label">CLIENTE:</span>
-                <span>{{ $datos['cliente']['razonSocial'] }}</span>
+                <span class="info-value">{{ $datos['cliente']['razonSocial'] }}</span>
             </div>
 
             <div class="info-row">
                 <span class="info-label">DIRECCIÓN:</span>
-                <span>{{ $datos['cliente']['direccion'] }}</span>
+                <span class="info-value">{{ $datos['cliente']['direccion'] }}</span>
             </div>
 
             <div class="info-row">
                 <span class="info-label">MONEDA:</span>
-                <span>{{ $datos['moneda'] == 'PEN' ? 'SOLES' : $datos['moneda'] }}</span>
+                <span class="info-value">{{ $datos['moneda'] == 'PEN' ? 'SOLES' : $datos['moneda'] }}</span>
             </div>
         </div>
 
         <div class="separator"></div>
 
-        <!-- Tabla de items (alineado a la izquierda) -->
+        <!-- TABLA DE ITEMS EN FORMATO COLUMNAS -->
         <div class="items-section">
             <div class="items-header">
-                <span class="qty">Cant.</span>
-                <span class="unit">Unid.</span>
-                <span class="desc">Descripción</span>
-                <span class="total">Total</span>
+                <div class="table-row">
+                    <span class="qty">Cant.</span>
+                    <span class="desc">Descripción</span>
+                    <span class="unit">P.Unit</span>
+                    <span class="total">Importe</span>
+                </div>
             </div>
 
-            @foreach ($datos['items'] as $item)
-                <div class="item-row">
-                    <span class="qty">{{ $item['cantidad'] }}</span>
-                    <span class="unit">{{ $item['unidad'] }}</span>
-                    <span class="desc">{{ $item['descripcion'] }}</span>
-                    <span class="total">{{ number_format($item['cantidad'] * $item['precioVenta'], 2) }}</span>
-                </div>
-            @endforeach
+            <div class="items-body">
+                @foreach ($datos['items'] as $item)
+                    <div class="item-row">
+                        <span class="qty">{{ $item['cantidad'] }}</span>
+                        <span class="desc">{{ $item['descripcion'] }}</span>
+                        <span class="unit">{{ number_format($item['precioVenta'] ?? '', 2) }}</span>
+                        <span class="total">{{ number_format($item['cantidad'] * $item['precioVenta'], 2) }}</span>
+                    </div>
+                @endforeach
+            </div>
         </div>
 
         <div class="separator"></div>
 
-        <!-- Totales (alineado a la izquierda, valores a la derecha) -->
+        <!-- TOTALES ALINEADOS A LA DERECHA -->
         <div class="totals">
-            <!-- Mostramos solo el total final sin desglosar el IGV -->
+
             <div class="total-row bold-total">
                 <span>TOTAL {{ $datos['moneda'] == 'PEN' ? 'S/' : $datos['moneda'] }}:</span>
                 <span>{{ number_format($datos['total'], 2) }}</span>
@@ -342,25 +383,26 @@
         <div class="payment-info">
             <div class="info-row">
                 <span class="info-label">FORMA DE PAGO:</span>
-                <span>{{ $datos['formaPago'] }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">MEDIO DE PAGO:</span>
-                <span>{{ $datos['medioPago'] }}</span>
+                <span class="info-value">{{ $datos['formaPago'] }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">SON:</span>
-                <span>{{ $datos['importeLetras'] }}</span>
+                <span class="info-value">{{ $datos['importeLetras'] }}</span>
             </div>
         </div>
+
+        <!-- QR Code para factura electrónica (si aplica) -->
+        @if (isset($comprobante) && ($comprobante->tipo_comprobante_id == '01' || $comprobante->tipo_comprobante_id == '03'))
+            <div class="qr-code">
+                <img src="data:image/png;base64,{{ $datos['qrcode'] ?? '' }}" alt="QR Code">
+            </div>
+        @endif
 
         <div class="separator"></div>
 
         <!-- Pie de página (centrado) -->
         <div class="footer">
-            <p>Este documento es una impresión de referencia.</p>
-            <p>No tiene validez fiscal ni tributaria.</p>
-            <p class="bold-total">¡GRACIAS POR SU PREFERENCIA!</p>
+            <p class="thanks-message">¡GRACIAS POR SU PREFERENCIA!</p>
         </div>
     </div>
 

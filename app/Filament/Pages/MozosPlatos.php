@@ -10,8 +10,11 @@ class MozosPlatos extends Page
 {
     use HasPageShield;
 
-    protected static ?string $navigationGroup = 'C. Platos y Bebidas';
+    protected static ?string $navigationGroup = 'Panel de mozos';
     //protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationLabel = 'Ped. Platos';
+    protected static ?string $title = 'Pedidos Platos';
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 

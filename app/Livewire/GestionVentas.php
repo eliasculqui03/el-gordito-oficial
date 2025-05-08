@@ -325,6 +325,8 @@ class GestionVentas extends Component
     public function render()
     {
 
+        $this->monedaSelecionada = "PEN";
+        $this->formaPago = "Contado";
 
         $tipos_existencia = TipoExistencia::where('estado', true)->get();
 
@@ -344,6 +346,8 @@ class GestionVentas extends Component
 
 
         $existencias = $this->getExistencias();
+
+
 
         return view('livewire.gestion-ventas', [
             'tipos_existencia' => $tipos_existencia,
@@ -1062,8 +1066,6 @@ class GestionVentas extends Component
         $this->calcularNumeroPedido();
 
         $this->tipoComprobanteSeleccionado = null;
-        $this->formaPago = null;
-        $this->monedaSelecionada = null;
     }
     //================================VENTAS=====================================
 

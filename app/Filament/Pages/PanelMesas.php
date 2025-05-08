@@ -16,6 +16,9 @@ class PanelMesas extends Page
 
     protected static ?string $title = 'Panel de Mesas';
 
+    protected static ?string $navigationGroup = 'Ventas';
+    //protected static ?int $navigationSort = 1;
+
     protected static string $view = 'filament.pages.panel-mesas';
 
     public function getMaxContentWidth(): MaxWidth

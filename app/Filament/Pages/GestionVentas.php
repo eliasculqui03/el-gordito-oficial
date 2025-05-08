@@ -12,9 +12,14 @@ class GestionVentas extends Page
 {
     use HasPageShield;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
 
     protected static bool $shouldMaximizeContent = true;
+
+    protected static ?string $navigationLabel = 'Crear Venta';
+
+    protected static ?string $navigationGroup = 'Ventas';
+    //protected static ?int $navigationSort = 1;
 
     protected static string $view = 'filament.pages.gestion-ventas';
 

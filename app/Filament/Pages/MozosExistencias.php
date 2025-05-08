@@ -10,8 +10,11 @@ class MozosExistencias extends Page
 {
     use HasPageShield;
 
-    protected static ?string $navigationGroup = 'C. Existencias';
+    protected static ?string $navigationGroup = 'Panel de mozos';
     //protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationLabel = 'Ped. Existencias';
+    protected static ?string $title = 'Pedidos Existencias';
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
