@@ -7,6 +7,8 @@ use App\Models\AreaExistencia;
 use App\Models\Comanda;
 use App\Models\ComandaExistencia;
 use App\Models\Existencia;
+use App\Models\Inventario;
+use App\Models\SalidaAlmacen;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -115,10 +117,15 @@ class ComandasExistencias extends Component
     public function marcarExistenciaLista($grupoKey)
     {
         try {
+            DB::beginTransaction();
+
             // Obtener las partes de la clave del grupo
             $keyParts = explode('-', $grupoKey);
             $existenciaId = $keyParts[0];
             $esHelado = $keyParts[1] === 'helado';
+
+            // Obtener la existencia
+            $existencia = Existencia::findOrFail($existenciaId);
 
             // Obtener todas las comandas existencias relacionadas que estén en estado 'Procesando'
             $comandaExistencias = ComandaExistencia::where('existencia_id', $existenciaId)
@@ -129,7 +136,25 @@ class ComandasExistencias extends Component
             // Actualizar el estado de todas las existencias relacionadas a 'Listo'
             foreach ($comandaExistencias as $comandaExistencia) {
                 $comandaExistencia->update(['estado' => 'Listo']);
+
+                // Obtener el inventario correspondiente a esta existencia
+                $inventario = Inventario::where('existencia_id', $existenciaId)
+                    ->where('almacen_id', $this->getAlmacenIdForExistencia($existenciaId))
+                    ->first();
+
+                if ($inventario) {
+                    // Registrar la salida de almacén
+                    SalidaAlmacen::create([
+                        'user_id' => Auth::id(),
+                        'existencia_id' => $existenciaId,
+                        'almacen_id' => $inventario->almacen_id,
+                        'cantidad' => $comandaExistencia->cantidad,
+                        'motivo' => 'Preparación de comanda #' . $comandaExistencia->comanda_id
+                    ]);
+                }
             }
+
+            DB::commit();
 
             // Notificar éxito
             Notification::make()
@@ -137,18 +162,59 @@ class ComandasExistencias extends Component
                 ->success()
                 ->send();
         } catch (\Exception $e) {
+            DB::rollBack();
+
             // Notificar error
             Notification::make()
                 ->title('Error al marcar la existencia')
-                ->body('No se pudo actualizar el estado de la existencia')
+                ->body('No se pudo actualizar el estado de la existencia: ' . $e->getMessage())
                 ->danger()
                 ->send();
         }
     }
 
+    // Método auxiliar para obtener el almacén asociado a una existencia
+    protected function getAlmacenIdForExistencia($existenciaId)
+    {
+        // Obtener el inventario correspondiente a esta existencia
+        $inventario = Inventario::where('existencia_id', $existenciaId)->first();
+
+        return $inventario ? $inventario->almacen_id : null;
+    }
+
+
+    public $mostrarConfirmacion = false;
+    public $grupoKeyAConfirmar = null;
+
+
+
+    public function confirmarCancelacion($grupoKey)
+    {
+        $this->grupoKeyAConfirmar = $grupoKey;
+        $this->mostrarConfirmacion = true;
+    }
+
+    public function cerrarConfirmacion()
+    {
+        $this->mostrarConfirmacion = false;
+        $this->grupoKeyAConfirmar = null;
+    }
+
+    public function procederCancelacion()
+    {
+        if ($this->grupoKeyAConfirmar) {
+            $this->cancelarPreparacionExistencia($this->grupoKeyAConfirmar);
+            $this->mostrarConfirmacion = false;
+            $this->grupoKeyAConfirmar = null;
+        }
+    }
+
+    // Modificar el método actual para que no se ejecute directamente sino a través del modal
     public function cancelarPreparacionExistencia($grupoKey)
     {
         try {
+            DB::beginTransaction();
+
             // Obtener las partes de la clave del grupo
             $keyParts = explode('-', $grupoKey);
             $existenciaId = $keyParts[0];
@@ -160,34 +226,64 @@ class ComandasExistencias extends Component
                 ->where('estado', 'Procesando')
                 ->get();
 
-            // Actualizar el estado de todas las existencias relacionadas a 'Pendiente'
+            // Actualizar el estado de todas las existencias relacionadas a 'Cancelado'
             foreach ($comandaExistencias as $comandaExistencia) {
-                $comandaExistencia->update(['estado' => 'Pendiente']);
+                $comandaExistencia->update(['estado' => 'Cancelado']);
             }
 
             // Verificar si hay otras comandas existencias de la misma comanda que siguen en proceso
             foreach ($comandaExistencias as $comandaExistencia) {
                 $comanda = $comandaExistencia->comanda;
+
+                // Verificar si hay existencias en proceso
                 $hayExistenciasEnProceso = $comanda->comandaExistencias()
                     ->where('estado', 'Procesando')
                     ->exists();
 
-                // Si no hay más existencias en proceso, actualizar el estado de la comanda a 'Abierta'
-                if (!$hayExistenciasEnProceso) {
-                    $comanda->update(['estado' => 'Abierta']);
+                // Verificar si hay comandaPlato en proceso (si la relación existe)
+                $hayComandaPlatoEnProceso = false;
+                if (method_exists($comanda, 'comandaPlatos')) {
+                    $hayComandaPlatoEnProceso = $comanda->comandaPlatos()
+                        ->where('estado', 'Procesando')
+                        ->exists();
+                }
+
+                // Si no hay más existencias o platos en proceso, actualizar el estado de la comanda a 'Completada'
+                if (!$hayExistenciasEnProceso && !$hayComandaPlatoEnProceso) {
+                    // Verificamos adicionalmente si todas las existencias están en estado Cancelado o Listo
+                    $todasFinalizadas = !$comanda->comandaExistencias()
+                        ->whereNotIn('estado', ['Cancelado', 'Listo'])
+                        ->exists();
+
+                    // Verificamos también si todas las comandaPlatos están finalizadas (si aplica)
+                    $todosPlatosFinalizados = true;
+                    if (method_exists($comanda, 'comandaPlatos')) {
+                        $todosPlatosFinalizados = !$comanda->comandaPlatos()
+                            ->whereNotIn('estado', ['Cancelado', 'Listo'])
+                            ->exists();
+                    }
+
+                    // Solo marcamos como completada si todas las existencias y platos están finalizados
+                    if ($todasFinalizadas && $todosPlatosFinalizados) {
+                        $comanda->update(['estado' => 'Completada']);
+                    }
                 }
             }
 
+            DB::commit();
+
             // Notificar éxito
             Notification::make()
-                ->title('Preparación cancelada')
+                ->title('Plato cancelado')
                 ->success()
                 ->send();
         } catch (\Exception $e) {
+            DB::rollBack();
+
             // Notificar error
             Notification::make()
                 ->title('Error al cancelar la preparación')
-                ->body('No se pudo actualizar el estado de la existencia')
+                ->body('No se pudo actualizar el estado de la existencia: ' . $e->getMessage())
                 ->danger()
                 ->send();
         }

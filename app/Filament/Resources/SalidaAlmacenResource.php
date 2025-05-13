@@ -41,7 +41,7 @@ class SalidaAlmacenResource extends Resource
             ->schema([
                 Grid::make()
                     ->schema([
-                        Section::make('Detalles')
+                        Section::make()
                             ->schema([
                                 Forms\Components\Group::make()
                                     ->schema(fn(string $operation) => match ($operation) {
@@ -66,97 +66,8 @@ class SalidaAlmacenResource extends Resource
                                                 ->label('Usuario'),
                                         ],
                                     }),
-                                Forms\Components\Select::make('comanda_existencia_id')
-                                    ->label('Listas de existencias pedidas por comandas')
-                                    ->relationship(
-                                        'comandaExistencia',
-                                        'id',
-                                        fn($query) => $query->where('estado', 'Pendiente')->with(['existencia', 'existencia.unidadMedida'])
-                                    )
-                                    ->getOptionLabelFromRecordUsing(fn($record) => "# {$record->id} - {$record->existencia->nombre}")
-                                    ->placeholder('Sin comanda')
-                                    // Para modo view
-                                    ->disabled(fn($operation) => $operation === 'view')
-                                    ->live()
-                                    // Agregamos hydratación cuando carga el registro
-                                    ->afterStateHydrated(function ($state, callable $set, $record, $operation) {
-                                        if ($state && ($operation === 'edit' || $operation === 'view')) {
-                                            $comandaExistencia = \App\Models\ComandaExistencia::with(['existencia', 'existencia.unidadMedida'])
-                                                ->find($state);
 
-                                            if ($comandaExistencia) {
-                                                $set('existencia_id', $comandaExistencia->existencia_id);
-                                                $set('cantidad', $comandaExistencia->cantidad);
-
-                                                // Para modo view, también cargar el almacén (que no cargamos en creación)
-                                                if ($operation === 'view' && $record) {
-                                                    $set('almacen_id', $record->almacen_id);
-                                                } else {
-                                                    // En modo edición o creación, buscar el almacén con más stock
-                                                    $inventario = \App\Models\Inventario::where('existencia_id', $comandaExistencia->existencia_id)
-                                                        ->orderBy('stock', 'desc')
-                                                        ->first();
-
-                                                    if ($inventario) {
-                                                        $set('almacen_id', $inventario->almacen_id);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    })
-                                    ->afterStateUpdated(function ($state, callable $set, $component) {
-                                        if ($state) {
-                                            $comandaExistencia = \App\Models\ComandaExistencia::with(['existencia', 'existencia.unidadMedida'])
-                                                ->find($state);
-
-                                            if ($comandaExistencia) {
-                                                // Verificar si hay suficiente stock en algún almacén
-                                                $inventarioDisponible = \App\Models\Inventario::where('existencia_id', $comandaExistencia->existencia_id)
-                                                    ->where('stock', '>=', $comandaExistencia->cantidad)
-                                                    ->orderBy('stock', 'desc')
-                                                    ->first();
-
-                                                if (!$inventarioDisponible) {
-                                                    // Buscar el stock total disponible
-                                                    $stockTotal = \App\Models\Inventario::where('existencia_id', $comandaExistencia->existencia_id)
-                                                        ->sum('stock');
-
-                                                    Notification::make()
-                                                        ->title('Stock insuficiente')
-                                                        ->warning()
-                                                        ->body("Stock requerido: {$comandaExistencia->cantidad}, Stock disponible total: {$stockTotal}")
-                                                        ->persistent()
-                                                        ->send();
-
-                                                    // Limpiar selección
-                                                    $component->state(null);
-                                                    $set('existencia_id', null);
-                                                    $set('cantidad', null);
-                                                    $set('almacen_id', null);
-                                                    return;
-                                                }
-
-                                                // Si hay stock suficiente, establecer los valores
-                                                $set('existencia_id', $comandaExistencia->existencia_id);
-                                                $set('cantidad', $comandaExistencia->cantidad);
-                                                $set('almacen_id', $inventarioDisponible->almacen_id);
-
-                                                // Mostrar notificación de éxito
-                                                Notification::make()
-                                                    ->title('Stock disponible')
-                                                    ->success()
-                                                    ->body("Stock disponible en almacén seleccionado: {$inventarioDisponible->stock} unidades")
-                                                    ->send();
-                                            }
-                                        } else {
-                                            // Limpiar todos los campos cuando se deselecciona
-                                            $set('existencia_id', null);
-                                            $set('cantidad', null);
-                                            $set('almacen_id', null);
-                                        }
-                                    })
-                                    ->default(null),
-                            ])->columns(2),
+                            ]),
                     ]),
                 Grid::make()
                     ->schema([
@@ -277,7 +188,7 @@ class SalidaAlmacenResource extends Resource
                                     ->disabled()
                                     ->dehydrated()
                                     ->required(),
-                                Forms\Components\TextInput::make('nota')
+                                Forms\Components\TextInput::make('motivo')
                                     ->maxLength(255)
                                     ->default(null),
                             ])->columnSpan(1)
@@ -290,9 +201,6 @@ class SalidaAlmacenResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('comandaExistencia.id')
-                    ->label('ID Comanda E.')
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Usuario')
                     ->searchable(),
@@ -301,7 +209,7 @@ class SalidaAlmacenResource extends Resource
                     ->label('Almacén'),
                 Tables\Columns\TextColumn::make('cantidad')
                     ->numeric(),
-                Tables\Columns\TextColumn::make('existencia.unidadMedida.nombre')
+                Tables\Columns\TextColumn::make('existencia.unidadMedida.descripcion')
                     ->label('U. de medida'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Fecha de salida')

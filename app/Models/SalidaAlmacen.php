@@ -14,12 +14,11 @@ class SalidaAlmacen extends Model
     use HasFactory;
 
     protected $fillable = [
-        'comanda_existencia_id',
         'user_id',
         'existencia_id',
         'almacen_id',
         'cantidad',
-        'nota',
+        'motivo',
     ];
 
     protected static function booted()
@@ -65,11 +64,11 @@ class SalidaAlmacen extends Model
             } catch (\Exception $e) {
                 DB::rollBack();
 
-                Notification::make()
-                    ->danger()
-                    ->title('Error al procesar la salida')
-                    ->body($e->getMessage())
-                    ->send();
+                // Notification::make()
+                //     ->danger()
+                //     ->title('Error al procesar la salida')
+                //     ->body($e->getMessage())
+                //     ->send();
 
                 // Registrar el error
                 Log::error('Error en salida de almacén: ' . $e->getMessage());

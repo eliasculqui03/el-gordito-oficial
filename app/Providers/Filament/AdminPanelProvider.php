@@ -68,7 +68,7 @@ class AdminPanelProvider extends PanelProvider
                 GraficoStock::class,
             ])
 
-            ->sidebarCollapsibleOnDesktop()
+            ->sidebarFullyCollapsibleOnDesktop()
 
             ->sidebarWidth('15rem')
             ->middleware([

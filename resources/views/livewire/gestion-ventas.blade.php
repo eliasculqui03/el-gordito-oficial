@@ -567,7 +567,6 @@
                                             <option value="USD">Dólares (USD)</option>
                                         </select>
 
-
                                     </div>
 
                                     <!-- Forma de Pago (Nuevo campo) -->

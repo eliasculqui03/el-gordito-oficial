@@ -114,8 +114,11 @@ return [
 
     'brand' => [
         'logo' => fn() => \App\Models\Empresa::first()->logo,
+        'name' => 'El gordito',
         // También puedes usar
         // 'logo_url' => fn () => \App\Models\Empresa::first()->logo,
     ],
+
+    //'favicon' => public_path('images/logo_sucursal.jpg'),
 
 ];

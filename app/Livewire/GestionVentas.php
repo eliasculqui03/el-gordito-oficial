@@ -1005,19 +1005,19 @@ class GestionVentas extends Component
                 $reduccionExistencias[$existencia['id']] += $existencia['cantidad'];
             }
 
-            // Actualizar inventario una sola vez por cada ID de existencia
-            foreach ($reduccionExistencias as $existenciaId => $cantidadReducir) {
-                $inventario = Inventario::where('existencia_id', $existenciaId)->first();
+            // // Actualizar inventario una sola vez por cada ID de existencia
+            // foreach ($reduccionExistencias as $existenciaId => $cantidadReducir) {
+            //     $inventario = Inventario::where('existencia_id', $existenciaId)->first();
 
-                if ($inventario) {
-                    $inventario->stock -= $cantidadReducir;
-                    // Evitar stock negativo
-                    if ($inventario->stock < 0) {
-                        $inventario->stock = 0;
-                    }
-                    $inventario->save();
-                }
-            }
+            //     if ($inventario) {
+            //         $inventario->stock -= $cantidadReducir;
+            //         // Evitar stock negativo
+            //         if ($inventario->stock < 0) {
+            //             $inventario->stock = 0;
+            //         }
+            //         $inventario->save();
+            //     }
+            // }
 
             // CAMBIAR ESTADO DE LA MESA A OCUPADA
             if ($this->id_mesa) {
