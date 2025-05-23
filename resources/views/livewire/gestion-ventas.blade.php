@@ -646,57 +646,116 @@
                             <!-- Método de Pago y Observaciones -->
                             <div
                                 class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-
-
-                                <!-- Observaciones -->
-                                {{-- <div class="mb-4">
-                                    <label for="observaciones"
-                                        class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Observaciones
-                                    </label>
-                                    <textarea id="observaciones" rows="2"
-                                        class="block w-full px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 dark:text-gray-200"
-                                        placeholder="Agregar observaciones o notas..."></textarea>
-                                </div> --}}
-
-                                <!-- Botones de acción -->
-                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                <!-- Botones de acción con diseño balanceado -->
+                                <div class="grid grid-cols-12 gap-3">
                                     <!-- Botón para solo guardar pedido -->
-                                    <button wire:click="guardarPedido"
-                                        class="flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500">
-                                        <svg wire:loading.remove wire:target='guardarPedido'
-                                            xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
-                                            viewBox="0 0 20 20" fill="currentColor">
-                                            <path
-                                                d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z" />
-                                        </svg>
-                                        <span wire:loading.remove wire:target='guardarPedido'>Guardar Pedido</span>
-                                        <span wire:loading wire:target='guardarPedido'>
-                                            Guardando...</span>
-                                    </button>
+                                    <div class="col-span-12 sm:col-span-4">
+                                        <button wire:click="guardarPedido"
+                                            class="w-full flex items-center px-3 py-2.5 rounded-md bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:border-gray-500 transition-all duration-200">
+
+                                            <!-- Icono con estado de carga -->
+                                            <div class="p-1.5 mr-2 bg-gray-100 rounded-md dark:bg-gray-600">
+                                                <!-- Icono normal -->
+                                                <svg wire:loading.remove wire:target='guardarPedido'
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    class="w-5 h-5 text-gray-600 dark:text-gray-300"
+                                                    viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                                                    <path fill-rule="evenodd"
+                                                        d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
+
+                                                <!-- Icono de carga -->
+                                                <svg wire:loading wire:target='guardarPedido'
+                                                    class="w-5 h-5 text-gray-600 animate-spin dark:text-gray-300"
+                                                    xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                    viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                        stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor"
+                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                    </path>
+                                                </svg>
+                                            </div>
+
+                                            <!-- Texto del botón -->
+                                            <div class="text-left">
+                                                <span wire:loading.remove wire:target='guardarPedido'
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                                                    Guardar Pedido
+                                                </span>
+                                                <span wire:loading.remove wire:target='guardarPedido'
+                                                    class="block text-[9px] text-gray-500 dark:text-gray-400">
+                                                    Sin procesar pago
+                                                </span>
+                                                <span wire:loading wire:target='guardarPedido'
+                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                                                    Guardando...
+                                                </span>
+                                            </div>
+                                        </button>
+                                    </div>
 
                                     <!-- Botón para guardar pedido y generar comprobante -->
-                                    <button wire:click='guardarComandaComprobante'
-                                        class="flex items-center justify-center col-span-2 px-3 py-2 text-sm font-medium text-white transition-colors duration-200 bg-indigo-600 rounded-md hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
-                                        <svg wire:loading.remove wire:target='guardarComandaComprobante'
-                                            xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
-                                            viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm4.707 3.707a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L8.414 9H10a3 3 0 013 3v1a1 1 0 102 0v-1a5 5 0 00-5-5H8.414l1.293-1.293z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                        <span wire:loading.remove wire:target='guardarComandaComprobante'>Registrar
-                                            venta</span> <span wire:loading wire:target='guardarComandaComprobante'>
-                                            Generando...
-                                        </span>
-                                    </button>
+                                    <div class="col-span-12 sm:col-span-8">
+                                        <button wire:click='guardarComandaComprobante'
+                                            class="w-full flex items-center px-3 py-2.5 rounded-md bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 dark:from-indigo-600 dark:to-indigo-700 dark:hover:from-indigo-500 dark:hover:to-indigo-600 text-white shadow-sm hover:shadow transition-all duration-200 relative">
+
+                                            <!-- Icono con estado de carga -->
+                                            <div class="p-1.5 mr-2 bg-white/10 rounded-md">
+                                                <!-- Icono normal -->
+                                                <svg wire:loading.remove wire:target='guardarComandaComprobante'
+                                                    xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white"
+                                                    viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd"
+                                                        d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
+
+                                                <!-- Icono de carga -->
+                                                <svg wire:loading wire:target='guardarComandaComprobante'
+                                                    class="w-5 h-5 text-white animate-spin"
+                                                    xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                    viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                        stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor"
+                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                    </path>
+                                                </svg>
+                                            </div>
+
+                                            <!-- Texto del botón -->
+                                            <div class="text-left">
+                                                <span wire:loading.remove wire:target='guardarComandaComprobante'
+                                                    class="block text-sm font-medium text-white">
+                                                    Registrar Venta y Generar CPE
+                                                </span>
+                                                <span wire:loading.remove wire:target='guardarComandaComprobante'
+                                                    class="block text-[9px] text-indigo-100 dark:text-indigo-200">
+                                                    Finaliza y registra el pago del pedido
+                                                </span>
+                                                <span wire:loading wire:target='guardarComandaComprobante'
+                                                    class="block text-sm font-medium text-white">
+                                                    Procesando Venta...
+                                                </span>
+                                            </div>
+
+                                            <!-- Etiqueta discreta de acción recomendada con letra más pequeña -->
+                                            <div
+                                                class="absolute top-0 right-0 text-[9px] font-medium text-white bg-green-500 px-1 py-0.5 rounded-bl-md rounded-tr-md dark:bg-green-600">
+                                                Recomendado
+                                            </div>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-
 
                             <!-- Información de usuario y caja -->
                             <div
                                 class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                                <!-- Encabezado con usuario y nombre de caja -->
                                 <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                                     <!-- Usuario que inició sesión -->
                                     <div
@@ -712,7 +771,7 @@
                                             class="text-xs font-medium text-gray-700 sm:text-sm dark:text-gray-300">{{ auth()->user()->name }}</span>
                                     </div>
 
-                                    <!-- Caja actual -->
+                                    <!-- Estado y nombre de caja -->
                                     <div
                                         class="flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full sm:px-3 sm:text-sm dark:bg-green-900/30 dark:text-green-300">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 mr-1 sm:w-4 sm:h-4"
@@ -725,66 +784,45 @@
                                     </div>
                                 </div>
 
-                                <!-- Resumen de Caja -->
+                                <!-- Panel de saldo -->
                                 <div
-                                    class="p-3 mb-4 border border-blue-100 rounded-lg bg-blue-50 dark:bg-blue-900/10 dark:border-blue-800/30">
-                                    {{-- <h4 class="mb-3 text-sm font-medium text-blue-800 dark:text-blue-300">Resumen de
-                                        Caja</h4> --}}
-                                    <div class="space-y-2">
-                                        {{-- <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600 dark:text-gray-400">Saldo
-                                                Inicial:</span>
-                                            <span class="text-sm font-medium text-gray-800 dark:text-gray-200">S/.
-                                                {{ number_format($caja->saldo_inicial ?? 0, 2) }}</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600 dark:text-gray-400">Ventas del
-                                                día:</span>
-                                            <span class="text-sm font-medium text-green-600 dark:text-green-400">+ S/.
-                                                {{ number_format(500.0, 2) }}</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600 dark:text-gray-400">Egresos:</span>
-                                            <span class="text-sm font-medium text-red-600 dark:text-red-400">- S/.
-                                                {{ number_format(120.0, 2) }}</span>
-                                        </div>
-                                        <div class="pt-2 mt-2 border-t border-blue-200 dark:border-blue-800">
-                                            <div class="flex justify-between">
-                                                <span class="text-sm font-bold text-gray-800 dark:text-gray-200">Saldo
-                                                    Actual:</span>
-                                                <span class="text-sm font-bold text-blue-600 dark:text-blue-400">S/.
-                                                    {{ number_format($caja->saldo_actual ?? 0) }}</span>
-                                            </div>
-                                        </div> --}}
-
-                                        <div class="flex justify-between">
-                                            <span class="text-sm font-bold text-gray-800 dark:text-gray-200">Saldo
-                                                Inicial :</span>
-                                            <span class="text-sm font-bold text-blue-600 dark:text-blue-400">S/.
-                                                {{ number_format($caja->saldo_actual, 2) }}</span>
-                                        </div>
+                                    class="p-4 mb-4 border border-blue-200 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-indigo-900/20 dark:border-blue-800/40">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Saldo
+                                            Actual:</span>
+                                        <span class="text-xl font-bold text-blue-700 dark:text-blue-400">S/.
+                                            {{ number_format($caja->saldo_actual, 2) }}</span>
                                     </div>
                                 </div>
 
-                                <!-- Botones adicionales -->
-                                <div class="grid grid-cols-2 gap-3">
+                                <!-- Botones de acción -->
+                                <div class="grid grid-cols-3 gap-2">
+                                    <!-- Botón Transferir -->
+                                    <div>
+                                        <livewire:transferir-componente :caja-id="$caja->id">
+                                    </div>
 
+                                    <!-- Botón Retirar -->
+                                    <div>
+                                        <livewire:retirar-componente :caja-id="$caja->id">
+                                    </div>
 
-                                    <livewire:transferir-componente :caja-id="$caja->id">
-
-
+                                    <!-- Botón Cerrar Caja -->
+                                    <div>
                                         <button type="button" wire:click="cerrarCaja"
-                                            class="flex items-center justify-center px-3 py-2 text-sm font-medium text-white transition bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-700 dark:hover:bg-red-800">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
+                                            class="flex flex-col items-center justify-center w-full px-2 py-3 text-sm font-medium text-white transition bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-700 dark:hover:bg-red-800">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-1"
                                                 viewBox="0 0 20 20" fill="currentColor">
-                                                <!-- Icono de puerta cerrada -->
-                                                <path
-                                                    d="M13 5V3H7v2H3v12h14V5h-4zm-1 0H8V4h4v1zm-9 3h2v2H3V8zm0 3h2v2H3v-2zm0 3h2v2H3v-2zm10 2H7v-4h6v4z" />
-                                                <path d="M9.5 11.5a1 1 0 1 1 1-1 1 1 0 0 1-1 1z" />
+                                                <path fill-rule="evenodd"
+                                                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                                    clip-rule="evenodd" />
                                             </svg>
-                                            <span wire:loading.remove wire:target='cerrarCaja'>Cerrar Caja</span> <span
-                                                wire:loading wire:target='cerrarCaja'>Cerrando...</span>
+                                            <span class="text-xs sm:text-sm" wire:loading.remove
+                                                wire:target='cerrarCaja'>Cerrar Caja</span>
+                                            <span class="text-xs sm:text-sm" wire:loading
+                                                wire:target='cerrarCaja'>Cerrando...</span>
                                         </button>
+                                    </div>
                                 </div>
                             </div>
 

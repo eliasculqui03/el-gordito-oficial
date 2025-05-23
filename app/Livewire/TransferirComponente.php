@@ -157,14 +157,21 @@ class TransferirComponente extends Component
             DB::commit();
 
             // Mostrar mensaje de éxito
-            session()->flash('message', 'Transferencia realizada con éxito.');
+            Notification::make()
+                ->title('Transferencia exitoso')
+                ->body('Se ha realizado transferencia de S/. ' . number_format($this->monto, 2) . ' correctamente.')
+                ->success()
+                ->duration(5000)
+                ->send();
             $this->closeModal();
-
-            // Emitir evento para refrescar otros componentes si es necesario
-            $this->dispatch('transferencia-completada');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('error', 'Error al realizar la transferencia: ' . $e->getMessage());
+            Notification::make()
+                ->title('Error al realizar el retiro')
+                ->body('Ha ocurrido un error: ' . $e->getMessage())
+                ->danger()
+                ->duration(5000)
+                ->send();
         }
     }
 

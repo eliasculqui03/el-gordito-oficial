@@ -84,6 +84,7 @@ class GestionVentas extends Component
 
     public function cerrarCaja()
     {
+
         // Buscar la sesión activa
         $sesionCaja = SesionCaja::where('caja_id', $this->cajaId)
             ->where('estado', true)

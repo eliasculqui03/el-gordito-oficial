@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('sesion_caja_id')->constrained('sesion_cajas');
             $table->enum('tipo_transaccion', ['Ingreso', 'Egreso']);
-            $table->enum('motivo', ['Venta', 'Transferencia', 'Ajuste']);
+            $table->enum('motivo', ['Venta', 'Transferencia', 'Ajuste', 'Retiro']);
             $table->decimal('monto', 10, 2);
             $table->string('descripcion', 255)->nullable();
 
