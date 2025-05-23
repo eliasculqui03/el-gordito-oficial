@@ -6,6 +6,7 @@ use App\Filament\Resources\SesionCajaResource\Pages;
 use App\Filament\Resources\SesionCajaResource\RelationManagers;
 use App\Models\SesionCaja;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -13,7 +14,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class SesionCajaResource extends Resource
 {
@@ -94,24 +95,38 @@ class SesionCajaResource extends Resource
                     ->relationship('user', 'name')
                     ->searchable()
                     ->preload(),
-                Filter::make('fecha_apertura')
+                // Filter::make('fecha_apertura')
+                //     ->form([
+                //         Forms\Components\DatePicker::make('desde')
+                //             ->label('Desde'),
+                //         Forms\Components\DatePicker::make('hasta')
+                //             ->label('Hasta'),
+                //     ])
+                //     ->query(function (Builder $query, array $data): Builder {
+                //         return $query
+                //             ->when(
+                //                 $data['desde'],
+                //                 fn(Builder $query, $date): Builder => $query->whereDate('fecha_apertura', '>=', $date),
+                //             )
+                //             ->when(
+                //                 $data['hasta'],
+                //                 fn(Builder $query, $date): Builder => $query->whereDate('fecha_apertura', '<=', $date),
+                //             );
+                //     }),
+                Filter::make('created_at')
+
                     ->form([
-                        Forms\Components\DatePicker::make('desde')
-                            ->label('Desde'),
-                        Forms\Components\DatePicker::make('hasta')
-                            ->label('Hasta'),
+                        DatePicker::make('created_at')
+                            ->label('Buscar por fecha')
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['desde'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('fecha_apertura', '>=', $date),
-                            )
-                            ->when(
-                                $data['hasta'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('fecha_apertura', '<=', $date),
+                                $data['created_at'],
+                                fn(Builder $query, $date): Builder => $query
+                                    ->whereDate('created_at', '=', $date),
                             );
-                    }),
+                    })
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -119,8 +134,9 @@ class SesionCajaResource extends Resource
 
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
-            ]);
+                //Tables\Actions\DeleteBulkAction::make(),
+                ExportBulkAction::make(),
+            ])->defaultSort('updated_at', 'desc');
     }
 
     public static function getPages(): array

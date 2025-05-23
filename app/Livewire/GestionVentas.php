@@ -20,6 +20,7 @@ use App\Models\Plato;
 use App\Models\SesionCaja;
 use App\Models\TipoComprobante;
 use App\Models\TipoExistencia;
+use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -137,11 +138,11 @@ class GestionVentas extends Component
 
         try {
             // Iniciar transacción para garantizar que todas las operaciones se completen
-            \Illuminate\Support\Facades\DB::beginTransaction();
+            DB::beginTransaction();
 
             // 1. Actualizar el saldo final en la sesión de caja
             $sesionCaja->saldo_cierre = $saldoFinal;
-            $sesionCaja->fecha_cierra = \Carbon\Carbon::now()->format('Y-m-d H:i:s');
+            $sesionCaja->fecha_cierra = Carbon::now()->format('Y-m-d H:i:s');
             $sesionCaja->estado = false;
             $sesionCaja->save();
 

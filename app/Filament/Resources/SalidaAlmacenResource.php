@@ -7,6 +7,7 @@ use App\Filament\Resources\SalidaAlmacenResource\RelationManagers;
 use App\Models\SalidaAlmacen;
 use Closure;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
@@ -17,6 +18,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -223,7 +225,20 @@ class SalidaAlmacenResource extends Resource
             ])
             ->recordUrl(null)
             ->filters([
-                //
+                Filter::make('created_at')
+
+                    ->form([
+                        DatePicker::make('created_at')
+                            ->label('Buscar por fecha')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_at'],
+                                fn(Builder $query, $date): Builder => $query
+                                    ->whereDate('created_at', '=', $date),
+                            );
+                    })
             ])
             ->actions([
                 ViewAction::make(),
@@ -232,7 +247,7 @@ class SalidaAlmacenResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     ExportBulkAction::make()
                 ]),
-            ]);
+            ])->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

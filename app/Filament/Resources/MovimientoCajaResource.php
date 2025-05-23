@@ -6,10 +6,12 @@ use App\Filament\Resources\MovimientoCajaResource\Pages;
 use App\Filament\Resources\MovimientoCajaResource\RelationManagers;
 use App\Models\MovimientoCaja;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -87,7 +89,20 @@ class MovimientoCajaResource extends Resource
             ])
             ->recordUrl(null)
             ->filters([
-                //
+                Filter::make('created_at')
+
+                    ->form([
+                        DatePicker::make('created_at')
+                            ->label('Buscar por fecha')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_at'],
+                                fn(Builder $query, $date): Builder => $query
+                                    ->whereDate('created_at', '=', $date),
+                            );
+                    })
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -95,9 +110,9 @@ class MovimientoCajaResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     ExportBulkAction::make(),
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

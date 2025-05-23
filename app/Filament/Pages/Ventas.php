@@ -50,8 +50,6 @@ class Ventas extends Page implements HasTable
                 ComprobantePago::query()->orderBy('created_at', 'desc')
             )
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID'),
                 TextColumn::make('serie')
                     ->label('Serie')
                     ->searchable(),
@@ -61,8 +59,9 @@ class Ventas extends Page implements HasTable
                 TextColumn::make('cliente.nombre')
                     ->label('Cliente')
                     ->searchable(),
-                TextColumn::make('user.name')
-                    ->label('Usuario'),
+                TextColumn::make('cliente.numero_documento')
+                    ->label('N° documento')
+                    ->searchable(),
                 TextColumn::make('created_at')
                     ->label('Fecha Emisión')
                     ->dateTime()

@@ -306,9 +306,7 @@
                                                     <tr>
                                                         <td colspan="6"
                                                             class="px-3 py-4 text-sm text-center text-gray-500 dark:text-gray-400 sm:px-4">
-                                                            No hay platos ni existencias seleccionadas. Use los botones
-                                                            "Agregar Platos" o "Agregar Existencia" para añadir ítems a
-                                                            la comanda.
+                                                            No hay platos ni existencias seleccionadas.
                                                         </td>
                                                     </tr>
                                                 @endif
@@ -591,7 +589,7 @@
 
 
                             <!-- Modificación de documento (Card con fondo sutil) -->
-                            <div
+                            {{-- <div
                                 class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
                                 <h3 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Modificación
                                     de
@@ -641,7 +639,7 @@
                                         </select>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
 
 
 
@@ -651,7 +649,7 @@
 
 
                                 <!-- Observaciones -->
-                                <div class="mb-4">
+                                {{-- <div class="mb-4">
                                     <label for="observaciones"
                                         class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
                                         Observaciones
@@ -659,7 +657,7 @@
                                     <textarea id="observaciones" rows="2"
                                         class="block w-full px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 dark:text-gray-200"
                                         placeholder="Agregar observaciones o notas..."></textarea>
-                                </div>
+                                </div> --}}
 
                                 <!-- Botones de acción -->
                                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -687,9 +685,8 @@
                                                 d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm4.707 3.707a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L8.414 9H10a3 3 0 013 3v1a1 1 0 102 0v-1a5 5 0 00-5-5H8.414l1.293-1.293z"
                                                 clip-rule="evenodd" />
                                         </svg>
-                                        <span wire:loading.remove wire:target='guardarComandaComprobante'>Guardar y
-                                            Generar Comprobante</span> <span wire:loading
-                                            wire:target='guardarComandaComprobante'>
+                                        <span wire:loading.remove wire:target='guardarComandaComprobante'>Registrar
+                                            venta</span> <span wire:loading wire:target='guardarComandaComprobante'>
                                             Generando...
                                         </span>
                                     </button>
@@ -731,10 +728,10 @@
                                 <!-- Resumen de Caja -->
                                 <div
                                     class="p-3 mb-4 border border-blue-100 rounded-lg bg-blue-50 dark:bg-blue-900/10 dark:border-blue-800/30">
-                                    <h4 class="mb-3 text-sm font-medium text-blue-800 dark:text-blue-300">Resumen de
-                                        Caja</h4>
+                                    {{-- <h4 class="mb-3 text-sm font-medium text-blue-800 dark:text-blue-300">Resumen de
+                                        Caja</h4> --}}
                                     <div class="space-y-2">
-                                        <div class="flex justify-between">
+                                        {{-- <div class="flex justify-between">
                                             <span class="text-sm text-gray-600 dark:text-gray-400">Saldo
                                                 Inicial:</span>
                                             <span class="text-sm font-medium text-gray-800 dark:text-gray-200">S/.
@@ -756,35 +753,38 @@
                                                 <span class="text-sm font-bold text-gray-800 dark:text-gray-200">Saldo
                                                     Actual:</span>
                                                 <span class="text-sm font-bold text-blue-600 dark:text-blue-400">S/.
-                                                    {{ number_format(($caja->saldo_actual ?? 0) + 500.0 - 120.0, 2) }}</span>
+                                                    {{ number_format($caja->saldo_actual ?? 0) }}</span>
                                             </div>
+                                        </div> --}}
+
+                                        <div class="flex justify-between">
+                                            <span class="text-sm font-bold text-gray-800 dark:text-gray-200">Saldo
+                                                Inicial :</span>
+                                            <span class="text-sm font-bold text-blue-600 dark:text-blue-400">S/.
+                                                {{ number_format($caja->saldo_actual, 2) }}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Botones adicionales -->
                                 <div class="grid grid-cols-2 gap-3">
-                                    <button type="button"
-                                        class="flex items-center justify-center px-3 py-2 text-sm font-medium text-white transition rounded-md bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
-                                            viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                        Transferir
-                                    </button>
-                                    <button type="button" wire:click="cerrarCaja"
-                                        class="flex items-center justify-center px-3 py-2 text-sm font-medium text-white transition bg-purple-600 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-purple-700 dark:hover:bg-purple-800">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
-                                            viewBox="0 0 20 20" fill="currentColor">
 
-                                            <path fill-rule="evenodd"
-                                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                        Cerrar Caja
-                                    </button>
+
+                                    <livewire:transferir-componente :caja-id="$caja->id">
+
+
+                                        <button type="button" wire:click="cerrarCaja"
+                                            class="flex items-center justify-center px-3 py-2 text-sm font-medium text-white transition bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-700 dark:hover:bg-red-800">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1"
+                                                viewBox="0 0 20 20" fill="currentColor">
+                                                <!-- Icono de puerta cerrada -->
+                                                <path
+                                                    d="M13 5V3H7v2H3v12h14V5h-4zm-1 0H8V4h4v1zm-9 3h2v2H3V8zm0 3h2v2H3v-2zm0 3h2v2H3v-2zm10 2H7v-4h6v4z" />
+                                                <path d="M9.5 11.5a1 1 0 1 1 1-1 1 1 0 0 1-1 1z" />
+                                            </svg>
+                                            <span wire:loading.remove wire:target='cerrarCaja'>Cerrar Caja</span> <span
+                                                wire:loading wire:target='cerrarCaja'>Cerrando...</span>
+                                        </button>
                                 </div>
                             </div>
 
@@ -794,6 +794,7 @@
             </div>
         </div>
     </div>
+
 
 
     <!-- Modal de Existencias -->

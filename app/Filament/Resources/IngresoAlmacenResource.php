@@ -6,12 +6,14 @@ use App\Filament\Resources\IngresoAlmacenResource\Pages;
 use App\Filament\Resources\IngresoAlmacenResource\RelationManagers;
 use App\Models\IngresoAlmacen;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -153,12 +155,28 @@ class IngresoAlmacenResource extends Resource
             ])
             ->recordUrl(null)
             ->filters([
-                //
+                Filter::make('created_at')
+
+                    ->form([
+                        DatePicker::make('created_at')
+                            ->label('Buscar por fecha')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_at'],
+                                fn(Builder $query, $date): Builder => $query
+                                    ->whereDate('created_at', '=', $date),
+                            );
+                    })
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
             ])
-            ->bulkActions([])->defaultSort('created_at', 'desc');
+            ->bulkActions([
+                //Tables\Actions\DeleteBulkAction::make(),
+                ExportBulkAction::make(),
+            ])->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

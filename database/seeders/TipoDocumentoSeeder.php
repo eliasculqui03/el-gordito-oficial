@@ -16,7 +16,7 @@ class TipoDocumentoSeeder extends Seeder
 
         $tipoDocumentos = [
             [
-                'tipo' => '01',
+                'tipo' => '1',
                 'descripcion_larga' => 'LIBRETA ELECTORAL O DNI',
                 'descripcion_corta' => 'L.E / DNI',
                 'estado' => true
@@ -28,7 +28,7 @@ class TipoDocumentoSeeder extends Seeder
                 'estado' => true
             ],
             [
-                'tipo' => '06',
+                'tipo' => '6',
                 'descripcion_larga' => 'REG. UNICO DE CONTRIBUYENTES',
                 'descripcion_corta' => 'RUC',
                 'estado' => true

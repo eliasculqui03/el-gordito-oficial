@@ -35,7 +35,9 @@ class ExistenciaResource extends Resource
                             ->autocomplete(false),
                         Forms\Components\Select::make('tipo_existencia_id')
                             ->label('Tipo de existencia')
-                            ->relationship('tipoExistencia', 'nombre')
+                            ->relationship('tipoExistencia',  'nombre',  function ($query) {
+                                $query->where('estado', true);
+                            })
                             ->live() // Esto hace que el campo se actualice en tiempo real
                             ->afterStateUpdated(fn(callable $set) => $set('categoria_existencia_id', null)) // Reset categoria cuando cambia el tipo
                             ->required(),
@@ -58,13 +60,17 @@ class ExistenciaResource extends Resource
                             ->disabled(fn(callable $get) => !$get('tipo_existencia_id')), // Deshabilita si no hay tipo seleccionado
                         Forms\Components\Select::make('unidad_medida_id')
                             ->label('Unidad de medida')
-                            ->relationship('unidadMedida', 'descripcion')
+                            ->relationship('unidadMedida',  'descripcion',  function ($query) {
+                                $query->where('estado', true);
+                            })
                             ->searchable()
                             ->preload()
                             ->required(),
                         Forms\Components\Select::make('area_existencia_id')
                             ->label('Área')
-                            ->relationship('areaExistencia', 'nombre')
+                            ->relationship('areaExistencia',  'nombre',  function ($query) {
+                                $query->where('estado', true);
+                            })
                             ->required(),
                         Forms\Components\Textarea::make('descripcion')
                             ->label('Descripción'),
