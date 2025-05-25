@@ -23,8 +23,8 @@ function cpeEnvio($ruc, $usuario_sol, $pass_sol, $ruta_archivo, $ruta_archivo_cd
         $soapUser = "";  //  username
         $soapPassword = ""; // password
         // xml post structure
-        $xml_post_string = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
-    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://service.sunat.gob.pe" 
+        $xml_post_string = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://service.sunat.gob.pe"
     xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
     <soapenv:Header>
         <wsse:Security>
@@ -140,7 +140,7 @@ function cpeEnvio($ruc, $usuario_sol, $pass_sol, $ruta_archivo, $ruta_archivo_cd
         $mensaje['msj_sunat'] = "SUNAT ESTA FUERA SERVICIO: " . $e->getMessage();
         $mensaje['hash_cdr'] = "";
     }
-    //print_r($mensaje); 
+    //print_r($mensaje);
     return $mensaje;
     //$xmlCDR = $doc->getElementsByTagName('applicationResponse')->item(0)->nodeValue;
 }
@@ -162,8 +162,8 @@ function cpeEnvioBaja($ruc, $usuario_sol, $pass_sol, $ruta_archivo, $ruta_archiv
         $soapUser = "";
         $soapPassword = "";
         // xml post structure
-        $xml_post_string = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
-    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://service.sunat.gob.pe" 
+        $xml_post_string = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://service.sunat.gob.pe"
     xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
     <soapenv:Header>
         <wsse:Security>
@@ -260,8 +260,8 @@ function cpeEnvioResumenBoleta($ruc, $usuario_sol, $pass_sol, $ruta_archivo, $ru
     $soapUser = "";
     $soapPassword = "";
     // xml post structure
-    $xml_post_string = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
-    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://service.sunat.gob.pe" 
+    $xml_post_string = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://service.sunat.gob.pe"
     xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
     <soapenv:Header>
         <wsse:Security>
@@ -445,23 +445,23 @@ function cpeEnvioGuiaRemision($ruc, $usuario_sol, $pass_sol, $ruta_archivo, $rut
         $soapUser = "";  //  username
         $soapPassword = ""; // password
         // xml post structure
-        $xml_post_string = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' 
-                        xmlns:ser='http://service.sunat.gob.pe' 
-                        xmlns:wsse='http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'> 
-                        <soapenv:Header> 
-                        <wsse:Security> 
-                        <wsse:UsernameToken> 
-                        <wsse:Username>" . $usuario_sol . "</wsse:Username> 
-                        <wsse:Password>" . $pass_sol . "</wsse:Password> 
-                        </wsse:UsernameToken> 
-                        </wsse:Security> 
-                        </soapenv:Header> 
-                        <soapenv:Body> 
-                        <ser:sendBill> 
-                        <fileName>" . $archivo . ".ZIP</fileName> 
-                        <contentFile>" . base64_encode(file_get_contents($ruta_archivo . '.ZIP')) . "</contentFile> 
-                        </ser:sendBill> 
-                        </soapenv:Body> 
+        $xml_post_string = "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'
+                        xmlns:ser='http://service.sunat.gob.pe'
+                        xmlns:wsse='http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'>
+                        <soapenv:Header>
+                        <wsse:Security>
+                        <wsse:UsernameToken>
+                        <wsse:Username>" . $usuario_sol . "</wsse:Username>
+                        <wsse:Password>" . $pass_sol . "</wsse:Password>
+                        </wsse:UsernameToken>
+                        </wsse:Security>
+                        </soapenv:Header>
+                        <soapenv:Body>
+                        <ser:sendBill>
+                        <fileName>" . $archivo . ".ZIP</fileName>
+                        <contentFile>" . base64_encode(file_get_contents($ruta_archivo . '.ZIP')) . "</contentFile>
+                        </ser:sendBill>
+                        </soapenv:Body>
                         </soapenv:Envelope>";
 
         $headers = array(
@@ -551,7 +551,7 @@ function cpeEnvioGuiaRemision($ruc, $usuario_sol, $pass_sol, $ruta_archivo, $rut
         $mensaje['msj_sunat'] = "SUNAT ESTA FUERA SERVICIO: " . $e->getMessage();
         $mensaje['hash_cdr'] = "";
     }
-    //print_r($mensaje); 
+    //print_r($mensaje);
     return $mensaje;
     //$xmlCDR = $doc->getElementsByTagName('applicationResponse')->item(0)->nodeValue;
 }
@@ -656,7 +656,7 @@ function cpeEnvioGuiaRemisionToken($ruc, $usuario_sol, $pass_sol, $ruta_archivo,
         $mensaje['msj_sunat'] = "SUNAT ESTA FUERA SERVICIO: " . $e->getMessage();
         $mensaje['hash_cdr'] = "";
     }
-    //print_r($mensaje); 
+    //print_r($mensaje);
     return $mensaje;
     //$xmlCDR = $doc->getElementsByTagName('applicationResponse')->item(0)->nodeValue;
 }
@@ -781,7 +781,7 @@ function ConsultaTicketGuiaRemisionToken($ruc, $usuario_sol, $pass_sol, $ruta_ar
         $mensaje['hash_cdr'] = "";
         $mensaje['ticket'] = $ticket;
     }
-    //print_r($mensaje); 
+    //print_r($mensaje);
     return $mensaje;
     //$xmlCDR = $doc->getElementsByTagName('applicationResponse')->item(0)->nodeValue;
 }

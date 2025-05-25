@@ -1,0 +1,2 @@
+DOMDocument::save(C:\Users\elias\Desktop\Restaurante\DEV\el-gordito\app\Services\api_cpe/BETA/20608161296/20608161296-03  -B003-000070.XML): Failed to open stream: No such file or directory
+Otra más

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Http\Controllers\SunatController;
 use App\Models\Caja;
 use App\Models\CategoriaExistencia;
 use App\Models\CategoriaPlato;
@@ -1153,7 +1154,6 @@ class GestionVentas extends Component
             // Obtener información de la empresa
             $empresa = Empresa::first();
 
-
             // Calcular valores de factura
             $subtotal = $this->subtotalGeneral;
             $igv = $this->igvGeneral;
@@ -1168,7 +1168,7 @@ class GestionVentas extends Component
                 $totalSinigv = round(($plato['cantidad'] * $plato['precio_unitario']) / 1.1, 2);
                 $detalleFactura[] = [
                     "txtITEM" => (string)$item,
-                    "txtUNIDAD_MEDIDA_DET" => (string)$plato['unidad_medida_codigo'],
+                    "txtUNIDAD_MEDIDA_DET" => (string)str_replace(' ', '', $plato['unidad_medida_codigo']),
                     "txtCANTIDAD_DET" => (string)$plato['cantidad'],
                     "txtPRECIO_DET" => (string)($plato['precio_unitario']),
                     "txtIMPORTE_DET" => (string)$totalSinigv,
@@ -1193,7 +1193,7 @@ class GestionVentas extends Component
 
                 $detalleFactura[] = [
                     "txtITEM" => (string)$item,
-                    "txtUNIDAD_MEDIDA_DET" => (string)$existencia['unidad_medida_codigo'],
+                    "txtUNIDAD_MEDIDA_DET" => (string)str_replace(' ', '', $existencia['unidad_medida_codigo']),
                     "txtCANTIDAD_DET" => (string)$existencia['cantidad'],
                     "txtPRECIO_DET" => (string)($existencia['precio_unitario']),
                     "txtIMPORTE_DET" => (string)$totalSinigv,
@@ -1212,7 +1212,7 @@ class GestionVentas extends Component
                 $item++;
             }
 
-            // Crear el objeto JSON para facturación electrónica
+            // Crear el objeto para enviar a SunatController
             $datos = [
                 "ICBP" => "0",
                 "txtTIPO_OPERACION" => "0101",
@@ -1225,7 +1225,7 @@ class GestionVentas extends Component
                 "txtNRO_COMPROBANTE" => $nroComprobante,
                 "txtFECHA_DOCUMENTO" => date('Y-m-d'),
                 "txtFECHA_VTO" => date('Y-m-d'),
-                "txtCOD_TIPO_DOCUMENTO" => (string)$this->tipoComprobanteSeleccionado,
+                "txtCOD_TIPO_DOCUMENTO" => (string)str_replace(' ', '', $this->tipoComprobanteSeleccionado),
                 "txtCOD_MONEDA" => (string)$this->monedaSelecionada,
                 "detalle_forma_pago" => [
                     [
@@ -1238,7 +1238,7 @@ class GestionVentas extends Component
                 "txtDIRECCION_CLIENTE" => $cliente->direccion ?? " ",
                 "txtCIUDAD_CLIENTE" => $cliente->ciudad ?? " ",
                 "txtCOD_PAIS_CLIENTE" => "PE",
-                "txtNRO_DOCUMENTO_EMPRESA" => $empresa->ruc ?? "11",
+                "txtNRO_DOCUMENTO_EMPRESA" => (string)$empresa->ruc ?? "11",
                 "txtTIPO_DOCUMENTO_EMPRESA" => "6",
                 "txtNOMBRE_COMERCIAL_EMPRESA" => $empresa->nombre_comercial ?? "NOMBRE COMERCIAL",
                 "txtCODIGO_UBIGEO_EMPRESA" => $empresa->ubigeo ?? "111111",
@@ -1258,54 +1258,29 @@ class GestionVentas extends Component
                 "detalle" => $detalleFactura
             ];
 
-            // Enviar el JSON a la API de facturación
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer 5|BSz4NaMp677HJ7gtOSHaL4hht6UzNluLBtsothM3',
-                'Accept' => 'application/json'
-            ])->post('http://localhost/v01-facvip/public/api/cpe', $datos);
+            try {
+                // Instanciar el SunatController
+                $sunatController = new SunatController();
 
-            // Verificar si la respuesta fue exitosa
-            if ($response->successful()) {
-                $responseData = $response->json();
 
-                // Extraer los datos de respuesta
-                $hashCpe = $responseData['hash_cpe'] ?? null;
-                $codSunat = $responseData['cod_sunat'] ?? null;
-                $msjSunat = $responseData['msj_sunat'] ?? null;
-                $hashCdr = $responseData['hash_cdr'] ?? null;
-                $xmlCpeUrl = $responseData['xml_cpe'] ?? null;
-                $xmlCdrUrl = $responseData['xml_cdr'] ?? null;
+                // Enviar datos al SunatController
+                $resultado = $sunatController->enviarCpe($datos);
 
-                // Variables para almacenar el contenido de los XML
-                $xmlCpeContent = null;
-                $xmlCdrContent = null;
+                // Verificar si la respuesta fue exitosa
+                if ($resultado['success']) {
+                    // Extraer los datos de respuesta
+                    $responseData = $resultado['data'];
 
-                // Obtener el contenido del XML CPE
-                if ($xmlCpeUrl) {
-                    $xmlCpeResponse = Http::withHeaders([
-                        'Authorization' => 'Bearer 5|BSz4NaMp677HJ7gtOSHaL4hht6UzNluLBtsothM3'
-                    ])->get($xmlCpeUrl);
+                    $hashCpe = $responseData['hash_cpe'] ?? null;
+                    $codSunat = $responseData['cod_sunat'] ?? null;
+                    $msjSunat = $responseData['msj_sunat'] ?? null;
+                    $hashCdr = $responseData['hash_cdr'] ?? null;
+                    $xmlCpeContent = $responseData['xml_cpe'] ?? null;
+                    $xmlCdrContent = $responseData['xml_cdr'] ?? null;
 
-                    if ($xmlCpeResponse->successful()) {
-                        $xmlCpeContent = $xmlCpeResponse->body();
-                    }
-                }
+                    $tipoComprobanteId = $this->obtenerTipoComprobanteId($this->tipoComprobanteSeleccionado);
 
-                // Obtener el contenido del XML CDR
-                if ($xmlCdrUrl) {
-                    $xmlCdrResponse = Http::withHeaders([
-                        'Authorization' => 'Bearer 5|BSz4NaMp677HJ7gtOSHaL4hht6UzNluLBtsothM3'
-                    ])->get($xmlCdrUrl);
-
-                    if ($xmlCdrResponse->successful()) {
-                        $xmlCdrContent = $xmlCdrResponse->body();
-                    }
-                }
-
-                $tipoComprobanteId = $this->obtenerTipoComprobanteId($this->tipoComprobanteSeleccionado);
-
-                // Crear el registro del comprobante en la base de datos
-                try {
+                    // Crear el registro del comprobante en la base de datos
                     $comprobante = ComprobantePago::create([
                         'tipo_comprobante_id' => $tipoComprobanteId,
                         'serie' => $serie,
@@ -1330,27 +1305,23 @@ class GestionVentas extends Component
                         ->success()
                         ->duration(5000)
                         ->send();
-                } catch (\Exception $e) {
-                    // En caso de error al guardar en la base de datos
+                } else {
+                    // Error en la respuesta del SunatController
                     Notification::make()
-                        ->title('Error al guardar el comprobante')
-                        ->body('Ocurrió un error al guardar el comprobante: ' . $e->getMessage())
+                        ->title('Error en facturación electrónica')
+                        ->body('Error al procesar el comprobante: ' . ($resultado['message'] ?? 'Error desconocido'))
                         ->danger()
                         ->duration(5000)
                         ->send();
-
-                    return;
                 }
-            } else {
-                // Error en la API de facturación
+            } catch (\Exception $e) {
+                // Error al procesar la factura
                 Notification::make()
                     ->title('Error en facturación electrónica')
-                    ->body('No se pudo conectar con el servicio de facturación: ' . ($response->body() ?? 'Error desconocido'))
+                    ->body('Ocurrió un error: ' . $e->getMessage())
                     ->danger()
                     ->duration(5000)
                     ->send();
-
-                return;
             }
         } else {
             // Guardar comprobante interno sin facturación electrónica

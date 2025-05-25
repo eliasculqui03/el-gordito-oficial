@@ -410,7 +410,7 @@
                 <span>S/ {{ number_format($xmlData['subtotal'] ?? 0, 2) }}</span>
             </div>
             <div class="total-row">
-                <span>I.G.V. 18%:</span>
+                <span>I.G.V. 10%:</span>
                 <span>S/ {{ number_format($xmlData['igv'] ?? 0, 2) }}</span>
             </div>
             <div class="total-row bold-total">

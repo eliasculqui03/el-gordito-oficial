@@ -85,8 +85,8 @@ function cpe(
         //        'COD_PERCEPCION' => (isset($cab['txtCOD_PERCEPCION'])) ? $cab['txtCOD_PERCEPCION'] : "",
         //        'POR_PERCEPCION' => (isset($cab['txtPOR_PERCEPCION'])) ? $cab['txtPOR_PERCEPCION'] : "0",
         //        'BASE_IMP_PERCEPCION' => (isset($cab['txtBASE_IMP_PERCEPCION'])) ? $cab['txtBASE_IMP_PERCEPCION'] : "0",
-        //        'TOTAL_COBRAR' => (isset($cab['txtTOTAL_COBRAR'])) ? $cab['txtTOTAL_COBRAR'] : "0", 
-        //        
+        //        'TOTAL_COBRAR' => (isset($cab['txtTOTAL_COBRAR'])) ? $cab['txtTOTAL_COBRAR'] : "0",
+        //
         'SUB_TOTAL_PERCEPCIONES' => (isset($cab['txtSUB_TOTAL_PERCEPCIONES'])) ? $cab['txtSUB_TOTAL_PERCEPCIONES'] : "0",
         'POR_PERCEPCIONES' => (isset($cab['txtPOR_PERCEPCIONES'])) ? $cab['txtPOR_PERCEPCIONES'] : "0",
         'BI_PERCEPCIONES' => (isset($cab['txtBI_PERCEPCIONES'])) ? $cab['txtBI_PERCEPCIONES'] : "0",
@@ -117,7 +117,7 @@ function cpe(
         //==========RECARGO CONSUMO==========
         'TOTAL_RECARGO_CONSUMO' => (isset($cab['txtTOTAL_RECARGO_CONSUMO'])) ? $cab['txtTOTAL_RECARGO_CONSUMO'] : "0",
         'BI_RECARGO_CONSUMO' => (isset($cab['txtBI_RECARGO_CONSUMO'])) ? $cab['txtBI_RECARGO_CONSUMO'] : "0",
-        //==========FIN RECARGO CONSUMO==========        
+        //==========FIN RECARGO CONSUMO==========
         'TOTAL' => (isset($cab['txtTOTAL'])) ? $cab['txtTOTAL'] : "0",
         'TOTAL_COBRAR' => (isset($cab['txtTOTAL_COBRAR'])) ? $cab['txtTOTAL_COBRAR'] : "0",
         'TOTAL_LETRAS' => $cab['txtTOTAL_LETRAS'],
@@ -216,11 +216,11 @@ function cpe(
     $mensaje_envio = cpeEnvio($ruc, $usuario_sol, $pass_sol, $ruta, $ruta_cdr, $archivo, $ruta_ws);
     //============CREAMOS PDF===========
     if ($cab['txtCOD_TIPO_DOCUMENTO'] == '01') {
-        //dfFacBol($ruta, $cabecera, $detalle, $hash_cpe);  
+        //dfFacBol($ruta, $cabecera, $detalle, $hash_cpe);
         //pdfFacBolTicket($ruta, $cabecera, $detalle, $hash_cpe);
     }
     if ($cab['txtCOD_TIPO_DOCUMENTO'] == '03') {
-        // pdfFacBolTicket($ruta, $cabecera, $detalle, $hash_cpe);    
+        // pdfFacBolTicket($ruta, $cabecera, $detalle, $hash_cpe);
     }
 
     $response['mensaje_xml'] = $mensaje_xml;
