@@ -796,7 +796,11 @@
                                 </div>
 
                                 <!-- Botones de acción -->
-                                <div class="grid grid-cols-3 gap-2">
+                                <div class="grid grid-cols-4 gap-2">
+
+                                    <div>
+                                        <livewire:gestion-comandas :caja-id="$caja->id">
+                                    </div>
                                     <!-- Botón Transferir -->
                                     <div>
                                         <livewire:transferir-componente :caja-id="$caja->id">

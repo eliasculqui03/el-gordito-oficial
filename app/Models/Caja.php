@@ -49,6 +49,10 @@ class Caja extends Model
 
     public function comprobantePago(): HasMany
     {
-        return $this->hasMany(comprobantePago::class);
+        return $this->hasMany(ComprobantePago::class);
+    }
+    public function comandas(): HasMany
+    {
+        return $this->hasMany(Comanda::class);
     }
 }

@@ -948,6 +948,7 @@ class GestionVentas extends Component
             $comanda->cliente_id = $this->id_cliente;
             $comanda->zona_id = $this->id_zona ?: null;
             $comanda->mesa_id = $this->id_mesa ?: null;
+            $comanda->caja_id = $this->caja->id;
             $comanda->subtotal = $this->subtotalGeneral;
             $comanda->igv = $this->igvGeneral;
             $comanda->total_general = $this->totalGeneral;

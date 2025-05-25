@@ -15,6 +15,7 @@ class Comanda extends Model
         'cliente_id',
         'zona_id',
         'mesa_id',
+        'caja_id',
         'subtotal',
         'igv',
         'total_general',
@@ -49,5 +50,10 @@ class Comanda extends Model
     public function comprobantePago(): HasMany
     {
         return $this->hasMany(comprobantePago::class);
+    }
+
+    public function caja(): BelongsTo
+    {
+        return $this->belongsTo(Caja::class);
     }
 }
