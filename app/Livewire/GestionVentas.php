@@ -785,13 +785,14 @@ class GestionVentas extends Component
     public function guardarPedido()
     {
 
-        $resultado = $this->guardarComanda();
+        $estado_pago = 'Pendiente';
+        $resultado = $this->guardarComanda($estado_pago);
         if ($resultado !== false) {
             $this->limpiarGeneral();
         }
     }
 
-    public function guardarComanda()
+    public function guardarComanda($estado_pago)
     {
         // Validar que haya al menos un producto o plato
         if (count($this->platosComanda) == 0 && count($this->existenciasComanda) == 0) {
@@ -949,6 +950,7 @@ class GestionVentas extends Component
             $comanda->subtotal = $this->subtotalGeneral;
             $comanda->igv = $this->igvGeneral;
             $comanda->total_general = $this->totalGeneral;
+            $comanda->estado_pago = $estado_pago;
             $comanda->save();
 
             // Mapeo para controlar cuánto se ha reducido de cada plato
@@ -1129,7 +1131,8 @@ class GestionVentas extends Component
         $nroComprobante = $this->serieComprobante . '-' . $num;
 
         // Obtener el ID de la comanda
-        $comandaId = $this->guardarComanda();
+        $estado_pago = 'Pagada';
+        $comandaId = $this->guardarComanda($estado_pago);
         if ($comandaId == false) {
             Notification::make()
                 ->title('Error')
