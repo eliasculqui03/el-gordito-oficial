@@ -51,6 +51,9 @@ class GestionVentas extends Component
     {
         $this->cajaId = $cajaId;
         $this->cargarCaja();
+        if ($this->tipoComprobanteSeleccionado) {
+            $this->updatedTipoComprobanteSeleccionado();
+        }
     }
 
     protected function cargarCaja()
@@ -362,27 +365,59 @@ class GestionVentas extends Component
         ]);
     }
 
-
+    public $numeroComprobante = '';
 
     public function updatedTipoComprobanteSeleccionado()
     {
-        $this->actualizarSerie();
-    }
-
-    public function actualizarSerie()
-    {
-        $comprobante = TipoComprobante::where('codigo', $this->tipoComprobanteSeleccionado)
-            ->where('estado', 1)
-            ->first();
-
-        if ($comprobante) {
-            // Tomar la primera letra de la descripción
-            $primeraLetra = substr($comprobante->descripcion, 0, 1);
-            // Formatear la serie con la letra y el ID de la caja
-            $this->serieComprobante = $primeraLetra . '00' . ($this->caja->id ?? '');
+        // Generar serie según tipo de comprobante
+        if ($this->tipoComprobanteSeleccionado == '01') { // Factura
+            $this->serieComprobante = 'F00' . $this->cajaId;
+        } elseif ($this->tipoComprobanteSeleccionado == '03') { // Boleta
+            $this->serieComprobante = 'B00' . $this->cajaId;
+        } elseif ($this->tipoComprobanteSeleccionado == '00') { // Nota de venta interna
+            $this->serieComprobante = 'T00' . $this->cajaId;
         } else {
             $this->serieComprobante = '';
         }
+
+        // Calcular y asignar el número de comprobante
+        if ($this->tipoComprobanteSeleccionado) {
+            $this->numeroComprobante = $this->calcularNumeroComprobante();
+        } else {
+            $this->numeroComprobante = '';
+        }
+    }
+
+
+    protected function calcularNumeroComprobante()
+    {
+        // Obtener el ID del tipo de comprobante
+        $tipoComprobanteId = $this->obtenerTipoComprobanteId($this->tipoComprobanteSeleccionado);
+
+
+
+        // Contar cuántos comprobantes existen con el mismo tipo y serie
+        $ultimoComprobante = ComprobantePago::where('tipo_comprobante_id', $tipoComprobanteId)
+            ->where('serie', $this->serieComprobante)
+            ->orderBy('numero', 'desc')
+            ->first();
+
+        if ($ultimoComprobante) {
+            // Si existe al menos un comprobante, tomar su número y sumar 1
+            $ultimoNumero = (int)$ultimoComprobante->numero;
+            $nuevoNumero = $ultimoNumero + 1;
+        } else {
+            // Si no hay comprobantes previos, comenzar en 1
+            $nuevoNumero = 1;
+        }
+
+        // Formatear el número con ceros a la izquierda (6 dígitos)
+        return str_pad($nuevoNumero, 6, '0', STR_PAD_LEFT);
+    }
+    protected function obtenerTipoComprobanteId($codigo)
+    {
+        $tipoComprobante = TipoComprobante::where('codigo', $codigo)->first();
+        return $tipoComprobante ? $tipoComprobante->id : null;
     }
 
 
@@ -1070,6 +1105,7 @@ class GestionVentas extends Component
         $this->limpiarCliente();
         $this->limpiarMesaZona();
         $this->calcularNumeroPedido();
+        $this->numeroComprobante = '';
 
         $this->tipoComprobanteSeleccionado = null;
     }
@@ -1129,7 +1165,7 @@ class GestionVentas extends Component
         }
 
         // Generar serie y correlativo
-        $num = $this->calcularNumeroPedido();
+        $num = $this->numeroComprobante ?: $this->calcularNumeroComprobante();
         $nroComprobante = $this->serieComprobante . '-' . $num;
 
         // Obtener el ID de la comanda
@@ -1463,11 +1499,5 @@ class GestionVentas extends Component
             str_pad($decimal, 2, '0', STR_PAD_LEFT) . '/100 SOLES';
 
         return $texto;
-    }
-
-    private function obtenerTipoComprobanteId($tipoComprobante)
-    {
-        $tipo = TipoComprobante::where('codigo', $tipoComprobante)->first();
-        return $tipo ? $tipo->id : null;
     }
 }

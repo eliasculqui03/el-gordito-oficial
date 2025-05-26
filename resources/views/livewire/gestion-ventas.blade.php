@@ -385,8 +385,6 @@
 
                         <!-- Segunda columna (2/5) -->
                         <div class="order-2 space-y-4 lg:order-2 lg:col-span-2">
-                            <!-- Primera fila: Información básica -->
-
 
                             <!-- Datos del Cliente (Card con sombra suave) -->
                             <div
@@ -533,7 +531,7 @@
                                             class="block mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                                             Número
                                         </label>
-                                        <input id="numero-comprobante" type="text" wire:model='numeroPedido'
+                                        <input id="numero-comprobante" type="text" wire:model="numeroComprobante"
                                             readonly disabled
                                             class="block w-full px-3 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm dark:bg-gray-600 dark:border-gray-600 dark:text-gray-200">
                                     </div>
