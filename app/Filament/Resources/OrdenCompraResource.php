@@ -178,7 +178,7 @@ class OrdenCompraResource extends Resource
                                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                                     ->columnSpan(1)
                                     ->disabled(fn(Forms\Get $get): bool => filled($get('solicitud_compra_id')))
-                                    ->dehydrated(fn(Forms\Get $get): bool => filled($get('solicitud_compra_id'))),
+                                    ->dehydrated(),
 
                                 Forms\Components\TextInput::make('cantidad')
                                     ->required()
@@ -204,7 +204,7 @@ class OrdenCompraResource extends Resource
                                         }
                                     })
                                     ->disabled(fn(Forms\Get $get): bool => filled($get('solicitud_compra_id')))
-                                    ->dehydrated(fn(Forms\Get $get): bool => filled($get('solicitud_compra_id')))
+                                    ->dehydrated()
                                     ->columnSpan(1),
 
                                 Forms\Components\TextInput::make('subtotal')

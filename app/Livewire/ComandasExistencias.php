@@ -64,6 +64,7 @@ class ComandasExistencias extends Component
         // Actualizar estado de las existencias
         ComandaExistencia::where('comanda_id', $comandaId)
             ->whereIn('existencia_id', $existenciasIds)
+            ->where('estado', 'Pendiente')
             ->update([
                 'estado' => 'Procesando'
             ]);

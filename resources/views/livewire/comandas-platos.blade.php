@@ -167,7 +167,7 @@
                             </div>
 
                             <!-- Footer -->
-                            @if ($comanda->comandaPlatos->where('plato.area_id', $selectedArea)->every(fn($comandaPlato) => $comandaPlato->estado === 'Pendiente'))
+                            @if ($comanda->comandaPlatos->where('plato.area_id', $selectedArea)->some(fn($comandaPlato) => $comandaPlato->estado === 'Pendiente'))
                                 <div class="flex justify-end p-3 border-t dark:border-gray-700">
                                     <button wire:click="procesarComanda({{ $comanda->id }})"
                                         class="px-4 py-2 text-sm font-medium text-white transition-colors rounded-lg bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-primary-500 dark:hover:bg-primary-600">

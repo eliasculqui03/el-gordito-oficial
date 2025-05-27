@@ -52,11 +52,6 @@ class ComandasPlatos extends Component
     {
         $comanda = Comanda::findOrFail($comandaId);
 
-        // // Verificar si el usuario tiene permiso para procesar la comanda
-        // $userArea = Area::where('user_id', auth()->id())->first();
-        // if ($userArea && $userArea->id != $this->selectedArea) {
-        //     return;
-        // }
 
         // Actualizar estado de la comanda
         $comanda->update(['estado' => 'Procesando']);
@@ -68,6 +63,7 @@ class ComandasPlatos extends Component
         // Actualizar estado de los platos
         ComandaPlato::where('comanda_id', $comandaId)
             ->whereIn('plato_id', $platosIds)
+            ->where('estado', 'Pendiente')
             ->update([
                 'estado' => 'Procesando'
             ]);

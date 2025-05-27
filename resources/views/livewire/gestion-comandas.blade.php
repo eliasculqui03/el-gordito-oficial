@@ -197,8 +197,8 @@
                                                     class="px-3 py-4 text-sm font-medium text-center whitespace-nowrap sm:px-6">
                                                     <div
                                                         class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-center sm:space-x-2">
-                                                        <!-- Botón de editar (solo disponible para comandas en estado "Abierta") -->
-                                                        @if ($comanda->estado === 'Abierta')
+                                                        <!-- Botón de generar comprobante (solo disponible cuando estado_pago es "Pendiente") -->
+                                                        @if ($comanda->estado_pago === 'Pendiente')
                                                             <button wire:click="editarComanda({{ $comanda->id }})"
                                                                 class="flex items-center justify-center w-full px-2 py-1 text-xs text-white bg-blue-500 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 sm:w-auto sm:px-3">
                                                                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -210,10 +210,6 @@
                                                                 </svg>
                                                                 <span class="hidden sm:inline">Editar</span>
                                                             </button>
-                                                        @endif
-
-                                                        <!-- Botón de generar comprobante (solo disponible cuando estado_pago es "Pendiente") -->
-                                                        @if ($comanda->estado_pago === 'Pendiente')
                                                             <button
                                                                 wire:click="generarComprobante({{ $comanda->id }})"
                                                                 class="flex items-center justify-center w-full px-2 py-1 text-xs text-white bg-blue-600 rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 sm:w-auto sm:px-3">

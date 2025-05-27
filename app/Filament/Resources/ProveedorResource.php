@@ -34,21 +34,28 @@ class ProveedorResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('nombre')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->autocomplete(false),
                 Forms\Components\Select::make('tipo_documento_id')
                     ->relationship('tipoDocumento', 'descripcion_corta')
                     ->required(),
                 Forms\Components\TextInput::make('numero_documento')
+                    ->label('N° de documento')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->autocomplete(false),
                 Forms\Components\TextInput::make('telefono')
                     ->tel()
                     ->maxLength(255)
-                    ->default(null),
+                    ->default(null)
+                    ->autocomplete(false),
                 Forms\Components\TextInput::make('email')
+                    ->label('Correo electrónico')
+                    ->required()
                     ->email()
                     ->maxLength(255)
-                    ->default(null),
+                    ->default(null)
+                    ->autocomplete(false),
                 Forms\Components\Toggle::make('estado')
                     ->default(true),
             ]);
