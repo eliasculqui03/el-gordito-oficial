@@ -755,7 +755,7 @@
 
         <!-- Botones de acción -->
         <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <button type="button" wire:click="$dispatch('cerrarModalEditar')"
+            <button type="button" wire:target="cancelarEdicion" wire:click="$dispatch('cerrarModalEditar')"
                 class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500 sm:w-auto">
                 Cancelar
             </button>
@@ -776,7 +776,7 @@
         </div>
     </form>
 
-    <!-- Loading estado (mantengo el overlay también) -->
+    {{-- <!-- Loading estado (mantengo el overlay también) -->
     <div wire:loading wire:target="guardarComanda"
         class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
         <div class="p-3 bg-white rounded-lg shadow-lg dark:bg-gray-800 sm:p-4">
@@ -787,5 +787,5 @@
                 <span class="text-xs text-gray-700 dark:text-gray-300 sm:text-sm">Guardando cambios...</span>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>

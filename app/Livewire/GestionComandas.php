@@ -36,7 +36,8 @@ class GestionComandas extends Component
 
     protected $listeners = [
         'comandaActualizada' => 'handleComandaActualizada',
-        'comprobanteGenerado' => 'handleComprobanteGenerado'
+        'comprobanteGenerado' => 'handleComprobanteGenerado',
+        'cerrarModalEditar' => 'cerrarModalEditar',
     ];
 
     public function mount($cajaId)

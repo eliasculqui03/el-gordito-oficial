@@ -679,4 +679,9 @@ class EditarComanda extends Component
                 : $plato->precio;
         }
     }
+
+    public function cancelarEdicion()
+    {
+        $this->dispatch('cerrarModalEditar');
+    }
 }

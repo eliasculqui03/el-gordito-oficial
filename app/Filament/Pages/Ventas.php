@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Http\Controllers\SunatController;
 use App\Models\ComprobantePago;
 use App\Models\TipoComprobante;
 use App\Models\Comanda;
@@ -22,7 +23,10 @@ use SimpleXMLElement;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Exception;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\MaxWidth;
+use Illuminate\Support\Facades\Auth;
 
 class Ventas extends Page implements HasTable
 {
@@ -68,6 +72,37 @@ class Ventas extends Page implements HasTable
                     ->sortable(),
             ])
             ->actions([
+
+                // Action::make('convertir_a_electronico')
+                //     ->label('Convertir a Electrónico')
+                //     ->icon('heroicon-o-arrow-path-rounded-square')
+                //     ->color('success')
+                //     ->form([
+                //         Select::make('tipo_comprobante_id')
+                //             ->label('Tipo de Comprobante')
+                //             ->options(function (ComprobantePago $record) {
+                //                 return TipoComprobante::whereIn('codigo', ['01', '03'])->pluck('descripcion', 'id');
+                //             })
+                //             ->required(),
+                //         TextInput::make('serie')
+                //             ->label('Serie')
+                //             ->placeholder('Ejemplo: F001 o B001')
+                //             ->required()
+                //             ->maxLength(10),
+                //         TextInput::make('numero')
+                //             ->label('Número')
+                //             ->placeholder('Ejemplo: 00000123')
+                //             ->required()
+                //             ->maxLength(20),
+                //     ])
+                //     ->action(function (array $data, ComprobantePago $record): void {
+                //         $this->convertirTicket($data, $record);
+                //     })
+                //     ->visible(function (ComprobantePago $record): bool {
+                //         // Solo mostrar para tickets (comprobantes no electrónicos)
+                //         return $record->tipoComprobante->codigo == '00';
+                //     }),
+
                 // Acción para vista previa de PDF usando XML
                 Action::make('preview_pdf')
                     ->label('Vista Previa PDF')
@@ -403,5 +438,230 @@ class Ventas extends Page implements HasTable
         }
 
         return null;
+    }
+
+    public $ticketId;
+    public $tipoComprobanteId;
+    public $serie;
+    public $numero;
+    public $isLoading = false;
+
+    protected function convertirTicket(array $data, ComprobantePago $ticket): void
+    {
+        try {
+            // Mostrar notificación de proceso iniciado
+            Notification::make()
+                ->title('Enviando a SUNAT')
+                ->body('El comprobante está siendo procesado...')
+                ->info()
+                ->send();
+
+            // Obtener info del cliente
+            $cliente = $ticket->cliente;
+
+            // Obtener la comanda
+            $comanda = $ticket->comanda;
+
+            // Obtener empresa
+            $empresa = Empresa::first();
+
+            // Validar que el tipo de comprobante sea correcto según el cliente
+            $tipoComprobanteId = $data['tipo_comprobante_id'];
+            $tipoComprobante = TipoComprobante::find($tipoComprobanteId);
+
+            // Si es factura, verificar que el cliente tenga RUC
+            if ($tipoComprobante->codigo === '01' && substr($cliente->numero_documento, 0, 2) !== '20' && substr($cliente->numero_documento, 0, 2) !== '10') {
+                Notification::make()
+                    ->title('Validación fallida')
+                    ->body('Para emitir una factura, el cliente debe tener RUC.')
+                    ->danger()
+                    ->persistent()
+                    ->send();
+
+                return;
+            }
+
+            // Preparar array de detalle para factura electrónica
+            $detalleFactura = [];
+            $item = 1;
+
+            // Calcular valores
+            $subtotal = 0;
+            $igv = 0;
+            $total = 0;
+
+            // Agregar platos al detalle de factura
+            foreach ($comanda->comandaPlatos as $plato) {
+                $totalSinigv = round(($plato->cantidad * $plato->precio_unitario) / 1.1, 2);
+                $igvItem = round($totalSinigv * 0.1, 2);
+
+                $detalleFactura[] = [
+                    "txtITEM" => (string)$item,
+                    "txtUNIDAD_MEDIDA_DET" => "NIU", // Unidad estándar
+                    "txtCANTIDAD_DET" => (string)$plato->cantidad,
+                    "txtPRECIO_DET" => (string)($plato->precio_unitario),
+                    "txtIMPORTE_DET" => (string)$totalSinigv,
+                    "txtPRECIO_TIPO_CODIGO" => "01",
+                    "txtIGV" => (string)$igvItem,
+                    "txtISC" => "0",
+                    "txtCOD_TIPO_OPERACION" => "10",
+                    "txtCODIGO_DET" => "PLA" . str_pad($plato->plato->id, 3, '0', STR_PAD_LEFT),
+                    "txtDESCRIPCION_DET" => $plato->plato->nombre . ($plato->es_llevar ? " - LLEVAR" : ""),
+                    "txtPRECIO_SIN_IGV_DET" => (string)round($plato->precio_unitario / 1.1, 2),
+                    "FLG_ICBPER" => "0",
+                    "IMPUESTO_BP" => "0",
+                    "IMPORTE_BP" => "0"
+                ];
+
+                $subtotal += $totalSinigv;
+                $igv += $igvItem;
+                $total += ($totalSinigv + $igvItem);
+
+                $item++;
+            }
+
+            // Agregar existencias al detalle de factura
+            foreach ($comanda->comandaExistencias as $existencia) {
+                $totalSinigv = round(($existencia->cantidad * $existencia->precio_unitario) / 1.1, 2);
+                $igvItem = round($totalSinigv * 0.1, 2);
+
+                $detalleFactura[] = [
+                    "txtITEM" => (string)$item,
+                    "txtUNIDAD_MEDIDA_DET" => "NIU", // Unidad estándar
+                    "txtCANTIDAD_DET" => (string)$existencia->cantidad,
+                    "txtPRECIO_DET" => (string)($existencia->precio_unitario),
+                    "txtIMPORTE_DET" => (string)$totalSinigv,
+                    "txtPRECIO_TIPO_CODIGO" => "01",
+                    "txtIGV" => (string)$igvItem,
+                    "txtISC" => "0",
+                    "txtCOD_TIPO_OPERACION" => "10",
+                    "txtCODIGO_DET" => "EXI" . str_pad($existencia->existencia->id, 3, '0', STR_PAD_LEFT),
+                    "txtDESCRIPCION_DET" => (string)$existencia->existencia->nombre . ($existencia->es_helado ? " - HELADO" : ""),
+                    "txtPRECIO_SIN_IGV_DET" => (string)round($existencia->precio_unitario / 1.1, 2),
+                    "FLG_ICBPER" => "0",
+                    "IMPUESTO_BP" => "0",
+                    "IMPORTE_BP" => "0"
+                ];
+
+                $subtotal += $totalSinigv;
+                $igv += $igvItem;
+                $total += ($totalSinigv + $igvItem);
+
+                $item++;
+            }
+
+            // Crear el objeto para facturación electrónica
+            $datos = [
+                "ICBP" => "0",
+                "txtTIPO_OPERACION" => "0101",
+                "txtTOTAL_GRAVADAS" => (string)$subtotal,
+                "txtSUB_TOTAL" => (string)$subtotal,
+                "txtPOR_IGV" => "10.00",
+                "txtTOTAL_IGV" => (string)$igv,
+                "txtTOTAL" => (string)$total,
+                "txtTOTAL_LETRAS" => $this->numeroALetras($total),
+                "txtNRO_COMPROBANTE" => $data['serie'] . '-' . $data['numero'],
+                "txtFECHA_DOCUMENTO" => date('Y-m-d'),
+                "txtFECHA_VTO" => date('Y-m-d'),
+                "txtCOD_TIPO_DOCUMENTO" => str_replace(' ', '', $tipoComprobante->codigo),
+                "txtCOD_MONEDA" => "PEN", // Por defecto Sol Peruano
+                "detalle_forma_pago" => [
+                    [
+                        "COD_FORMA_PAGO" => "Contado" // Por defecto contado
+                    ]
+                ],
+                "txtNRO_DOCUMENTO_CLIENTE" => $cliente->ruc ?? $cliente->numero_documento,
+                "txtRAZON_SOCIAL_CLIENTE" => $cliente->nombre ?? ($cliente->nombres . ' ' . $cliente->apellidos),
+                "txtTIPO_DOCUMENTO_CLIENTE" => $cliente->tipo_documento ?? "1",
+                "txtDIRECCION_CLIENTE" => $cliente->direccion ?? " ",
+                "txtCIUDAD_CLIENTE" => $cliente->ciudad ?? " ",
+                "txtCOD_PAIS_CLIENTE" => "PE",
+                "txtNRO_DOCUMENTO_EMPRESA" => $empresa->ruc ?? "11",
+                "txtTIPO_DOCUMENTO_EMPRESA" => "6",
+                "txtNOMBRE_COMERCIAL_EMPRESA" => $empresa->nombre_comercial ?? "NOMBRE COMERCIAL",
+                "txtCODIGO_UBIGEO_EMPRESA" => $empresa->ubigeo ?? "111111",
+                "txtDIRECCION_EMPRESA" => $empresa->direccion ?? "DIRECCIÓN COMERCIAL",
+                "txtDEPARTAMENTO_EMPRESA" => $empresa->departamento ?? "DEPARTAMENTO",
+                "txtPROVINCIA_EMPRESA" => $empresa->provincia ?? "PROVINCIA",
+                "txtDISTRITO_EMPRESA" => $empresa->distrito ?? "DISTRITO",
+                "txtCODIGO_PAIS_EMPRESA" => "PE",
+                "txtRAZON_SOCIAL_EMPRESA" => $empresa->nombre ?? "RAZÓN SOCIAL EMPRESA",
+                "txtUSUARIO_SOL_EMPRESA" => $empresa->usuario_sol ?? "MODDATOS",
+                "txtPASS_SOL_EMPRESA" => $empresa->clave_sol ?? "moddatos",
+                "txtPAS_FIRMA" => $empresa->clave_firma ?? "123456",
+                "txtTIPO_PROCESO" => "3",
+                "txtFLG_ANTICIPO" => "0",
+                "txtFLG_REGU_ANTICIPO" => "0",
+                "txtMONTO_REGU_ANTICIPO" => "0",
+                "detalle" => $detalleFactura
+            ];
+
+            // Instanciar el SunatController
+            $sunatController = new SunatController();
+
+            // dd($datos);
+            // Enviar datos a SUNAT
+            $resultado = $sunatController->enviarCpe($datos);
+
+            // Verificar si la respuesta fue exitosa
+            if ($resultado['success']) {
+                // Extraer datos de respuesta
+                $responseData = $resultado['data'];
+
+                $hashCpe = $responseData['hash_cpe'] ?? null;
+                $codSunat = $responseData['cod_sunat'] ?? null;
+                $msjSunat = $responseData['msj_sunat'] ?? null;
+                $hashCdr = $responseData['hash_cdr'] ?? null;
+                $xmlCpeContent = $responseData['xml_cpe'] ?? null;
+                $xmlCdrContent = $responseData['xml_cdr'] ?? null;
+
+                // Crear nuevo comprobante electrónico
+                $comprobante = ComprobantePago::create([
+                    'tipo_comprobante_id' => $tipoComprobanteId,
+                    'serie' => $data['serie'],
+                    'numero' => $data['numero'],
+                    'cliente_id' => $ticket->cliente_id,
+                    'comanda_id' => $ticket->comanda_id,
+                    'moneda' => 'PEN',
+                    'medio_pago' => $ticket->medio_pago,
+                    'hash_cpe' => $hashCpe,
+                    'hash_cdr' => $hashCdr,
+                    'xml_cpe' => $xmlCpeContent,
+                    'xml_cdr' => $xmlCdrContent,
+                    'user_id' => Auth::id(),
+                    'caja_id' => $ticket->caja_id,
+                    'observaciones' => "Convertido desde ticket {$ticket->serie}-{$ticket->numero}. Código: {$codSunat} {$msjSunat}",
+                ]);
+
+                // Notificar éxito
+                Notification::make()
+                    ->title('Conversión exitosa')
+                    ->body('Comprobante electrónico generado: ' . $data['serie'] . '-' . $data['numero'] . '. ' . $msjSunat)
+                    ->success()
+                    ->actions([
+                        \Filament\Notifications\Actions\Action::make('view')
+                            ->label('Ver Detalle')
+                            ->url(route('filament.admin.pages.ventas'))
+                    ])
+                    ->persistent()
+                    ->send();
+            } else {
+                // Notificar error de SUNAT
+                Notification::make()
+                    ->title('Error en SUNAT')
+                    ->body($resultado['message'] ?? 'Ocurrió un error al procesar el comprobante en SUNAT')
+                    ->danger()
+                    ->persistent()
+                    ->send();
+            }
+        } catch (Exception $e) {
+            // Manejo de excepciones generales
+            Notification::make()
+                ->title('Error')
+                ->body($e->getMessage())
+                ->danger()
+                ->persistent()
+                ->send();
+        }
     }
 }
