@@ -532,7 +532,16 @@ class GestionVentas extends Component
         }
 
         // Incluir relaciones necesarias
-        $query->with(['categoriaPlato', 'disponibilidadPlato']);
+        $query->with([
+            'categoriaPlato',
+            'disponibilidadPlato',
+            'cajas' => function ($query) {
+                // Filtrar por el cajaId actual si está definido
+                if ($this->cajaId) {
+                    $query->wherePivot('caja_id', $this->cajaId);
+                }
+            }
+        ]);
 
         // Obtener todos los resultados sin paginación
         return $query->get();
@@ -602,10 +611,29 @@ class GestionVentas extends Component
     // Método para agregar plato desde el modal
     public function agregarPlato($platoId, $esLlevar)
     {
-        $plato = Plato::with('categoriaPlato')->findOrFail($platoId);
+        // Cargar el plato con la relación 'cajas' filtrada por el cajaId
+        $plato = Plato::with([
+            'categoriaPlato',
+            'unidadMedida',
+            'cajas' => fn($query) => $query->wherePivot('caja_id', $this->cajaId)
+        ])->findOrFail($platoId);
 
-        // Determinar el precio según si es para llevar o no
-        $precioUnitario = $esLlevar && $plato->precio_llevar > 0 ? $plato->precio_llevar : $plato->precio;
+        // Determinar el precio según la tabla pivote o los valores por defecto
+        $cajaPlato = $plato->cajas->first();
+
+        if (!$cajaPlato) {
+            Notification::make()
+                ->title('Error al agregar plato')
+                ->body("No hay precio configurado para '{$plato->nombre}' en la caja actual.")
+                ->danger()
+                ->duration(5000)
+                ->send();
+            return;
+        }
+
+        $precioUnitario = $esLlevar && $cajaPlato->pivot->precio_llevar > 0
+            ? $cajaPlato->pivot->precio_llevar
+            : $cajaPlato->pivot->precio;
 
         // Verificar si el plato ya está en la lista con la misma modalidad (llevar o mesa)
         $index = $this->buscarPlatoEnComanda($platoId, $esLlevar);

@@ -55,4 +55,18 @@ class Caja extends Model
     {
         return $this->hasMany(Comanda::class);
     }
+
+    public function platos(): BelongsToMany
+    {
+        return $this->belongsToMany(Plato::class, 'plato_caja')
+            ->withPivot('precio', 'precio_llevar')
+            ->withTimestamps();
+    }
+
+    public function existencias(): BelongsToMany
+    {
+        return $this->belongsToMany(Existencia::class, 'existencia_caja')
+            ->withPivot(['precio_venta'])
+            ->withTimestamps();
+    }
 }

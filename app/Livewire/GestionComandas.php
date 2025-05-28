@@ -17,7 +17,7 @@ class GestionComandas extends Component
     public $modalComprobante = false;
 
     // ID de la caja
-    public $cajaId;
+    public $cajaId = null;
     public $caja;
 
     // Filtros y búsqueda

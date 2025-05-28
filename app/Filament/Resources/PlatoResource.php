@@ -4,8 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PlatoResource\Pages;
 use App\Filament\Resources\PlatoResource\RelationManagers;
+use App\Models\Caja;
 use App\Models\Plato;
+use Filament\Actions\Action;
 use Filament\Forms;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -68,6 +73,44 @@ class PlatoResource extends Resource
                 Forms\Components\Toggle::make('estado')
                     ->default(true)
                     ->required(),
+                Forms\Components\Repeater::make('precios_cajas')
+                    ->label('Precios por Caja')
+                    ->schema([
+                        Forms\Components\Select::make('caja_id')
+                            ->label('Caja')
+                            ->options(function () {
+                                return Caja::where('estado', '!=', 'Deshabilitada')
+                                    ->pluck('nombre', 'id');
+                            })
+                            ->required()
+                            ->searchable()
+                            ->distinct()
+                            ->disableOptionsWhenSelectedInSiblingRepeaterItems(),
+
+                        Forms\Components\TextInput::make('precio')
+                            ->label('Precio en Caja')
+                            ->numeric()
+                            ->step(0.01)
+                            ->required(),
+
+                        Forms\Components\TextInput::make('precio_llevar')
+                            ->label('Precio para Llevar')
+                            ->numeric()
+                            ->step(0.01)
+                            ->required(),
+                    ])
+                    ->addActionLabel('Agregar Caja')
+                    ->reorderable(false)
+                    ->collapsible()
+                    ->itemLabel(function (array $state): ?string {
+                        if (!isset($state['caja_id'])) {
+                            return 'Nueva Caja';
+                        }
+
+                        $caja = Caja::find($state['caja_id']);
+                        return $caja ? $caja->nombre : 'Caja no encontrada';
+                    })
+                    ->columnSpanFull(),
             ]);
     }
 

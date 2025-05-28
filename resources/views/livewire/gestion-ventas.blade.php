@@ -1100,13 +1100,18 @@
                                                 </h5>
                                             </div>
                                             <div class="mt-1.5 flex justify-between items-center">
-                                                <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                                                    S/. {{ number_format($plato->precio, 2) }}
-                                                </span>
-                                                @if ($plato->precio_llevar > 0 && $plato->precio_llevar != $plato->precio)
-                                                    <span class="text-xs text-gray-500 dark:text-gray-400">
-                                                        Llevar: S/. {{ number_format($plato->precio_llevar, 2) }}
+                                                @if ($plato->cajas->isNotEmpty())
+                                                    @php $cajaPlato = $plato->cajas->first(); @endphp
+                                                    <span
+                                                        class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                                        S/. {{ number_format($cajaPlato->pivot->precio, 2) }}
                                                     </span>
+                                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                                        Llevar: S/.
+                                                        {{ number_format($cajaPlato->pivot->precio_llevar, 2) }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-xs text-red-500">Sin precio configurado</span>
                                                 @endif
                                             </div>
                                             <!-- Estado de disponibilidad -->

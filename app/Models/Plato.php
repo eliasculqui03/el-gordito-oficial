@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -38,10 +39,7 @@ class Plato extends Model
         return $this->belongsTo(CategoriaPlato::class);
     }
 
-    public function ventaPlatos(): HasMany
-    {
-        return $this->hasMany(VentaPlato::class);
-    }
+
 
     public function disponibilidadPlato(): HasOne
     {
@@ -51,5 +49,12 @@ class Plato extends Model
     public function unidadMedida(): BelongsTo
     {
         return $this->belongsTo(UnidadMedida::class);
+    }
+
+    public function cajas(): BelongsToMany
+    {
+        return $this->belongsToMany(Caja::class, 'plato_caja')
+            ->withPivot('precio', 'precio_llevar')
+            ->withTimestamps();
     }
 }

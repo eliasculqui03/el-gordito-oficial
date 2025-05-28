@@ -3,10 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ExistenciaResource\Pages;
+use App\Models\Caja;
 use App\Models\CategoriaExistencia;
 use App\Models\Existencia;
 use Filament\Forms;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -93,7 +97,49 @@ class ExistenciaResource extends Resource
                             ->minValue(0)
                             ->required()
                             ->numeric(),
-                    ])->columnSpan(1)
+                    ])->columnSpan(1),
+
+                Section::make('Precios por Caja')
+                    ->schema([
+                        Repeater::make('cajas')
+                            ->label('')
+                            ->schema([
+                                Select::make('caja_id')
+                                    ->label('Caja')
+                                    ->options(function () {
+                                        return Caja::where('estado', '!=', 'Deshabilitada')
+                                            ->pluck('nombre', 'id');
+                                    })
+                                    ->required()
+                                    ->searchable()
+                                    ->distinct()
+                                    ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                                    ->columnSpan(1),
+
+                                TextInput::make('precio_venta')
+                                    ->label('Precio de venta en Caja')
+                                    ->numeric()
+                                    ->step(0.01)
+                                    ->required()
+                                    ->columnSpan(1),
+                            ])
+                            ->defaultItems(4)
+                            ->addActionLabel('Agregar Precio')
+                            ->reorderable(false)
+                            ->collapsible()
+                            ->itemLabel(function (array $state): ?string {
+                                if (!isset($state['caja_id'])) {
+                                    return 'Nueva Caja';
+                                }
+
+                                $caja = Caja::find($state['caja_id']);
+                                return $caja ? $caja->nombre : 'Caja no encontrada';
+                            })
+                            // ->reorderableWithButtons()
+                            ->columns(1)
+                            ->columnSpan('full')
+                            ->grid(4)
+                    ])
             ])->columns(3);
     }
 

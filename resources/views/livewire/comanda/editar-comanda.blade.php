@@ -451,9 +451,15 @@
                                             class="px-3 py-2 text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 sm:text-sm">
                                             <div class="font-medium">{{ $plato->nombre }}</div>
                                             <div class="text-xs text-gray-500">
-                                                Mesa: S/ {{ number_format($plato->precio, 2) }}
-                                                @if ($plato->precio_llevar > 0 && $plato->precio_llevar != $plato->precio)
-                                                    | Llevar: S/ {{ number_format($plato->precio_llevar, 2) }}
+                                                @if ($plato->cajas->isNotEmpty())
+                                                    @php $cajaPlato = $plato->cajas->first(); @endphp
+                                                    Mesa: S/ {{ number_format($cajaPlato->pivot->precio, 2) }}
+                                                    @if ($cajaPlato->pivot->precio_llevar > 0 && $cajaPlato->pivot->precio_llevar != $cajaPlato->pivot->precio)
+                                                        | Llevar: S/
+                                                        {{ number_format($cajaPlato->pivot->precio_llevar, 2) }}
+                                                    @endif
+                                                @else
+                                                    <span class="text-red-500">Sin precio configurado</span>
                                                 @endif
                                                 - Stock: {{ $plato->disponibilidadPlato->cantidad ?? 0 }}
                                             </div>

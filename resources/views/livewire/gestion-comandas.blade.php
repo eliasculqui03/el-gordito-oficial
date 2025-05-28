@@ -275,7 +275,7 @@
 
                 <!-- Contenido del modal - Editar Comanda -->
                 <div class="p-0 overflow-y-auto" style="max-height: 80vh;">
-                    <livewire:comanda.editar-comanda :comanda-id="$comandaId" :key="'editar-comanda-' . $comandaId" />
+                    <livewire:comanda.editar-comanda :comanda-id="$comandaId" :caja-id="$cajaId" :key="'editar-comanda-' . $comandaId" />
                 </div>
             </div>
         </div>

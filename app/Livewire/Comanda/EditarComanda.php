@@ -6,10 +6,12 @@ use App\Models\Comanda;
 use App\Models\ComandaExistencia;
 use App\Models\ComandaPlato;
 use App\Models\Cliente;
+use App\Models\DisponibilidadPlato;
 use App\Models\Zona;
 use App\Models\Mesa;
 use App\Models\Existencia;
 use App\Models\Plato;
+use Filament\Notifications\Notification;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 
@@ -61,6 +63,7 @@ class EditarComanda extends Component
     public $productosDisponibles = [];
     public $platosDisponibles = [];
 
+    public $cajaId;
     protected $rules = [
         'cliente_id' => 'nullable|exists:clientes,id',
         'zona_id' => 'required|exists:zonas,id',
@@ -73,9 +76,10 @@ class EditarComanda extends Component
         'platos.*.precio_unitario' => 'required|numeric|min:0',
     ];
 
-    public function mount($comandaId)
+    public function mount($comandaId, $cajaId)
     {
         $this->comandaId = $comandaId;
+        $this->cajaId = $cajaId;
         $this->loadComanda();
         $this->loadSelectOptions();
 
@@ -164,7 +168,14 @@ class EditarComanda extends Component
         $this->platosDisponibles = Plato::whereHas('disponibilidadPlato', function ($query) {
             $query->where('disponibilidad', true)
                 ->where('cantidad', '>', 0);
-        })->with('disponibilidadPlato')->orderBy('nombre')->get();
+        })->with([
+            'disponibilidadPlato',
+            'cajas' => function ($query) {
+                if ($this->cajaId) {
+                    $query->wherePivot('caja_id', $this->cajaId);
+                }
+            }
+        ])->orderBy('nombre')->get();
     }
 
     public function updatedZonaId()
@@ -257,11 +268,32 @@ class EditarComanda extends Component
             $platoId = $this->platos[$index]['plato_id'];
             $nuevoEsLlevar = !$this->platos[$index]['llevar'];
 
-            // Obtener el plato para conocer los precios
-            $plato = Plato::find($platoId);
+            // CAMBIAR - Obtener el plato con precios de la caja
+            $plato = Plato::with([
+                'cajas' => function ($query) {
+                    if ($this->cajaId) {
+                        $query->wherePivot('caja_id', $this->cajaId);
+                    }
+                }
+            ])->find($platoId);
+
             if ($plato) {
-                // Determinar el nuevo precio según si es para llevar o no
-                $nuevoPrecio = $nuevoEsLlevar && $plato->precio_llevar > 0 ? $plato->precio_llevar : $plato->precio;
+                $cajaPlato = $plato->cajas->first();
+
+                if (!$cajaPlato) {
+                    Notification::make()
+                        ->title('Error de configuración')
+                        ->body("No hay precio configurado para este plato en la caja actual.")
+                        ->danger()
+                        ->duration(5000)
+                        ->send();
+                    return;
+                }
+
+                // Determinar el nuevo precio desde la tabla pivote
+                $nuevoPrecio = $nuevoEsLlevar && $cajaPlato->pivot->precio_llevar > 0
+                    ? $cajaPlato->pivot->precio_llevar
+                    : $cajaPlato->pivot->precio;
 
                 // Actualizar estado y precio
                 $this->platos[$index]['llevar'] = $nuevoEsLlevar;
@@ -270,11 +302,14 @@ class EditarComanda extends Component
                 // Recalcular subtotal con el nuevo precio
                 $this->actualizarSubtotalPlato($index);
 
-                $tipoServicio = $nuevoEsLlevar ? 'para llevar' : 'para mesa';
-                $this->dispatch('notify', [
-                    'message' => "Plato actualizado a {$tipoServicio}. Precio: S/ " . number_format($nuevoPrecio, 2),
-                    'type' => 'success'
-                ]);
+                // $tipoServicio = $nuevoEsLlevar ? 'para llevar' : 'para mesa';
+
+                // Notification::make()
+                //     ->title('Plato actualizado')
+                //     ->body("Cambiado a {$tipoServicio}. Nuevo precio: S/ " . number_format($nuevoPrecio, 2))
+                //     ->success()
+                //     ->duration(4000)
+                //     ->send();
             }
         }
     }
@@ -350,23 +385,45 @@ class EditarComanda extends Component
         ]);
 
         // Verificar disponibilidad del plato
-        $disponibilidad = \App\Models\DisponibilidadPlato::where('plato_id', $this->nuevoPlatoId)->first();
+        $disponibilidad = DisponibilidadPlato::where('plato_id', $this->nuevoPlatoId)->first();
 
         if (!$disponibilidad || !$disponibilidad->disponibilidad || $disponibilidad->cantidad < $this->nuevoPlatoCantidad) {
             $stockDisponible = $disponibilidad ? $disponibilidad->cantidad : 0;
-            $this->dispatch('notify', [
-                'message' => 'Plato no disponible o cantidad insuficiente. Cantidad disponible: ' . $stockDisponible,
-                'type' => 'error'
-            ]);
+            Notification::make()
+                ->title('Plato no disponible')
+                ->body('Cantidad insuficiente. Disponible: ' . $stockDisponible)
+                ->danger()
+                ->duration(5000)
+                ->send();
             return;
         }
 
-        $plato = Plato::find($this->nuevoPlatoId);
+        // NUEVO - Cargar plato con precios de la caja
+        $plato = Plato::with([
+            'cajas' => function ($query) {
+                if ($this->cajaId) {
+                    $query->wherePivot('caja_id', $this->cajaId);
+                }
+            }
+        ])->find($this->nuevoPlatoId);
 
-        // Usar el precio correcto según el tipo de servicio
-        $precioUnitario = $this->nuevoPlatoLlevar && $plato->precio_llevar > 0
-            ? $plato->precio_llevar
-            : $plato->precio;
+        // NUEVO - Obtener precio desde la tabla pivote
+        $cajaPlato = $plato->cajas->first();
+
+        if (!$cajaPlato) {
+            Notification::make()
+                ->title('Error de configuración')
+                ->body("No hay precio configurado para '{$plato->nombre}' en la caja actual.")
+                ->danger()
+                ->duration(5000)
+                ->send();
+            return;
+        }
+
+        // Usar el precio correcto según el tipo de servicio desde la tabla pivote
+        $precioUnitario = $this->nuevoPlatoLlevar && $cajaPlato->pivot->precio_llevar > 0
+            ? $cajaPlato->pivot->precio_llevar
+            : $cajaPlato->pivot->precio;
 
         $this->platos[] = [
             'id' => null, // Nuevo item
@@ -514,7 +571,7 @@ class EditarComanda extends Component
     {
         if (isset($this->platos[$index])) {
             // Verificar disponibilidad antes de incrementar
-            $disponibilidad = \App\Models\DisponibilidadPlato::where('plato_id', $this->platos[$index]['plato_id'])->first();
+            $disponibilidad = DisponibilidadPlato::where('plato_id', $this->platos[$index]['plato_id'])->first();
             $cantidadDisponible = $disponibilidad ? $disponibilidad->cantidad : 0;
 
             if ($this->platos[$index]['cantidad'] < $cantidadDisponible) {
@@ -673,10 +730,26 @@ class EditarComanda extends Component
     private function actualizarPrecioNuevoPlato()
     {
         if ($this->nuevoPlatoId) {
-            $plato = Plato::find($this->nuevoPlatoId);
-            $this->nuevoPlatoPrecio = $this->nuevoPlatoLlevar && $plato->precio_llevar > 0
-                ? $plato->precio_llevar
-                : $plato->precio;
+            // CAMBIAR - Cargar plato con precios de la caja
+            $plato = Plato::with([
+                'cajas' => function ($query) {
+                    if ($this->cajaId) {
+                        $query->wherePivot('caja_id', $this->cajaId);
+                    }
+                }
+            ])->find($this->nuevoPlatoId);
+
+            if ($plato) {
+                $cajaPlato = $plato->cajas->first();
+
+                if ($cajaPlato) {
+                    $this->nuevoPlatoPrecio = $this->nuevoPlatoLlevar && $cajaPlato->pivot->precio_llevar > 0
+                        ? $cajaPlato->pivot->precio_llevar
+                        : $cajaPlato->pivot->precio;
+                } else {
+                    $this->nuevoPlatoPrecio = 0;
+                }
+            }
         }
     }
 
