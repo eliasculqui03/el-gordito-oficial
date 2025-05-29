@@ -144,8 +144,13 @@
                                             class="px-3 py-2 text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 sm:text-sm">
                                             <div class="font-medium">{{ $producto->nombre }}</div>
                                             <div class="text-xs text-gray-500">
-                                                S/ {{ number_format($producto->precio_venta, 2) }} - Stock:
-                                                {{ $producto->inventario->stock ?? 0 }}
+                                                @if ($producto->cajas->isNotEmpty())
+                                                    @php $cajaProducto = $producto->cajas->first(); @endphp
+                                                    S/ {{ number_format($cajaProducto->pivot->precio_venta, 2) }}
+                                                @else
+                                                    <span class="text-red-500">Sin precio configurado</span>
+                                                @endif
+                                                - Stock: {{ $producto->inventario->stock ?? 0 }}
                                                 @if ($producto->inventario && $producto->inventario->almacen)
                                                     - {{ $producto->inventario->almacen->nombre }}
                                                 @endif

@@ -8,7 +8,9 @@ use App\Models\Caja;
 use App\Models\Plato;
 use Filament\Actions\Action;
 use Filament\Forms;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -38,79 +40,99 @@ class PlatoResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nombre')
-                    ->required()
-                    ->maxLength(255)
-                    ->autocomplete(false),
-                Forms\Components\Select::make('categoria_plato_id')
-                    ->required()
-                    ->relationship('categoriaPlato', 'nombre'),
-                Forms\Components\TextInput::make('precio')
-                    ->required()
-                    ->minValue(0)
-                    ->numeric()
-                    ->prefix('S/.'),
-                Forms\Components\TextInput::make('precio_llevar')
-                    ->required()
-                    ->minValue(0)
-                    ->numeric()
-                    ->prefix('S/.'),
-                Forms\Components\Select::make('unidad_medida_id')
-                    ->label('Unidad de medida')
-                    ->required()
-                    ->relationship('unidadMedida', 'descripcion')
-                    ->searchable()
-                    ->preload()
-                    ->default(58),
-                Forms\Components\Select::make('area_id')
-                    ->relationship('area', 'nombre', function ($query) {
-                        $query->where('estado', true); // Filtra las cajas activas
-                    })
-                    ->required(),
-                Forms\Components\Textarea::make('descripcion')
-                    ->columnSpanFull()
-                    ->autocomplete(false),
-                Forms\Components\Toggle::make('estado')
-                    ->default(true)
-                    ->required(),
-                Forms\Components\Repeater::make('precios_cajas')
-                    ->label('Precios por Caja')
+                Grid::make()
                     ->schema([
-                        Forms\Components\Select::make('caja_id')
-                            ->label('Caja')
-                            ->options(function () {
-                                return Caja::where('estado', '!=', 'Deshabilitada')
-                                    ->pluck('nombre', 'id');
+
+                        Section::make('Información General')
+                            ->schema([
+                                Forms\Components\TextInput::make('nombre')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->autocomplete(false),
+                                Forms\Components\Select::make('categoria_plato_id')
+                                    ->required()
+                                    ->relationship('categoriaPlato', 'nombre'),
+
+                                Forms\Components\Select::make('unidad_medida_id')
+                                    ->label('Unidad de medida')
+                                    ->required()
+                                    ->relationship('unidadMedida', 'descripcion')
+                                    ->searchable()
+                                    ->preload()
+                                    ->default(58),
+                                Forms\Components\Select::make('area_id')
+                                    ->relationship('area', 'nombre', function ($query) {
+                                        $query->where('estado', true); // Filtra las cajas activas
+                                    })
+                                    ->required(),
+                                Forms\Components\Textarea::make('descripcion')
+                                    ->columnSpanFull()
+                                    ->autocomplete(false),
+                                Forms\Components\Toggle::make('estado')
+                                    ->default(true)
+                                    ->required(),
+                            ])->columns(2)
+                            ->columnSPan(3),
+
+                        Section::make('Precio Estandar')
+                            ->schema([
+                                Forms\Components\TextInput::make('precio')
+                                    ->required()
+                                    ->minValue(0)
+                                    ->numeric()
+                                    ->prefix('S/.'),
+                                Forms\Components\TextInput::make('precio_llevar')
+                                    ->required()
+                                    ->minValue(0)
+                                    ->numeric()
+                                    ->prefix('S/.'),
+                            ])->columnSpan(1),
+                    ])->columns(4),
+
+
+                Section::make('Precio por caja')
+                    ->schema([
+                        Forms\Components\Repeater::make('precios_cajas')
+                            ->label('')
+                            ->schema([
+                                Forms\Components\Select::make('caja_id')
+                                    ->label('Caja')
+                                    ->options(function () {
+                                        return Caja::where('estado', '!=', 'Deshabilitada')
+                                            ->pluck('nombre', 'id');
+                                    })
+                                    ->required()
+                                    ->searchable()
+                                    ->distinct()
+                                    ->disableOptionsWhenSelectedInSiblingRepeaterItems(),
+
+                                Forms\Components\TextInput::make('precio')
+                                    ->label('Precio en Caja')
+                                    ->numeric()
+                                    ->required()
+                                    ->prefix('S/.'),
+
+                                Forms\Components\TextInput::make('precio_llevar')
+                                    ->label('Precio para Llevar')
+                                    ->numeric()
+                                    ->required()
+                                    ->prefix('S/.'),
+                            ])
+                            ->defaultItems(4)
+                            ->addActionLabel('Agregar Caja')
+                            ->reorderable(false)
+                            ->collapsible()
+                            ->itemLabel(function (array $state): ?string {
+                                if (!isset($state['caja_id'])) {
+                                    return 'Nueva Caja';
+                                }
+
+                                $caja = Caja::find($state['caja_id']);
+                                return $caja ? $caja->nombre : 'Caja no encontrada';
                             })
-                            ->required()
-                            ->searchable()
-                            ->distinct()
-                            ->disableOptionsWhenSelectedInSiblingRepeaterItems(),
-
-                        Forms\Components\TextInput::make('precio')
-                            ->label('Precio en Caja')
-                            ->numeric()
-                            ->step(0.01)
-                            ->required(),
-
-                        Forms\Components\TextInput::make('precio_llevar')
-                            ->label('Precio para Llevar')
-                            ->numeric()
-                            ->step(0.01)
-                            ->required(),
+                            ->columns(1)
+                            ->grid(4),
                     ])
-                    ->addActionLabel('Agregar Caja')
-                    ->reorderable(false)
-                    ->collapsible()
-                    ->itemLabel(function (array $state): ?string {
-                        if (!isset($state['caja_id'])) {
-                            return 'Nueva Caja';
-                        }
-
-                        $caja = Caja::find($state['caja_id']);
-                        return $caja ? $caja->nombre : 'Caja no encontrada';
-                    })
-                    ->columnSpanFull(),
             ]);
     }
 

@@ -80,7 +80,7 @@ class ExistenciaResource extends Resource
                             ->label('Descripción'),
                         Forms\Components\Toggle::make('estado')
                             ->default(true),
-                    ])->columnSpan(2)
+                    ])->columnSpan(3)
                     ->columns(2),
 
                 Section::make('Precios')
@@ -119,7 +119,7 @@ class ExistenciaResource extends Resource
                                 TextInput::make('precio_venta')
                                     ->label('Precio de venta en Caja')
                                     ->numeric()
-                                    ->step(0.01)
+                                    ->prefix('S/.')
                                     ->required()
                                     ->columnSpan(1),
                             ])
@@ -140,7 +140,7 @@ class ExistenciaResource extends Resource
                             ->columnSpan('full')
                             ->grid(4)
                     ])
-            ])->columns(3);
+            ])->columns(4);
     }
 
     public static function table(Table $table): Table

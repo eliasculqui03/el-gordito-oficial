@@ -162,7 +162,14 @@ class EditarComanda extends Component
         // Cargar productos con stock disponible desde inventario
         $this->productosDisponibles = Existencia::whereHas('inventario', function ($query) {
             $query->where('stock', '>', 0);
-        })->with('inventario.almacen')->orderBy('nombre')->get();
+        })->with([
+            'inventario.almacen',
+            'cajas' => function ($query) {
+                if ($this->cajaId) {
+                    $query->wherePivot('caja_id', $this->cajaId);
+                }
+            }
+        ])->orderBy('nombre')->get();
 
         // Cargar platos disponibles desde disponibilidad_platos
         $this->platosDisponibles = Plato::whereHas('disponibilidadPlato', function ($query) {
@@ -347,27 +354,52 @@ class EditarComanda extends Component
             'nuevoProductoCantidad' => 'required|integer|min:1',
         ]);
 
-        // Verificar stock disponible
-        $existencia = Existencia::with('inventario.almacen')->find($this->nuevoProductoId);
+        // CAMBIAR - Cargar existencia con precios de la caja
+        $existencia = Existencia::with([
+            'inventario.almacen',
+            'cajas' => function ($query) {
+                if ($this->cajaId) {
+                    $query->wherePivot('caja_id', $this->cajaId);
+                }
+            }
+        ])->find($this->nuevoProductoId);
 
+        // Verificar stock disponible
         if (!$existencia->inventario || $existencia->inventario->stock < $this->nuevoProductoCantidad) {
             $stockDisponible = $existencia->inventario ? $existencia->inventario->stock : 0;
-            $this->dispatch('notify', [
-                'message' => 'Stock insuficiente. Stock disponible: ' . $stockDisponible,
-                'type' => 'error'
-            ]);
+
+            Notification::make()
+                ->title('Stock insuficiente')
+                ->body('Stock disponible: ' . $stockDisponible)
+                ->danger()
+                ->duration(5000)
+                ->send();
             return;
         }
 
+        // NUEVO - Obtener precio desde la tabla pivote
+        $cajaExistencia = $existencia->cajas->first();
+
+        if (!$cajaExistencia) {
+            Notification::make()
+                ->title('Error de configuración')
+                ->body("No hay precio configurado para '{$existencia->nombre}' en la caja actual.")
+                ->danger()
+                ->duration(5000)
+                ->send();
+            return;
+        }
+
+        $precioVenta = $cajaExistencia->pivot->precio_venta;
         $almacenNombre = $existencia->inventario->almacen ? $existencia->inventario->almacen->nombre : 'Sin almacén';
 
         $this->existencias[] = [
             'id' => null, // Nuevo item
             'existencia_id' => $existencia->id,
             'nombre' => $existencia->nombre,
-            'precio_unitario' => $existencia->precio_venta,
+            'precio_unitario' => $precioVenta, // Usar precio de la tabla pivote
             'cantidad' => $this->nuevoProductoCantidad,
-            'subtotal' => $existencia->precio_venta * $this->nuevoProductoCantidad,
+            'subtotal' => $precioVenta * $this->nuevoProductoCantidad,
             'helado' => $this->nuevoProductoHelado,
             'estado' => 'Pendiente',
             'almacen_nombre' => $almacenNombre,

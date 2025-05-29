@@ -927,10 +927,16 @@
                                                 </p>
                                             </div>
                                             <div class="mt-1.5">
-                                                <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                                                    S/.
-                                                    {{ number_format($existencia->precio_venta, 2) }}
-                                                </span>
+                                                @if ($existencia->cajas->isNotEmpty())
+                                                    @php $cajaExistencia = $existencia->cajas->first(); @endphp
+                                                    <span
+                                                        class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                                        S/.
+                                                        {{ number_format($cajaExistencia->pivot->precio_venta, 2) }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-xs text-red-500">Sin precio configurado</span>
+                                                @endif
                                             </div>
                                             <!-- Estado de disponibilidad -->
                                             <div class="mt-1.5 mb-1">

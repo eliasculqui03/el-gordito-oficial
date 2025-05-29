@@ -471,10 +471,19 @@ class GestionVentas extends Component
         }
 
         // Incluir relaciones necesarias
-        $query->with(['unidadMedida', 'inventario' => function ($query) {
-            // Por defecto, tomar el primer almacén
-            $query->orderBy('almacen_id', 'asc');
-        }, 'tipoExistencia', 'categoriaExistencia']);
+        $query->with([
+            'unidadMedida',
+            'inventario' => function ($query) {
+                $query->orderBy('almacen_id', 'asc');
+            },
+            'tipoExistencia',
+            'categoriaExistencia',
+            'cajas' => function ($query) {
+                if ($this->cajaId) {
+                    $query->wherePivot('caja_id', $this->cajaId);
+                }
+            }
+        ]);
 
 
         $this->tipoProductosId = TipoExistencia::whereRaw('LOWER(nombre) LIKE ?', ['%producto%'])
@@ -565,8 +574,29 @@ class GestionVentas extends Component
     // Método para agregar existencia desde el modal
     public function agregarExistencia($existenciaId, $esHelado)
     {
-        $existencia = Existencia::with(['categoriaExistencia', 'tipoExistencia'])
-            ->findOrFail($existenciaId);
+        // CAMBIAR - Cargar existencia con precios de la caja
+        $existencia = Existencia::with([
+            'categoriaExistencia',
+            'tipoExistencia',
+            'cajas' => function ($query) {
+                if ($this->cajaId) {
+                    $query->wherePivot('caja_id', $this->cajaId);
+                }
+            }
+        ])->findOrFail($existenciaId);
+
+        // NUEVO - Obtener precio desde la tabla pivote
+        $cajaExistencia = $existencia->cajas->first();
+
+        if (!$cajaExistencia) {
+            Notification::make()
+                ->title('Error al agregar producto')
+                ->body("No hay precio configurado para '{$existencia->nombre}' en la caja actual.")
+                ->danger()
+                ->duration(5000)
+                ->send();
+            return;
+        }
 
         // Determinar si es producto basado en el tipo de existencia
         $esProducto = in_array(
@@ -581,7 +611,8 @@ class GestionVentas extends Component
             ]
         );
 
-        $precioUnitario = $existencia->precio_venta;
+        // CAMBIAR - Usar precio de la tabla pivote
+        $precioUnitario = $cajaExistencia->pivot->precio_venta;
 
         // Verificar si la existencia ya está en la lista
         $index = $this->buscarExistenciaEnComanda($existenciaId, $esHelado);
