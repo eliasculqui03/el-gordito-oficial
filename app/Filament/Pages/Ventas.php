@@ -10,6 +10,7 @@ use App\Models\ComandaExistencia;
 use App\Models\ComandaPlato;
 use App\Models\Empresa;
 use Barryvdh\DomPDF\Facade\Pdf;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Tables\Actions\Action;
@@ -30,7 +31,7 @@ use Illuminate\Support\Facades\Auth;
 
 class Ventas extends Page implements HasTable
 {
-    use InteractsWithTable;
+    use InteractsWithTable, HasPageShield;
 
 
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';

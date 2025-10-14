@@ -20,6 +20,12 @@ class SesionCajaResource extends Resource
 {
     protected static ?string $model = SesionCaja::class;
 
+    protected static ?string $navigationLabel = 'Sesión Cajas';
+
+    protected static ?string $label = 'Sesión caja';
+
+    protected static ?string $pluralLabel = 'Sesión cajas';
+
     protected static ?string $navigationGroup = 'Caja';
     //protected static ?int $navigationSort = 1;
 

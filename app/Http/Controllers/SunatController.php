@@ -47,6 +47,8 @@ class SunatController extends Controller
             // Rutas a los archivos XML
             $rutaXmlCpe = app_path("Services/api_cpe/BETA/{$cab['txtNRO_DOCUMENTO_EMPRESA']}/{$archivo}.XML");
             $rutaXmlCdr = app_path("Services/api_cpe/BETA/{$cab['txtNRO_DOCUMENTO_EMPRESA']}/R-{$archivo}.XML");
+            //$rutaXmlCpe = app_path("Services/api_cpe/PRODUCCION/{$cab['txtNRO_DOCUMENTO_EMPRESA']}/{$archivo}.XML");
+            //$rutaXmlCdr = app_path("Services/api_cpe/PRODUCCION/{$cab['txtNRO_DOCUMENTO_EMPRESA']}/R-{$archivo}.XML");
 
             // Leer contenido de los XML si existen
             $xmlCpe = '';
