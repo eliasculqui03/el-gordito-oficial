@@ -88,6 +88,9 @@ class GenerarComprobante extends Component
             } else {
                 $this->tipoComprobanteSeleccionado = '03'; // Boleta
             }
+
+            // Llamar al método para que genere la serie y número
+            $this->updatedTipoComprobanteSeleccionado();
         }
 
         // Cargar platos de la comanda
@@ -141,6 +144,15 @@ class GenerarComprobante extends Component
 
     public function updatedTipoComprobanteSeleccionado()
     {
+        // Limpiar valores previos
+        $this->serieComprobante = '';
+        $this->numeroPedido = '';
+
+        // Verificar que hay un valor seleccionado
+        if (!$this->tipoComprobanteSeleccionado) {
+            return;
+        }
+
         // Asignar serie según tipo de comprobante
         if ($this->tipoComprobanteSeleccionado == '01') { // Factura
             $this->serieComprobante = 'F00' . $this->cajaId;
@@ -148,15 +160,11 @@ class GenerarComprobante extends Component
             $this->serieComprobante = 'B00' . $this->cajaId;
         } elseif ($this->tipoComprobanteSeleccionado == '00') { // Nota de venta interna
             $this->serieComprobante = 'T00' . $this->cajaId;
-        } else {
-            $this->serieComprobante = '';
         }
 
-        // Calcular y asignar el número de pedido
-        if ($this->tipoComprobanteSeleccionado) {
+        // Calcular y asignar el número de pedido solo si hay serie
+        if ($this->serieComprobante) {
             $this->numeroPedido = $this->calcularNumeroComprobante();
-        } else {
-            $this->numeroPedido = '';
         }
     }
 

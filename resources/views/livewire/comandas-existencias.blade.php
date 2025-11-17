@@ -219,14 +219,14 @@
                                     x{{ $existencia['total'] }}
                                 </span>
                                 <div class="flex space-x-2">
-                                    <button wire:click="confirmarCancelacion('{{ $existencia['grupoKey'] }}')"
+                                    {{-- <button wire:click="confirmarCancelacion('{{ $existencia['grupoKey'] }}')"
                                         class="p-2 text-sm font-medium text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:bg-red-500 dark:hover:bg-red-600">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
                                             viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M6 18L18 6M6 6l12 12" />
                                         </svg>
-                                    </button>
+                                    </button> --}}
                                     <button wire:click="marcarExistenciaLista('{{ $existencia['grupoKey'] }}')"
                                         class="px-3 py-1 text-sm font-medium text-white transition-colors bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:bg-green-500 dark:hover:bg-green-600">
                                         Listo
@@ -248,8 +248,7 @@
 
 
     @if ($mostrarConfirmacion)
-        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
-            aria-modal="true">
+        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
                 <!-- Fondo oscuro -->
                 <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 dark:bg-gray-800 dark:bg-opacity-75"
